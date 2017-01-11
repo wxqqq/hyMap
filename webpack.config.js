@@ -2,7 +2,7 @@
  * @Author: FunctionRun
  * @Date:   2017-01-10 10:15:18
  * @Last Modified by:   hydata
- * @Last Modified time: 2017-01-11 13:46:56
+ * @Last Modified time: 2017-01-11 16:31:50
  * @Email: zhangyujie3344521@163.com
  * @File Path: /Users/zhangyujie/GitHub/FEscaffold/webpack.config.js
  * @File Name: webpack.config.js
@@ -34,7 +34,7 @@ let webpackConfig = {
     },
     output: {
         path: path.join(__dirname, 'build'),
-        chunkFilename: 'chunk/[chunkhash:8].chunk.min.js',
+        //chunkFilename: 'chunk/[chunkhash:8].chunk.min.js',
         filename: 'bundle.js',
         publicPath
     },
