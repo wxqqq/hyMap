@@ -1,20 +1,21 @@
 /*
-* @Author: FunctionRun
-* @Date:   2017-01-10 10:15:25
+* @Author: hydata
+* @Date:   2017-01-10 17:56:17
 * @Last Modified by:   hydata
-* @Last Modified time: 2017-01-10 16:05:17
-* @Email: zhangyujie3344521@163.com
-* @File Path: /Users/zhangyujie/GitHub/FEscaffold/index.js
-* @File Name: index.js
-* @Descript:
+* @Last Modified time: 2017-01-11 11:30:20
 */
 
 'use strict';
-	console.log('项目测试成功');
+ 
+import hymap from  './src/hymap'; 
 
+const map=new hymap();
+map.init(document.getElementById('map'));
+console.log('项目测试成功');
 
-setTimeout(()=> {
+const author = 'zhangyujie';
 
-    console.log(author);
+console.log(author);
+console.log(1);
 
-}, 4000);
+ 

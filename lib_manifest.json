@@ -1,4 +1,6 @@
 {
-  "name": "hymap",
-  "content": {}
+  "name": "libs",
+  "content": {
+  	"/dist/lib/ol/ol.js":1
+  }
 }

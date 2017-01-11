@@ -1,8 +1,8 @@
 /*
  * @Author: FunctionRun
  * @Date:   2017-01-10 10:15:18
- * @Last Modified by:   FunctionRun
- * @Last Modified time: 2017-01-10 11:37:31
+ * @Last Modified by:   hydata
+ * @Last Modified time: 2017-01-11 13:16:01
  * @Email: zhangyujie3344521@163.com
  * @File Path: /Users/zhangyujie/GitHub/FEscaffold/webpack.config.js
  * @File Name: webpack.config.js
@@ -30,6 +30,7 @@ let webpackConfig = {
     resolve: {
         root: '',
         extensions: ['', '.js', '.json', '.css', '.styl', '.sass', '.scss']
+
     },
     output: {
         path: path.join(__dirname, 'build'),
@@ -54,7 +55,9 @@ let webpackConfig = {
                 // 只去解析运行目录下的 src
                 path.join(process.cwd(), './main.js'),
                 path.join(process.cwd(), './src'),
-                path.join(process.cwd(), './test')
+                path.join(process.cwd(), './test'),
+                path.join(process.cwd(), './index.js')
+
             ]
         }, {
             test: /\.json$/,
@@ -65,15 +68,15 @@ let webpackConfig = {
         }]
     },
     babel: {
-        presets: ['es2015', 'react', 'stage-3'],
+        presets: ['es2015', 'stage-3'],
         plugins: ['transform-object-rest-spread', 'transform-class-properties']
     },
+
     plugins: [
         new webpack.DllReferencePlugin({
             context: __dirname,
             manifest: libJson
         })
-
     ]
 };
 
@@ -83,7 +86,7 @@ if (process.env.NODE_ENV === 'DEVELOPMENT') {
     webpackConfig = Object.assign(webpackConfig, {
         entry: [
             'webpack/hot/dev-server',
-            './index.js' //, 
+            './index.js'
             // hotMiddlewareScript
         ],
         output: {
