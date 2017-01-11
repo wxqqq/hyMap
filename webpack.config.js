@@ -2,7 +2,7 @@
  * @Author: FunctionRun
  * @Date:   2017-01-10 10:15:18
  * @Last Modified by:   hydata
- * @Last Modified time: 2017-01-11 13:16:01
+ * @Last Modified time: 2017-01-11 13:46:56
  * @Email: zhangyujie3344521@163.com
  * @File Path: /Users/zhangyujie/GitHub/FEscaffold/webpack.config.js
  * @File Name: webpack.config.js
@@ -45,6 +45,7 @@ let webpackConfig = {
     },
     devtool: 'cheap-source-map',
     module: {
+        noParse: /node_modules\/openlayers\/dist\/ol.js/,
         loaders: [{
             test: /\.css$/,
             loader: 'style!css'
