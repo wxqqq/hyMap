@@ -1,4 +1,5 @@
-var ol = require('../ol');
+const ol=require('openlayers');
+const olstyle=require('openlayers/dist/ol.css');
 
 export default class hyMap {
     constructor(dom) {
