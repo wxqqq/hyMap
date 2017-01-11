@@ -1,5 +1,5 @@
 var ol=require('openlayers');
-var olstyle=require('openlayers/css/ol.css');
+var olstyle=require('openlayers/dist/ol.css');
 export default class hymap {
     constructor(options) {
 
