@@ -1,4 +1,4 @@
-const ol = require('openlayers/dist/ol.js');
+const ol = require('openlayers/dist/ol-debug');
 const olstyle = require('openlayers/dist/ol.css');
 
 export default class hyMap {
@@ -20,7 +20,7 @@ export default class hyMap {
         }
         this._dom = dom;
         this._createMap(dom);
-        console.log(this);
+
         // var hymap = new hyMap(dom);
         // return hymap;
 
@@ -55,7 +55,7 @@ export default class hyMap {
 
         var view = new ol.View({
             center: this._geo.center,
-            zoom: 3,
+            zoom: this._geo.zoom,
             minZoom: this._geo.scaleLimit[0],
             maxZoom: this._geo.scaleLimit[1],
             projection: 'EPSG:4326'
@@ -108,24 +108,95 @@ export default class hyMap {
 
     }
 
-    _createLayer(options) {
+    _createLayer(serie) {
 
-        console.log(a)
-        var style = new ol.style.Style({
-            image: new ol.style.Icon({
-                image: options.symbol
-            })
-        })
-        var layer = new ol.layer.Vector({
-            source: new ol.source.Vector({}),
-            style: function(feature) {
-                return style;
+
+        let style;
+        const data = serie.data;
+        let icon;
+        if (serie.type == 'point') {
+
+            if (serie.symbol == 'circle') {
+
+                icon = new ol.style.Circle({
+                    radius: 5,
+                    stroke: new ol.style.Stroke({
+                        color: 'rgba(0,255,255,1)',
+                        width: 1
+                    }),
+                    fill: new ol.style.Fill({
+                        color: 'rgba(0,255,255,0.3)'
+                    })
+                });
+
+            } else {
+
+                const canvas = document.createElement('canvas');
+
+                let ctx = canvas.getContext('2d');
+                let img = new Image();
+                img.src = serie.symbol.split(':')[1];
+
+                img.onload = function() {
+
+                    ctx.drawImage(img, 0, 0, serie.symbolStyle.normal.width, serie.symbolStyle.normal.height);
+
+                };
+                canvas.setAttribute('width', serie.symbolStyle.normal.width);
+                canvas.setAttribute('height', serie.symbolStyle.normal.height);
+                icon = new ol.style.Icon({
+                    anchor: [0.5, 1],
+                    img: canvas,
+                    imgSize: [canvas.width, canvas.height]
+                });
+
             }
+
+
+        }
+
+        style = new ol.style.Style({
+            image: icon
         });
 
+        let array = [];
+        for (var i = 0; i < data.length; i++) {
+
+            var obj = data[i];
+            var feature = new ol.Feature({
+                geometry: new ol.geom.Point([obj['lon'], obj['lat']])
+
+            });
+            feature.setProperties(obj);
+
+            array.push(feature);
+
+        }
+        let source = new ol.source.Vector();
+        source.addFeatures(array);
+        let vector = new ol.layer.Vector({
+            source: source,
+            style: function() {
+
+                return style;
+
+            }
+
+        });
+
+        this.map.addLayer(vector);
+
+
     }
+
     _createLayers(series) {
-        series.foreach(a => _createLayer(a));
+
+        series.forEach(function(a) {
+
+            this._createLayer(a);
+
+        }, this);
+
     }
     setOption(opt_options) {
 
@@ -143,7 +214,7 @@ export default class hyMap {
         this._geo.regions = options.regions;
         this._geo.label = options.label;
         this._geo.series = options.series;
-        console.log(this._geo.series)
+        console.log(this._geo.series);
         this._show = this._geo.show;
         //
         if (this._geo.show === true) {
@@ -186,15 +257,13 @@ export default class hyMap {
      */
     tollgeShow() {
 
-        if (this._show === true) {
+        if (this._show === false) {
 
             this._dom.style.display = 'block';
-            this._show = false;
 
         } else {
 
             this._dom.style.display = 'none';
-            this._show = true;
 
         }
 
@@ -207,6 +276,7 @@ export default class hyMap {
     hide() {
 
         this._dom.style.display = 'none';
+        this._show = false;
 
     }
 
@@ -217,6 +287,7 @@ export default class hyMap {
     show() {
 
         this._dom.style.display = 'block';
+        this._show = true;
 
     }
 }
