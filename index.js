@@ -20,7 +20,7 @@ let options = {
     map: 'shandong', //当前地图显示哪个地图
     roam: 'true', //地图是否开启缩放、平移功能
     center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
-    zoom: 3, //当前地图缩放比例
+    zoom: 7, //当前地图缩放比例
     scaleLimit: [5, 12], //滚轮缩放的边界
     itemStyle: '', //地图上每块区域的样式
     selectedMode: '', //地图区域的选中模式
@@ -29,25 +29,22 @@ let options = {
     label: '', //文本标签样式
     series: []
 };
-fetch('test/station.json').then(response => response.json()).then(function(data) {
 
-    options.series.push({
-        data: data, //{x,y,value}
-        type: 'point', // point|line|polygon|chart|..
-        symbol: 'circle', //circle|react|icon
-        symbolSize: '', //[min,max]
-        symbolStyle: '', //{normal,emphasis}
-        label: 'mc'
+Promise.all([fetch('test/station.json').then(response => response.json()), fetch('test/car_2012.json').then(response => response.json())]).then(
 
-    });
-
-
-
-}).then(
-    fetch('test/car_2012.json').then(response => response.json()).then(function(data) {
+    function(values) {
 
         options.series.push({
-            data: data,
+            data: values[0], //{x,y,value}
+            type: 'point', // point|line|polygon|chart|..
+            symbol: 'circle', //circle|react|icon
+            symbolSize: '', //[min,max]
+            symbolStyle: '', //{normal,emphasis}
+            label: 'mc'
+
+        });
+        options.series.push({
+            data: values[1],
             type: 'point',
             symbol: 'icon:img/jingli.png',
             symbolSize: '',
@@ -60,6 +57,24 @@ fetch('test/station.json').then(response => response.json()).then(function(data)
             label: 'mc'
         });
 
+        map.setOption(options);
 
-    })
-).then(() => map.setOption(options));
+    });
+
+map.on('geoSelect', function(data) {
+
+    console.log('getdata:', data);
+
+});
+
+map.on('geoUnSelect', function(data) {
+
+    console.log('getundata:', data);
+
+});
+
+setTimeout(() => {
+
+    map.dispose();
+
+}, 2000);
