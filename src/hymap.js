@@ -6,8 +6,11 @@ export default class hyMap {
 
         this.geoserverUrl = 'http://192.168.0.50:8080/geoserver/wms';
         this._createMap(dom);
+        this.map = null;
         this._dom = null;
         this._show = true;
+        this._layersArray = [];
+        this._event = [];
 
     }
 
@@ -44,6 +47,7 @@ export default class hyMap {
             })
 
         });
+        console.log(this.map);
 
     }
 
@@ -107,12 +111,88 @@ export default class hyMap {
         this.map.addLayer(this.wmsTile);
 
     }
+    _createLayers(series) {
 
+        series.forEach(function(a) {
+
+            this._createLayer(a);
+
+        }, this);
+
+    }
     _createLayer(serie) {
 
+        const data = serie.data;
+
+        let array = [];
+        for (var i = 0; i < data.length; i++) {
+
+            var obj = data[i];
+            var feature = new ol.Feature({
+                geometry: new ol.geom.Point([obj['lon'], obj['lat']])
+
+            });
+            feature.setProperties(obj);
+            array.push(feature);
+
+        }
+        const style = this._createStyle(serie);
+        let source = new ol.source.Vector();
+        source.addFeatures(array);
+        let vector = new ol.layer.Vector({
+            source: source,
+            style: function() {
+
+                return style;
+
+            }
+
+        });
+
+        this.map.addLayer(vector);
+        this._layersArray.push(vector);
+        this._createSelectInteraction();
+        this._createHoverInteraction();
+
+
+    }
+
+    _createSelectInteraction() {
+
+        let select = new ol.interaction.Select();
+        this.map.addInteraction(select);
+        select.on('select', function(evt) {
+
+            const selFeatures = evt.selected;
+            const unSelFeatures = evt.deselected;
+            if (selFeatures.length > 0) {
+
+                const properties = selFeatures[0].getProperties();
+                this.dispatchAction({
+                    type: 'geoSelect',
+                    data: properties
+                });
+
+            }
+            if (unSelFeatures.length > 0) {
+
+                const properties = unSelFeatures[0].getProperties();
+                this.dispatchAction({
+                    type: 'geoUnSelect',
+                    data: properties
+                });
+
+            }
+
+
+        }, this);
+
+    }
+    _createHoverInteraction() {}
+
+    _createStyle(serie) {
 
         let style;
-        const data = serie.data;
         let icon;
         if (serie.type == 'point') {
 
@@ -158,46 +238,10 @@ export default class hyMap {
         style = new ol.style.Style({
             image: icon
         });
-
-        let array = [];
-        for (var i = 0; i < data.length; i++) {
-
-            var obj = data[i];
-            var feature = new ol.Feature({
-                geometry: new ol.geom.Point([obj['lon'], obj['lat']])
-
-            });
-            feature.setProperties(obj);
-
-            array.push(feature);
-
-        }
-        let source = new ol.source.Vector();
-        source.addFeatures(array);
-        let vector = new ol.layer.Vector({
-            source: source,
-            style: function() {
-
-                return style;
-
-            }
-
-        });
-
-        this.map.addLayer(vector);
-
+        return style;
 
     }
 
-    _createLayers(series) {
-
-        series.forEach(function(a) {
-
-            this._createLayer(a);
-
-        }, this);
-
-    }
     setOption(opt_options) {
 
         const options = opt_options || {};
@@ -230,26 +274,40 @@ export default class hyMap {
         this._createBasicLayer();
         this._createLayers(this._geo.series);
 
+    }
+
+    /**
+     * [on description]
+     * @param  {[type]} type    click
+     * @param  {[type]} listener [description]
+     * @return {[type]}          [description]
+     */
+    on(type, listener) {
+
+        this._event[type] = listener;
+        const s = Symbol(listener);
+        console.log(s.toString());
 
     }
-    on() {
 
-    }
     off() {
 
     }
-    dispatchAction() {
+
+    dispatchAction(options) {
+
+        console.log(options);
+        this._event[options.type](options);
 
     }
-    addPoints() {
+
+    addPoints(serie) {
+
+        this._createLayer(serie);
 
     }
-    disponse() {
 
-    }
-    flyTo() {
 
-    }
 
     /**
      * dom状态切换（显示，隐藏）
@@ -289,5 +347,22 @@ export default class hyMap {
         this._dom.style.display = 'block';
         this._show = true;
 
+    }
+
+    /**
+     * [resize description]
+     * @return {[type]} [description]
+     */
+    resize() {
+
+        this.map.updateSize();
+
+    }
+
+    flyTo() {
+
+    }
+    dispose() {
+        this.map.dispose();
     }
 }
