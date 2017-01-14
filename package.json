@@ -27,7 +27,7 @@
     "main": "index.js",
     "name": "fe-scaffold",
     "scripts": {
-        "dev": "cross-env NODE_ENV=DEVELOPMENT webpack-dev-server --devtool --progress --colors --hot --content-base",
+        "dev": "cross-env NODE_ENV=DEVELOPMENT webpack-dev-server --progress --colors --hot --content-base",
         "libs": "webpack --config webpack.lib.js",
         "build": "cross-env NODE_ENV=PRODUCTION webpack-dev-server --devtool --progress --colors --hot --content-base",
         "zip": "webpack -p"

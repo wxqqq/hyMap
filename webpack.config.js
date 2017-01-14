@@ -43,7 +43,7 @@ let webpackConfig = {
         port: hostConfig.port,
         historyApiFallback: true
     },
-    devtool: 'cheap-source-map',
+    devtool: 'cheap-module-eval-source-map',
     module: {
         noParse: /node_modules\/openlayers\/dist\/ol.js/,
         loaders: [{
