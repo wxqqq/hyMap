@@ -4,7 +4,6 @@ const olstyle = require('openlayers/dist/ol.css');
 export default class hyMap {
     constructor(dom) {
 
-        this.geoserverUrl = 'http://192.168.0.50:8080/geoserver/wms';
         this._createMap(dom);
         this.map = null;
         this._dom = null;
@@ -73,7 +72,8 @@ export default class hyMap {
     }
 
     _createBasicLayer() {
-
+        //放到图层添加功能中
+        this.geoserverUrl = 'http://192.168.0.50:8080/geoserver/wms';
         const wmsSource = new ol.source.TileWMS({
             url: this.geoserverUrl,
             params: {
