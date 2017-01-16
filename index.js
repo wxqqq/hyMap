@@ -2,7 +2,7 @@
  * @Author: FunctionRun
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   hydata
- * @Last Modified time: 2017-01-16 11:35:59
+ * @Last Modified time: 2017-01-16 15:37:23
  * @Email: zhangyujie3344521@163.com
  * @File Path: /Users/zhangyujie/GitHub/FEscaffold/index.js
  * @File Name: index.js
@@ -95,6 +95,7 @@ Promise.all([
         map.setOption(options);
 
     });
+
 
 map.on('geoSelect', function(data) {
 
