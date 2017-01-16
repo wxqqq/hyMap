@@ -6,10 +6,10 @@ const olstyle = require('openlayers/dist/ol.css');
 export default class hyMap extends hymapOption {
     constructor(dom, options) {
 
-        super();
+        super(options);
         this.geoserverUrl = 'http://192.168.0.50:8080/geoserver/wms';
         this.map = null;
-        this._dom = dom;
+
         this._show = true;
 
         this._extent = [];
@@ -21,15 +21,33 @@ export default class hyMap extends hymapOption {
             evt.stopPropagation();
 
         };
-        this._layersArray = new ol.Collection();
-        this._layerGroup = new ol.layer.Group();
-        this._init();
+        this._layersArray = null;
+        this._layerGroup = null;
+
+        this._basicLayersArray = null;
+        this._basicLayerGroup = null;
+        this._init(dom);
+
         this.setOption(options);
 
     }
-    _init() {
+    _setDom(dom) {
+
+        if (dom) {
+
+            this._dom = dom;
+            this.map.setTarget(dom);
+
+        }
+
+    }
+
+    _init(dom) {
 
         this._createMap();
+        this._createBasicGroup();
+        this._createGroupLayer();
+        this._setDom(dom);
 
 
     }
@@ -41,19 +59,9 @@ export default class hyMap extends hymapOption {
      */
     init(dom) {
 
-        // if (!dom) {
+        this._setDom(dom);
 
-        //     return;
-
-        // }
-        if (dom) {
-            this._dom = dom;
-            this.map.setTarget(dom);
-        }
-
-
-
-        // return hymap;
+        return this;
 
     }
 
@@ -82,7 +90,6 @@ export default class hyMap extends hymapOption {
             logo: this.getLogo()
 
         });
-        this.init(this._dom);
 
     }
 
@@ -145,6 +152,14 @@ export default class hyMap extends hymapOption {
         this.map.setView(this.view);
 
     }
+    _createBasicGroup() {
+
+        this._basicLayersArray = new ol.Collection();
+        this._basicLayerGroup = new ol.layer.Group();
+        this._basicLayerGroup.setLayers(this._basicLayersArray);
+        this.map.addLayer(this._basicLayerGroup);
+
+    }
 
     _createBasicLayer() {
 
@@ -152,7 +167,7 @@ export default class hyMap extends hymapOption {
         // this.map.addLayer(new ol.layer.Tile({
         //     source: new ol.source.OSM()
         // }));
-        this.map.addLayer(new ol.layer.Tile({
+        this._basicLayersArray.push(new ol.layer.Tile({
             source: new ol.source.TileWMS({
                 url: this.geoserverUrl,
                 params: {
@@ -162,7 +177,7 @@ export default class hyMap extends hymapOption {
                 crossOrigin: 'anonymous'
             })
         }));
-        this.map.addLayer(new ol.layer.Tile({
+        this._basicLayersArray.push(new ol.layer.Tile({
             source: new ol.source.TileWMS({
                 url: this.geoserverUrl,
                 params: {
@@ -390,6 +405,11 @@ export default class hyMap extends hymapOption {
 
     setOption(opt_options) {
 
+        if (!opt_options) {
+
+            return;
+
+        }
         const options = opt_options || {};
         Object.assign(this._geo, options);
 
@@ -406,7 +426,7 @@ export default class hyMap extends hymapOption {
 
         this._createView();
         this._createBasicLayer();
-        this._createGroupLayer();
+
         this._createLayers(this._geo.series);
 
     }
