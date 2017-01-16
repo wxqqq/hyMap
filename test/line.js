@@ -10,9 +10,11 @@
  */
 
 'use strict';
-import hyMap from './src/index';
+console.log('hyMap')
+import hyMap from '../index';
 
-let map = hyMap.init(document.getElementById('map'));
+var map = new hyMap();
+map.init(document.getElementById('map'));
 let options = {
     show: true, //地图的显示状态 true为显示 false 为不显示
     map: 'shandong', //当前地图显示哪个地图
@@ -28,30 +30,32 @@ let options = {
     series: []
 };
 
-fetch('data/station.json').then(response => response.json()).then(function(values) {
+fetch('/gdll.json').then(response => response.json()).then(
 
-    options.series.push({
-        data: values, //{x,y,value}
-        type: 'point', // point|line|polygon|chart|..
-        symbol: 'circle', //circle|react|icon
-        symbolSize: '', //[min,max]
-        symbolStyle: {
-            'normal': {
-                strokeWidth: 3,
-                strokeColor: 'red',
-                fillColor: 'green'
+    function(values) {
+
+        options.series.push({
+            data: values,
+            type: 'line',
+            symbol: '',
+            symbolSize: '',
+            symbolStyle: {
+                'normal': {
+
+                    width: 25,
+
+                    height: 25
+                },
+                'emphasis': {
+
+                }
             },
-            'emphasis': {
+            label: 'mc'
+        });
 
-            }
-        },
-        label: 'mc'
+        map.setOption(options);
 
     });
-
-    map.setOption(options);
-
-});
 
 map.on('geoSelect', function(data) {
 
