@@ -220,8 +220,10 @@ export default class hyMap extends hymapOption {
 
         this.map.setView(this.view);
         this.map.on('pointermove', function(evt) {
-            this.map.getTargetElement().style.cursor =
-                this.map.hasFeatureAtPixel(evt.pixel) ? 'pointer' : '';
+            evt.map.getTargetElement().style.cursor =
+                evt.map.hasFeatureAtPixel(evt.pixel) ? 'pointer' : '';
+            // map.getTargetElement().style.cursor =
+            //  map.hasFeatureAtPixel(evt.pixel) ? 'pointer' : '';
         });
     }
 
