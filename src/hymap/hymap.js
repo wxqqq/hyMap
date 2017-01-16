@@ -1,7 +1,7 @@
 import hymapOption from './hymapOption';
 
-const ol = require('openlayers/dist/ol-debug');
-require('openlayers/dist/ol.css');
+const ol = require('../../public/lib/ol.js');
+require('../../css/ol.css');
 require('../../css/popup.css');
 
 export default class hyMap extends hymapOption {
@@ -358,13 +358,13 @@ export default class hyMap extends hymapOption {
 
                 const coordinate = selFeatures[0].getGeometry().getCoordinates();
                 let div = document.getElementById('hy-popup-content');
-                div.innerHTML = '<p>测试卡口1</p><img style=\'width: 100px;height: 100px;\' src=\'img/test/kk.jpg\'>';
                 this._overlay.feature = selFeatures[0];
                 this._overlay.setPosition(coordinate);
                 const properties = selFeatures[0].getProperties();
                 this.dispatchAction({
                     type: 'geoSelect',
-                    data: properties
+                    data: properties,
+                    element: div
                 });
 
             }
