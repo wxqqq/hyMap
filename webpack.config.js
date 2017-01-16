@@ -2,7 +2,7 @@
  * @Author: FunctionRun
  * @Date:   2017-01-10 10:15:18
  * @Last Modified by:   hydata
- * @Last Modified time: 2017-01-11 16:31:50
+ * @Last Modified time: 2017-01-16 14:16:22
  * @Email: zhangyujie3344521@163.com
  * @File Path: /Users/zhangyujie/GitHub/FEscaffold/webpack.config.js
  * @File Name: webpack.config.js
@@ -35,7 +35,7 @@ let webpackConfig = {
     output: {
         path: path.join(__dirname, 'build'),
         //chunkFilename: 'chunk/[chunkhash:8].chunk.min.js',
-        filename: 'bundle.js',
+        filename: 'hymap_bundle.js',
         publicPath
     },
     devServer: {
@@ -92,7 +92,7 @@ if (process.env.NODE_ENV === 'DEVELOPMENT') {
         ],
         output: {
             path: path.join(__dirname, 'build'),
-            filename: 'bundle.js',
+            filename: 'hymap_bundle.js',
             chunkFilename: 'chunk/[chunkhash:8].chunk.min.js',
             publicPath: 'http://' + hostConfig.host + ':' + hostConfig.port + publicPath
         },

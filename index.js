@@ -2,7 +2,7 @@
  * @Author: FunctionRun
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   hydata
- * @Last Modified time: 2017-01-16 10:09:38
+ * @Last Modified time: 2017-01-16 11:35:59
  * @Email: zhangyujie3344521@163.com
  * @File Path: /Users/zhangyujie/GitHub/FEscaffold/index.js
  * @File Name: index.js
@@ -109,6 +109,6 @@ map.on('geoUnSelect', function(data) {
 
 setTimeout(() => {
 
-    map.dispose();
+    //map.dispose();
 
 }, 200000);
