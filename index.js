@@ -14,6 +14,7 @@
 import hyMap from './src/hymap/hymap';
 
 var map = new hyMap(document.getElementById('map'));
+// var map = new hyMap();
 // map.init(document.getElementById('map'));
 let options = {
     show: true, //地图的显示状态 true为显示 false 为不显示
