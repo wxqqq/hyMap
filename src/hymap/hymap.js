@@ -41,11 +41,16 @@ export default class hyMap extends hymapOption {
      */
     init(dom) {
 
-        this._setDom(dom);
+        this.setDom(dom);
 
         return this;
 
     }
+
+    /**
+     * 设置属性
+     * @param {[type]} opt_options [description]
+     */
     setOption(opt_options) {
 
         if (!opt_options) {
@@ -74,12 +79,21 @@ export default class hyMap extends hymapOption {
 
     }
 
+    /**
+     * 获取option对象
+     * @return {[type]} [description]
+     */
     getOption() {
 
         return this._geo;
 
     }
-    _setDom(dom) {
+
+    /**
+     * 设置map对应的容器
+     * @param {[type]} dom [description]
+     */
+    setDom(dom) {
 
         if (dom) {
 
@@ -90,12 +104,25 @@ export default class hyMap extends hymapOption {
 
     }
 
+    /**
+     * 获取map对应的dom容器
+     * @return {[type]} [description]
+     */
+    getDom() {
+        return this._dom;
+    }
+
+    /**
+     * 内部初始化
+     * @param  {[type]} dom [description]
+     * @return {[type]}     [description]
+     */
     _init(dom) {
 
         this._createMap();
         this._createBasicGroup();
         this._createGroupLayer();
-        this._setDom(dom);
+        this.setDom(dom);
 
         this._createOverlay();
 
@@ -129,6 +156,10 @@ export default class hyMap extends hymapOption {
 
     }
 
+    /**
+     * 增加logo，未生效
+     * @return {[type]} [description]
+     */
     getLogo() {
 
         if (!this._showLogo) {
@@ -146,7 +177,7 @@ export default class hyMap extends hymapOption {
     }
 
     /**
-     * 创建vieww
+     * 创建view
      * @return {[type]} [description]
      */
     _createView() {
@@ -189,6 +220,10 @@ export default class hyMap extends hymapOption {
 
     }
 
+    /**
+     * 创建基础图层组
+     * @return {[type]} [description]
+     */
     _createBasicGroup() {
 
         this._basicLayersArray = new ol.Collection();
@@ -198,6 +233,10 @@ export default class hyMap extends hymapOption {
 
     }
 
+    /**
+     * 创建基础图层
+     * @return {[type]} [description]
+     */
     _createBasicLayer() {
 
 
@@ -239,6 +278,11 @@ export default class hyMap extends hymapOption {
         // this.map.addLayer(this.wmsTile);
 
     }
+
+    /**
+     * 创建图层组
+     * @return {[type]} [description]
+     */
     _createGroupLayer() {
 
         this._layersArray = new ol.Collection();
@@ -248,6 +292,11 @@ export default class hyMap extends hymapOption {
 
     }
 
+    /**
+     * 创建图层数组
+     * @param  {[type]} series [description]
+     * @return {[type]}        [description]
+     */
     _createLayers(series) {
 
         series.forEach((a) => {
@@ -259,6 +308,12 @@ export default class hyMap extends hymapOption {
         this._createHoverInteraction();
 
     }
+
+    /**
+     * 创建图层
+     * @param  {[type]} serie [description]
+     * @return {[type]}       [description]
+     */
     _createLayer(serie) {
 
         const data = serie.data;
@@ -301,6 +356,12 @@ export default class hyMap extends hymapOption {
 
     }
 
+    /**
+     * 创建空间对象
+     * @param  {[type]} type [description]
+     * @param  {[type]} obj  [description]
+     * @return {[type]}      [description]
+     */
     _createGeometry(type, obj) {
 
 
@@ -346,6 +407,10 @@ export default class hyMap extends hymapOption {
 
     }
 
+    /**
+     * 创建选中事件
+     * @return {[type]} [description]
+     */
     _createSelectInteraction() {
 
         this.clickSelect = new ol.interaction.Select();
@@ -384,6 +449,11 @@ export default class hyMap extends hymapOption {
     }
     _createHoverInteraction() {}
 
+    /**
+     * 创建feature的样式
+     * @param  {[type]} serie [description]
+     * @return {[type]}       [description]
+     */
     _createStyle(serie) {
 
         const symbolStyle = serie.symbolStyle;
@@ -447,6 +517,10 @@ export default class hyMap extends hymapOption {
 
     }
 
+    /**
+     * 创建气泡框dom
+     * @return {[type]} [description]
+     */
     _createPopup() {
 
         let container = document.createElement('div');
@@ -472,12 +546,21 @@ export default class hyMap extends hymapOption {
 
     }
 
+    /**
+     * 隐藏气泡框
+     * @return {[type]} [description]
+     */
     _hideOverlay() {
 
         this._overlay.setPosition(undefined);
 
     }
 
+    /**
+     * 创建气泡框
+     * @param  {[type]} element [description]
+     * @return {[type]}         [description]
+     */
     _createOverlay(element) {
 
         element = this._createPopup();
@@ -513,12 +596,12 @@ export default class hyMap extends hymapOption {
      * [off description]
      * @return {[type]} [description]
      */
-    off() {
-
+    off(type, listener) {
+        this._event[type] = function() {}
     }
 
     /**
-     * [dispatchAction description]
+     * 激活事件
      * @param  {[type]} options [description]
      * @return {[type]}         [description]
      */
@@ -590,6 +673,10 @@ export default class hyMap extends hymapOption {
 
     }
 
+    /**
+     * [flyTo description]
+     * @return {[type]} [description]
+     */
     flyTo() {
 
     }
@@ -601,13 +688,6 @@ export default class hyMap extends hymapOption {
     dispose() {
 
         this.map.dispose();
-        // hyMap = nullFunction();
-
-    }
-
-    nullFunction() {
-
-        return;
 
     }
 }
