@@ -109,7 +109,9 @@ export default class hyMap extends hymapOption {
      * @return {[type]} [description]
      */
     getDom() {
+
         return this._dom;
+
     }
 
     /**
@@ -420,7 +422,7 @@ export default class hyMap extends hymapOption {
             const selFeatures = evt.selected;
             const unSelFeatures = evt.deselected;
             if (selFeatures.length > 0) {
-                debugger
+
                 const coordinate = selFeatures[0].getGeometry().getCoordinates();
                 let div = document.getElementById('hy-popup-content');
                 this._overlay.feature = selFeatures[0];
@@ -597,7 +599,9 @@ export default class hyMap extends hymapOption {
      * @return {[type]} [description]
      */
     off(type, listener) {
-        this._event[type] = function() {}
+
+        this._event[type] = function() {};
+
     }
 
     /**
