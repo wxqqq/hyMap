@@ -1,6 +1,6 @@
 import hymapOption from './hymapOption';
 
-const ol = require('../../public/lib/ol.js');
+const ol = require('../../public/lib/ol-debug');
 require('../../css/ol.css');
 require('../../css/popup.css');
 
@@ -220,11 +220,12 @@ export default class hyMap extends hymapOption {
 
         this.map.setView(this.view);
         this.map.on('pointermove', function(evt) {
-            evt.map.getTargetElement().style.cursor =
-                evt.map.hasFeatureAtPixel(evt.pixel) ? 'pointer' : '';
-            // map.getTargetElement().style.cursor =
-            //  map.hasFeatureAtPixel(evt.pixel) ? 'pointer' : '';
-        });
+
+
+            evt.map.getTargetElement().style.cursor = evt.map.hasFeatureAtPixel(evt.pixel) ? 'pointer' : '';
+
+        }, this);
+
     }
 
     /**
