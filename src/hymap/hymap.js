@@ -1,7 +1,8 @@
 import hymapOption from './hymapOption';
 
 const ol = require('openlayers/dist/ol-debug');
-const olstyle = require('openlayers/dist/ol.css');
+require('openlayers/dist/ol.css');
+require('../../css/popup.css');
 
 export default class hyMap extends hymapOption {
     constructor(dom, options) {
@@ -11,7 +12,7 @@ export default class hyMap extends hymapOption {
         this.map = null;
 
         this._show = true;
-
+        this._overlay = null;
         this._extent = [];
         this._event = [];
         this._showLogo = true;
@@ -29,6 +30,53 @@ export default class hyMap extends hymapOption {
         this._init(dom);
 
         this.setOption(options);
+
+    }
+
+
+    /**
+     * 初始化hymap对象
+     * @param  {[type]} dom [description]
+     * @return {[type]}     [description]
+     */
+    init(dom) {
+
+        this._setDom(dom);
+
+        return this;
+
+    }
+    setOption(opt_options) {
+
+        if (!opt_options) {
+
+            return;
+
+        }
+        const options = opt_options || {};
+        Object.assign(this._geo, options);
+
+        //
+        if (this._geo.show === true) {
+
+            this.show();
+
+        } else {
+
+            this.hide();
+
+        }
+
+        this._createView();
+        this._createBasicLayer();
+
+        this._createLayers(this._geo.series);
+
+    }
+
+    getOption() {
+
+        return this._geo;
 
     }
     _setDom(dom) {
@@ -49,19 +97,7 @@ export default class hyMap extends hymapOption {
         this._createGroupLayer();
         this._setDom(dom);
 
-
-    }
-
-    /**
-     * 初始化hymap对象
-     * @param  {[type]} dom [description]
-     * @return {[type]}     [description]
-     */
-    init(dom) {
-
-        this._setDom(dom);
-
-        return this;
+        this._createOverlay();
 
     }
 
@@ -152,6 +188,7 @@ export default class hyMap extends hymapOption {
         this.map.setView(this.view);
 
     }
+
     _createBasicGroup() {
 
         this._basicLayersArray = new ol.Collection();
@@ -210,6 +247,7 @@ export default class hyMap extends hymapOption {
         this.map.addLayer(this._layerGroup);
 
     }
+
     _createLayers(series) {
 
         series.forEach((a) => {
@@ -226,13 +264,17 @@ export default class hyMap extends hymapOption {
         const data = serie.data;
 
         let array = [];
-        if (serie.type == 'point') {
+
+        if (serie.type == 'chart') {
+
+
+        } else {
 
             for (let i = 0; i < data.length; i++) {
 
                 const obj = data[i];
                 let feature = new ol.Feature({
-                    geometry: new ol.geom.Point([obj['lon'], obj['lat']])
+                    geometry: this._createGeometry(serie.type, obj)
 
                 });
                 feature.setProperties(obj);
@@ -240,83 +282,85 @@ export default class hyMap extends hymapOption {
 
             }
 
-        } else if (serie.type == 'line') {
+            const style = this._createStyle(serie);
+            let source = new ol.source.Vector();
+            source.addFeatures(array);
+            let vector = new ol.layer.Vector({
+                source: source,
+                style: function() {
 
-            for (let i = 0; i < data.length; i++) {
-
-                const obj = data[i];
-                let coords = [];
-                const str = obj.xys.split(';');
-                for (let i = 0; i < str.length; i++) {
-
-                    const coord = str[i].split(',');
-                    coords.push(coord);
+                    return style;
 
                 }
-                const feature = new ol.Feature({
-                    geometry: new ol.geom.LineString(coords)
 
-                });
-                feature.setProperties(obj);
-                array.push(feature);
+            });
 
-            }
-
-        } else if (serie.type == 'polygon') {
-
-            for (let i = 0; i < data.length; i++) {
-
-                const obj = data[i];
-                let coords = [];
-                const str = obj.xys.split(';');
-                for (let i = 0; i < str.length; i++) {
-
-                    const coord = str[i].split(',');
-                    coords.push(coord);
-
-                }
-                const feature = new ol.Feature({
-                    geometry: new ol.geom.LineString(coords)
-
-                });
-                feature.setProperties(obj);
-                array.push(feature);
-
-            }
-
-        } else if (serie.type == 'chart') {
-
+            this._layersArray.push(vector);
 
         }
 
+    }
 
-        const style = this._createStyle(serie);
-        let source = new ol.source.Vector();
-        source.addFeatures(array);
-        let vector = new ol.layer.Vector({
-            source: source,
-            style: function() {
+    _createGeometry(type, obj) {
 
-                return style;
+
+        let geometry = null;
+        if (type == 'point') {
+
+            geometry = new ol.geom.Point([obj['lon'], obj['lat']]);
+
+        } else if (type == 'line') {
+
+            let coords = [];
+            const str = obj.xys.split(';');
+            for (let i = 0; i < str.length; i++) {
+
+                const coord = str[i].split(',');
+                coords.push(coord);
+
+            }
+            geometry = new ol.geom.LineString(coords);
+
+
+        } else if (type == 'polygon') {
+
+            let coords = [];
+            const str = obj.xys.split(';');
+            for (let i = 0; i < str.length; i++) {
+
+                const coord = str[i].split(',');
+                coords.push(coord);
 
             }
 
-        });
+            geometry = new ol.geom.LineString(coords);
 
-        this._layersArray.push(vector);
+
+
+        } else if (type == 'chart') {
+
+            return geometry;
+
+        }
+        return geometry;
 
     }
 
     _createSelectInteraction() {
 
-        let select = new ol.interaction.Select();
-        this.map.addInteraction(select);
-        select.on('select', function(evt) {
+        this.clickSelect = new ol.interaction.Select();
+        this.map.addInteraction(this.clickSelect);
+        this.clickSelect.on('select', function(evt) {
 
             const selFeatures = evt.selected;
             const unSelFeatures = evt.deselected;
             if (selFeatures.length > 0) {
 
+                const coordinate = selFeatures[0].getGeometry().getCoordinates();
+                let div = document.getElementById('hy-popup-content');
+                div.innerHTML = '<p>测试卡口1</p><img style=\'width: 100px;height: 100px;\' src=\'img/test/kk.jpg\'>';
+                this._overlay.feature = selFeatures[0];
+                this._overlay.setPosition(coordinate);
                 const properties = selFeatures[0].getProperties();
                 this.dispatchAction({
                     type: 'geoSelect',
@@ -403,39 +447,54 @@ export default class hyMap extends hymapOption {
 
     }
 
-    setOption(opt_options) {
+    _createPopup() {
 
-        if (!opt_options) {
+        let container = document.createElement('div');
+        container.id = 'popup';
+        container.className = 'ol-popup';
+        let closer = document.createElement('div');
+        closer.id = 'popup-closer';
+        closer.className = 'ol-popup-closer';
+        container.appendChild(closer);
+        let content = document.createElement('div');
+        content.id = 'hy-popup-content';
+        container.appendChild(content);
+        document.body.appendChild(container);
+        closer.onclick = () => {
 
-            return;
+            this.clickSelect.getFeatures().remove(this._overlay.feature);
+            this._hideOverlay();
+            closer.blur();
+            return false;
 
-        }
-        const options = opt_options || {};
-        Object.assign(this._geo, options);
-
-        //
-        if (this._geo.show === true) {
-
-            this.show();
-
-        } else {
-
-            this.hide();
-
-        }
-
-        this._createView();
-        this._createBasicLayer();
-
-        this._createLayers(this._geo.series);
+        };
+        return container;
 
     }
 
-    getOption() {
+    _hideOverlay() {
 
-        return this._geo;
+        this._overlay.setPosition(undefined);
 
     }
+
+    _createOverlay(element) {
+
+        element = this._createPopup();
+        this._overlay = new ol.Overlay({
+            id: 'hy-overly-popup',
+            element: element,
+            autoPan: true,
+            autoPanAnimation: {
+                duration: 250
+            }
+        });
+        this.map.addOverlay(this._overlay);
+        return this._overlay;
+
+    }
+
+
 
     /**
      * [on description]
