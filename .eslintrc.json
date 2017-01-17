@@ -6,19 +6,20 @@
         "node": true,
         "amd": true
     },
-    "extends": ["airbnb/base","eslint:recommended"],
+    "extends": ["airbnb/base", "eslint:recommended"],
     "installedESLint": true,
     "parser": "babel-eslint",
-    "globals": {
-    },
+    "globals": {},
     "parserOptions": {
         "ecmaFeatures": {
-            "experimentalObjectRestSpread": true
+            "experimentalObjectRestSpread": true,
+            "jsx": true
         },
         "ecmaVersion": 6,
         "sourceType": "module"
     },
     "plugins": [
+        'react'
     ],
     "rules": {
         "indent": ["error", 4],
@@ -35,7 +36,7 @@
             "classes": "never",
             "blocks": "always"
         }],
-        "no-underscore-dangle": ["error", { 
+        "no-underscore-dangle": ["error", {
             "allow": ["_data"],
             "allowAfterThis": true
         }],

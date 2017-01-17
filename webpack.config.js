@@ -45,21 +45,22 @@ let webpackConfig = {
     },
     devtool: 'cheap-module-eval-source-map',
     module: {
-        noParse: /node_modules\/openlayers\/dist\/ol.js/,
         loaders: [{
             test: /\.css$/,
             loader: 'style!css'
         }, {
             test: /\.js?$/,
-            loader: 'babel-loader',
+            loader: 'babel',
             include: [
                 // 只去解析运行目录下的 src
                 path.join(process.cwd(), './main.js'),
                 path.join(process.cwd(), './src'),
                 path.join(process.cwd(), './test'),
-                path.join(process.cwd(), './index.js')
+                path.join(process.cwd(), './index.js'),
+                path.join(process.cwd(), './routes.js')
 
             ]
+
         }, {
             test: /\.json$/,
             loader: 'json-loader'
@@ -69,7 +70,7 @@ let webpackConfig = {
         }]
     },
     babel: {
-        presets: ['es2015', 'stage-3'],
+        presets: ['es2015', 'react', 'stage-3'],
         plugins: ['transform-object-rest-spread', 'transform-class-properties']
     },
 
