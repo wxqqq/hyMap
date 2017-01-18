@@ -16,7 +16,6 @@ import React, {
 import map from '../../../src/index';
 class circle extends Component {
     componentDidMount() {
-        console.log(map)
         let obj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
@@ -50,7 +49,8 @@ class circle extends Component {
 
                     }
                 },
-                label: 'mc'
+                label: 'mc',
+                showPopup: true
 
             });
 
@@ -63,12 +63,18 @@ class circle extends Component {
             console.log('getdata:', data);
 
         });
+        // obj.off('geoSelect', function(data) {
+
+        //     console.log('getdata:', data);
+
+        // });
 
         obj.on('geoUnSelect', function(data) {
 
             console.log('getundata:', data);
 
         });
+
     }
     render() {
 

@@ -50,7 +50,7 @@ let webpackConfig = {
             loader: 'style!css'
         }, {
             test: /\.js?$/,
-            loader: 'babel',
+            loader: 'babel-loader',
             include: [
                 // 只去解析运行目录下的 src
                 path.join(process.cwd(), './main.js'),

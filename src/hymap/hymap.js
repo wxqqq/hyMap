@@ -1,13 +1,15 @@
 import hymapOption from './hymapOption';
+import events from '../events/events';
 
 const ol = require('../../public/lib/ol-debug');
 require('../../css/ol.css');
 require('../../css/popup.css');
 
-export default class hyMap extends hymapOption {
+export default class hyMap extends events {
     constructor(dom, options) {
 
-        super(options);
+        super();
+        this._geo = hymapOption;
         this.geoserverUrl = 'http://192.168.0.50:8080/geoserver/wms';
         this.map = null;
 
@@ -325,7 +327,7 @@ export default class hyMap extends hymapOption {
     _createLayer(serie) {
 
         const data = serie.data;
-
+        console.log(serie)
         let array = [];
 
         if (serie.type == 'chart') {
@@ -357,7 +359,7 @@ export default class hyMap extends hymapOption {
                 }
 
             });
-
+            vector.set('showPopup', serie.showPopup ? serie.showPopup : true);
             this._layersArray.push(vector);
 
         }
@@ -371,7 +373,6 @@ export default class hyMap extends hymapOption {
      * @return {[type]}      [description]
      */
     _createGeometry(type, obj) {
-
 
         let geometry = null;
         if (type == 'point') {
@@ -404,8 +405,6 @@ export default class hyMap extends hymapOption {
 
             geometry = new ol.geom.LineString(coords);
 
-
-
         } else if (type == 'chart') {
 
             return geometry;
@@ -429,11 +428,18 @@ export default class hyMap extends hymapOption {
             const unSelFeatures = evt.deselected;
             if (selFeatures.length > 0) {
 
-                const coordinate = selFeatures[0].getGeometry().getCoordinates();
-                let div = document.getElementById('hy-popup-content');
-                this._overlay.feature = selFeatures[0];
-                this._overlay.setPosition(coordinate);
-                const properties = selFeatures[0].getProperties();
+                const selFeature = selFeatures[0];
+                const coordinate = selFeature.getGeometry().getCoordinates();
+                const layer = evt.target.getLayer(selFeature);
+                console.log(layer.get('showPopup'))
+                let div = null;
+                if (layer.get('showPopup') || layer.get('showPopup') === 'true') {
+                    div = document.getElementById('hy-popup-content');
+                    this._overlay.feature = selFeature;
+                    this._overlay.setPosition(coordinate);
+                }
+
+                const properties = selFeature.getProperties();
                 this.dispatchAction({
                     type: 'geoSelect',
                     data: properties,
@@ -588,40 +594,6 @@ export default class hyMap extends hymapOption {
 
 
     /**
-     * [on description]
-     * @param  {[type]} type    click
-     * @param  {[type]} listener [description]
-     * @return {[type]}          [description]
-     */
-    on(type, listener) {
-
-        this._event[type] = listener;
-        // const s = Symbol(listener);
-
-    }
-
-    /**
-     * [off description]
-     * @return {[type]} [description]
-     */
-    off(type, listener) {
-
-        this._event[type] = function() {};
-
-    }
-
-    /**
-     * 激活事件
-     * @param  {[type]} options [description]
-     * @return {[type]}         [description]
-     */
-    dispatchAction(options) {
-
-        this._event[options.type](options);
-
-    }
-
-    /**
      * [addPoints description]
      * @param {[type]} serie [description]
      */
@@ -698,6 +670,9 @@ export default class hyMap extends hymapOption {
     dispose() {
 
         this.map.dispose();
+        return null;
+    }
+    nullFunction() {
 
     }
 }
