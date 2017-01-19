@@ -50,7 +50,7 @@ class circle extends Component {
                     }
                 },
                 label: 'mc',
-                showPopup: true
+                showPopup: false
 
             });
 
@@ -79,7 +79,7 @@ class circle extends Component {
     render() {
 
         return (<div id = 'map' > </div>);
-    }
 
+    }
 }
-export default circle
+export default circle;

@@ -327,7 +327,6 @@ export default class hyMap extends events {
     _createLayer(serie) {
 
         const data = serie.data;
-        console.log(serie)
         let array = [];
 
         if (serie.type == 'chart') {
@@ -343,12 +342,18 @@ export default class hyMap extends events {
 
                 });
                 feature.setProperties(obj);
+                feature.setId(obj.id);
                 array.push(feature);
 
             }
 
             const style = this._createStyle(serie);
             let source = new ol.source.Vector();
+            source.on('addfeature', function(evt) {
+
+                evt.feature.source = source;
+
+            });
             source.addFeatures(array);
             let vector = new ol.layer.Vector({
                 source: source,
@@ -359,7 +364,8 @@ export default class hyMap extends events {
                 }
 
             });
-            vector.set('showPopup', serie.showPopup ? serie.showPopup : true);
+            source.vector = vector;
+            vector.set('showPopup', serie.showPopup);
             this._layersArray.push(vector);
 
         }
@@ -420,43 +426,64 @@ export default class hyMap extends events {
      */
     _createSelectInteraction() {
 
-        this.clickSelect = new ol.interaction.Select();
+        this.clickSelect = new ol.interaction.Select({
+            // addCondition: function(evt) {
+
+            //     return true;
+
+            // }
+        });
         this.map.addInteraction(this.clickSelect);
         this.clickSelect.on('select', function(evt) {
 
+            console.log(evt)
+            let result = {};
             const selFeatures = evt.selected;
             const unSelFeatures = evt.deselected;
-            if (selFeatures.length > 0) {
+            if (unSelFeatures && unSelFeatures.length > 0) {
+
+                const properties = unSelFeatures[0].getProperties();
+                result = {
+                    type: 'geoUnSelect',
+                    data: properties,
+                    feature: unSelFeatures[0],
+                    select: evt.target
+                };
+                this._hideOverlay();
+                evt.target.getFeatures().clear();
+
+            }
+            if (selFeatures && selFeatures.length > 0) {
+
 
                 const selFeature = selFeatures[0];
                 const coordinate = selFeature.getGeometry().getCoordinates();
-                const layer = evt.target.getLayer(selFeature);
-                console.log(layer.get('showPopup'))
+                const layer = selFeature.source.vector;
                 let div = null;
                 if (layer.get('showPopup') || layer.get('showPopup') === 'true') {
+
+                    // evt.target.addCondition_ = () => (true);
+
                     div = document.getElementById('hy-popup-content');
                     this._overlay.feature = selFeature;
                     this._overlay.setPosition(coordinate);
+
                 }
 
-                const properties = selFeature.getProperties();
-                this.dispatchAction({
+                let properties = selFeature.getProperties();
+                delete properties.geometry;
+                properties.id = selFeature.getId();
+                result = {
                     type: 'geoSelect',
                     data: properties,
                     element: div
-                });
 
-            }
-            if (unSelFeatures.length > 0) {
-
-                const properties = unSelFeatures[0].getProperties();
-                this.dispatchAction({
-                    type: 'geoUnSelect',
-                    data: properties
-                });
+                };
+                evt.target.getFeatures().get('length') == 0 && evt.target.getFeatures().push(selFeature);
 
             }
 
+            this.dispatchEvent(result);
 
         }, this);
 
@@ -603,7 +630,33 @@ export default class hyMap extends events {
 
     }
 
+    dispatchAction(evt) {
 
+        var feature = this.getFeature(evt.id);
+        const geoType = this.geoType_[evt.type]['arrayType'];
+        let e = {
+            'type': 'select',
+            [geoType]: [feature]
+        };
+
+        this.clickSelect.dispatchEvent(e);
+
+
+    }
+
+    getFeature(id) {
+
+        const layers = this._layerGroup.getLayers();
+        let feature = null;
+        layers.forEach(function(element) {
+
+            feature = element.getSource().getFeatureById(id);
+
+        });
+        return feature;
+
+
+    }
 
     /**
      * dom状态切换（显示，隐藏）
@@ -672,6 +725,7 @@ export default class hyMap extends events {
         this.map.dispose();
         return null;
     }
+
     nullFunction() {
 
     }

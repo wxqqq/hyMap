@@ -6,6 +6,16 @@ export default class event {
         this.pendingRemovals_ = {};
         this.dispatching_ = {};
         this.listeners_ = {};
+        this.geoType_ = {
+            geoselect: {
+                'arrayType': 'selected',
+                'selected': []
+            },
+            geounselect: {
+                'arrayType': 'deselected',
+                'deselected': []
+            }
+        };
 
     }
 
@@ -52,7 +62,7 @@ export default class event {
 
     }
 
-    dispatchAction(event) {
+    dispatchEvent(event) {
 
         let evt = event;
         const type = evt.type;

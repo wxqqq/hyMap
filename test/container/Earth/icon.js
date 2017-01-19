@@ -3,9 +3,10 @@ import React, {
     Component
 } from 'react';
 import map from '../../../src/index';
+
 class icon extends Component {
     componentDidMount() {
-        console.log(map)
+
         let obj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
@@ -38,7 +39,8 @@ class icon extends Component {
 
                     }
                 },
-                label: 'mc'
+                label: 'mc',
+                showPopup: true //显示气泡框
             });
             obj.setOption(options);
 
@@ -47,6 +49,13 @@ class icon extends Component {
         obj.on('geoSelect', function(data) {
 
             console.log('getdata:', data);
+            let str = '';
+            for (let i in data.data) {
+
+                str += i + ':' + data.data[i] + '</br>';
+
+            }
+            data.element.innerHTML = str;
 
         });
 
@@ -54,12 +63,38 @@ class icon extends Component {
 
             console.log('getundata:', data);
 
+
         });
+
+        //选中
+        document.getElementById('select').addEventListener('click', () => {
+
+            obj.dispatchAction({
+                type: 'geoselect',
+                id: 1
+            });
+
+        });
+        //取消选中
+        document.getElementById('unselect').addEventListener('click', () => {
+
+            obj.dispatchAction({
+                type: 'geounselect',
+                id: 1
+            });
+
+        });
+
     }
+
     render() {
 
-        return (<div id = 'map' > </div>);
-    }
+        return (<div>
+            <input id='select' type='button' value='选中'/>
+            <input id='unselect' type='button' value='取消选中' />
+            <div id = 'map' /> 
+            </div>);
 
+    }
 }
-export default icon
+export default icon;
