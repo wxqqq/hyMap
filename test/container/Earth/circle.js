@@ -41,7 +41,8 @@ class circle extends Component {
                 symbolSize: '', //[min,max]
                 symbolStyle: {
                     'normal': {
-                        strokeWidth: 3,
+                        radius: 5,
+                        strokeWidth: 1,
                         strokeColor: 'red',
                         fillColor: 'green'
                     },

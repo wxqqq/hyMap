@@ -334,9 +334,8 @@ export default class hyMap extends events {
 
         } else {
 
-            for (let i = 0; i < data.length; i++) {
+            data.forEach((obj) => {
 
-                const obj = data[i];
                 let feature = new ol.Feature({
                     geometry: this._createGeometry(serie.type, obj)
 
@@ -345,7 +344,8 @@ export default class hyMap extends events {
                 feature.setId(obj.id);
                 array.push(feature);
 
-            }
+            });
+
 
             const style = this._createStyle(serie);
             let source = new ol.source.Vector();
@@ -389,12 +389,13 @@ export default class hyMap extends events {
 
             let coords = [];
             const str = obj.xys.split(';');
-            for (let i = 0; i < str.length; i++) {
+            str.forEach(function(obj) {
 
-                const coord = str[i].split(',');
+                const coord = obj.split(',');
                 coords.push(coord);
 
-            }
+            });
+
             geometry = new ol.geom.LineString(coords);
 
 
@@ -402,12 +403,12 @@ export default class hyMap extends events {
 
             let coords = [];
             const str = obj.xys.split(';');
-            for (let i = 0; i < str.length; i++) {
+            str.forEach(function(obj) {
 
-                const coord = str[i].split(',');
+                const coord = obj.split(',');
                 coords.push(coord);
 
-            }
+            });
 
             geometry = new ol.geom.LineString(coords);
 
@@ -436,7 +437,6 @@ export default class hyMap extends events {
         this.map.addInteraction(this.clickSelect);
         this.clickSelect.on('select', function(evt) {
 
-            console.log(evt)
             let result = {};
             const selFeatures = evt.selected;
             const unSelFeatures = evt.deselected;
@@ -450,7 +450,7 @@ export default class hyMap extends events {
                     select: evt.target
                 };
                 this._hideOverlay();
-                evt.target.getFeatures().clear();
+                evt.target.getFeatures().remove(unSelFeatures[0]);
 
             }
             if (selFeatures && selFeatures.length > 0) {
@@ -506,7 +506,7 @@ export default class hyMap extends events {
             if (serie.symbol == 'circle') {
 
                 icon = new ol.style.Circle({
-                    radius: normal.strokeWidth,
+                    radius: normal.radius,
                     stroke: new ol.style.Stroke({
                         color: normal.strokeColor,
                         width: 1
@@ -532,7 +532,7 @@ export default class hyMap extends events {
                 canvas.setAttribute('width', normal.symbolwidth);
                 canvas.setAttribute('height', normal.symbolwidth);
                 icon = new ol.style.Icon({
-                    anchor: [0.5, 1],
+                    // anchor: [0.5, 0.5],
                     img: canvas,
                     imgSize: [canvas.width, canvas.height]
                 });
