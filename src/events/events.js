@@ -1,23 +1,24 @@
 'use strict';
 
-export default class event {
-    constructor() {
 
-        this.pendingRemovals_ = {};
-        this.dispatching_ = {};
-        this.listeners_ = {};
-        this.geoType_ = {
-            geoselect: {
-                'arrayType': 'selected',
-                'selected': []
-            },
-            geounselect: {
-                'arrayType': 'deselected',
-                'deselected': []
-            }
-        };
 
-    }
+const event = {
+
+
+    pendingRemovals_: {},
+    dispatching_: {},
+    listeners_: {},
+    geoType_: {
+        geoselect: {
+            'arrayType': 'selected',
+            'selected': []
+        },
+        geounselect: {
+            'arrayType': 'deselected',
+            'deselected': []
+        }
+    },
+
 
     on(type, listener) {
 
@@ -33,8 +34,7 @@ export default class event {
 
         }
 
-    }
-
+    },
     off(type, listener) {
 
         let listeners = this.listeners_[type];
@@ -60,8 +60,7 @@ export default class event {
 
         }
 
-    }
-
+    },
     dispatchEvent(event) {
 
         let evt = event;
@@ -108,3 +107,5 @@ export default class event {
 
     }
 }
+
+export default event;

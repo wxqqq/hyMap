@@ -1,8 +1,8 @@
 /*
 * @Author: zhangyujie
 * @Date:   2016-05-09 12:04:33
-* @Last Modified by:   FunctionRun
-* @Last Modified time: 2016-06-30 11:34:18
+* @Last modified by:   haiwang
+* @Last modified time: 2017-01-19 13:32:50
 * @Email: zhangyujie3344521@163.com
 * @File Path: /Users/zhangyujie/node/www/tueasy5.0/visual/Test/components/Nav/Nav.css
 * @File Name: Nav.css
@@ -12,4 +12,10 @@
 .Nav a {
     display: block;
     text-align: center;
+}
+.Nav a:hover {
+    color: violet;
+}
+.nav a:focus {
+    color: blue;
 }

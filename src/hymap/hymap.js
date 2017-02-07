@@ -1,34 +1,33 @@
-import hymapOption from './hymapOption';
+import hymapOption from '../options/hymapOption';
 import events from '../events/events';
+import hylayers from '../layers/hylayers';
 
-const ol = require('../../public/lib/ol-debug');
 require('../../css/ol.css');
 require('../../css/popup.css');
 
-export default class hyMap extends events {
+export default class hyMap extends hylayers {
     constructor(dom, options) {
 
-        super();
+        super(options);
         this._geo = hymapOption;
         this.geoserverUrl = 'http://192.168.0.50:8080/geoserver/wms';
         this.map = null;
 
         this._show = true;
         this._overlay = null;
-        this._extent = [];
         this._event = [];
         this._showLogo = true;
+        this._layersArray = null;
+        this._layerGroup = null;
+
+
         this._panFunction = function(evt) {
 
             evt.preventDefault();
             evt.stopPropagation();
 
         };
-        this._layersArray = null;
-        this._layerGroup = null;
 
-        this._basicLayersArray = null;
-        this._basicLayerGroup = null;
         this._init(dom);
 
         this.setOption(options);
@@ -60,8 +59,7 @@ export default class hyMap extends events {
             return;
 
         }
-        const options = opt_options || {};
-        Object.assign(this._geo, options);
+        Object.assign(this._geo, opt_options || {});
 
         //
         if (this._geo.show === true) {
@@ -223,69 +221,9 @@ export default class hyMap extends events {
         this.map.setView(this.view);
         this.map.on('pointermove', function(evt) {
 
-
             evt.map.getTargetElement().style.cursor = evt.map.hasFeatureAtPixel(evt.pixel) ? 'pointer' : '';
 
         }, this);
-
-    }
-
-    /**
-     * 创建基础图层组
-     * @return {[type]} [description]
-     */
-    _createBasicGroup() {
-
-        this._basicLayersArray = new ol.Collection();
-        this._basicLayerGroup = new ol.layer.Group();
-        this._basicLayerGroup.setLayers(this._basicLayersArray);
-        this.map.addLayer(this._basicLayerGroup);
-
-    }
-
-    /**
-     * 创建基础图层
-     * @return {[type]} [description]
-     */
-    _createBasicLayer() {
-
-
-        // this.map.addLayer(new ol.layer.Tile({
-        //     source: new ol.source.OSM()
-        // }));
-        this._basicLayersArray.push(new ol.layer.Tile({
-            source: new ol.source.TileWMS({
-                url: this.geoserverUrl,
-                params: {
-                    'LAYERS': 'xzqh'
-                },
-                serverTyjpe: 'geoserver',
-                crossOrigin: 'anonymous'
-            })
-        }));
-        this._basicLayersArray.push(new ol.layer.Tile({
-            source: new ol.source.TileWMS({
-                url: this.geoserverUrl,
-                params: {
-                    'LAYERS': 'hygis:xzqhbz_pt'
-                },
-                serverTyjpe: 'geoserver',
-                crossOrigin: 'anonymous'
-            })
-        }));
-        // const wmsSource = new ol.source.TileWMS({
-        //     url: this.geoserverUrl,
-        //     params: {
-        //         'LAYERS': 'csdlzxx_pl'
-        //     },
-        //     serverTyjpe: 'geoserver',
-        //     crossOrigin: 'anonymous'
-        // });
-        // this.wmsTile = new ol.layer.Tile({
-        //     source: wmsSource
-        // });
-
-        // this.map.addLayer(this.wmsTile);
 
     }
 
@@ -428,6 +366,12 @@ export default class hyMap extends events {
     _createSelectInteraction() {
 
         this.clickSelect = new ol.interaction.Select({
+            style: function(feature) {
+
+                // console.log(feature)
+
+            }
+
             // addCondition: function(evt) {
 
             //     return true;
@@ -724,9 +668,12 @@ export default class hyMap extends events {
 
         this.map.dispose();
         return null;
+
     }
 
     nullFunction() {
 
     }
 }
+
+Object.assign(hyMap.prototype, events);
