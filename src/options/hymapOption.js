@@ -1,6 +1,7 @@
 'use strict';
 
 export default {
+    serverUrl: 'http://192.168.0.50:8080/geoserver/wms', //服务器地址
     show: true, //地图的显示状态 true为显示 false 为不显示
     map: 'shandong', //当前地图显示哪个地图
     roam: 'true', //地图是否开启缩放、平移功能

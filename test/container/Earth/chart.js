@@ -1,16 +1,27 @@
+/*
+ * @Author: 1
+ * @Date:   2017-01-10 10:15:25
+ * @Last Modified by:   hydata
+ * @Last Modified time: 2017-01-12 10:12:21
+ * @Email: zhangyujie3344521@163.com
+ * @File Path: /Users/zhangyujie/GitHub/FEscaffold/index.js
+ * @File Name: index.js
+ * @Descript:
+ */
+
 'use strict';
 import React, {
     Component
 } from 'react';
 import map from '../../../src/index';
 
-class icon extends Component {
+class chart extends Component {
     componentDidMount() {
 
         let obj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
-            map: 'xzqh', //当前地图显示哪个地图
+            map: 'shandong', //当前地图显示哪个地图
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 7, //当前地图缩放比例
@@ -25,25 +36,44 @@ class icon extends Component {
 
         fetch('../../../data/car_2012.json').then(response => response.json()).then(function(values) {
 
+            values.forEach(obj => {
+
+                let div = document.createElement('div');
+                div.innerHTML = '<div style="background-color:#ccc">' + obj.name + '</div>';
+                obj.container = div;
+
+            });
+
             options.series.push({
-                data: values,
-                type: 'point',
-                symbol: 'icon:img/jingli.png',
-                symbolSize: [25, 25],
+                data: values, //{x,y,value}
+                type: 'chart', // point|line|polygon|chart|..
+                symbol: 'circle', //circle|react|icon
+                symbolSize: '', //[min,max]
                 symbolStyle: {
                     'normal': {
-                        symbolSize: [10, 10]
+                        radius: 5,
+                        strokeWidth: 1,
+                        strokeColor: 'black',
+                        fillColor: 'orange'
                     },
                     'hover': {
-                        symbolSize: [15, 15]
+                        radius: 10,
+                        strokeWidth: 1,
+                        strokeColor: 'red',
+                        fillColor: 'pink'
                     },
                     'select': {
-                        symbolSize: [20, 20]
+                        radius: 15,
+                        strokeWidth: 3,
+                        strokeColor: 'blue',
+                        fillColor: 'white'
                     }
                 },
                 label: 'mc',
-                showPopup: true //显示气泡框
+                showPopup: false
+
             });
+
             obj.setOption(options);
 
         });
@@ -51,52 +81,25 @@ class icon extends Component {
         obj.on('geoSelect', function(data) {
 
             console.log('getdata:', data);
-            let str = '';
-            for (let i in data.data) {
-
-                str += i + ':' + data.data[i] + '</br>';
-
-            }
-            data.element.innerHTML = str;
 
         });
+        // obj.off('geoSelect', function(data) {
+
+        //     console.log('getdata:', data);
+
+        // });
 
         obj.on('geoUnSelect', function(data) {
 
             console.log('getundata:', data);
 
-
-        });
-
-        //选中
-        document.getElementById('select').addEventListener('click', () => {
-
-            obj.dispatchAction({
-                type: 'geoselect',
-                id: 1
-            });
-
-        });
-        //取消选中
-        document.getElementById('unselect').addEventListener('click', () => {
-
-            obj.dispatchAction({
-                type: 'geounselect',
-                id: 1
-            });
-
         });
 
     }
-
     render() {
 
-        return (<div>
-            <input id='select' type='button' value='选中'/>
-            <input id='unselect' type='button' value='取消选中' />
-            <div id = 'map' /> 
-            </div>);
+        return (<div id = 'map' > </div>);
 
     }
 }
-export default icon;
+export default chart;

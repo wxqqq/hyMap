@@ -19,16 +19,18 @@ import {
 } from 'react-router';
 
 class Nav extends React.Component {
-
     render() {
 
         return (
             <div className = 'Nav'>
                 <Link to = 'circle' > circle </Link>
+                <Link to = 'chart' > chart </Link>
+                <Link to = 'rect' > rect </Link>
                 <Link to = 'icon' > icon </Link>
-                 <Link to = 'line' > line </Link>
-                </div>
+                <Link to = 'line' > line </Link>
+            </div>
         );
+
     }
 }
 

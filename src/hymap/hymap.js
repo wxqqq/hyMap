@@ -1,6 +1,9 @@
 import hymapOption from '../options/hymapOption';
+import styleModel from '../model/styleModel';
 import events from '../events/events';
 import hylayers from '../layers/hylayers';
+
+const ol = require('../../public/lib/ol-debug');
 
 require('../../css/ol.css');
 require('../../css/popup.css');
@@ -10,7 +13,7 @@ export default class hyMap extends hylayers {
 
         super(options);
         this._geo = hymapOption;
-        this.geoserverUrl = 'http://192.168.0.50:8080/geoserver/wms';
+        this._style = styleModel;
         this.map = null;
 
         this._show = true;
@@ -19,6 +22,7 @@ export default class hyMap extends hylayers {
         this._showLogo = true;
         this._layersArray = null;
         this._layerGroup = null;
+        this._markerLayer = [];
 
 
         this._panFunction = function(evt) {
@@ -127,6 +131,7 @@ export default class hyMap extends hylayers {
         this.setDom(dom);
 
         this._createOverlay();
+        this._createIntercation();
 
     }
 
@@ -252,6 +257,11 @@ export default class hyMap extends hylayers {
             this._createLayer(a);
 
         });
+
+    }
+
+    _createIntercation() {
+
         this._createSelectInteraction();
         this._createHoverInteraction();
 
@@ -269,6 +279,24 @@ export default class hyMap extends hylayers {
 
         if (serie.type == 'chart') {
 
+            this._removeMarkerOverlay();
+            data.forEach(obj => {
+
+                let rootDiv = document.createElement('div');
+                rootDiv.id = obj.id;
+                rootDiv.appendChild(obj.container);
+                document.body.appendChild(rootDiv);
+                const marker = new ol.Overlay({
+                    position: this._createGeometry(serie.type, obj),
+                    positioning: 'center-center',
+                    element: rootDiv,
+                    stopEvent: false
+                });
+                this._markerLayer.push(marker);
+                this.map.addOverlay(marker);
+
+            });
+
 
         } else {
 
@@ -284,7 +312,6 @@ export default class hyMap extends hylayers {
 
             });
 
-
             const style = this._createStyle(serie);
             let source = new ol.source.Vector();
             source.on('addfeature', function(evt) {
@@ -295,12 +322,12 @@ export default class hyMap extends hylayers {
             source.addFeatures(array);
             let vector = new ol.layer.Vector({
                 source: source,
-                style: function() {
+                style: function(feature, resolution, type) {
 
-                    return style;
+                    type = type ? type : 'normal';
+                    return style[type];
 
                 }
-
             });
             source.vector = vector;
             vector.set('showPopup', serie.showPopup);
@@ -352,7 +379,7 @@ export default class hyMap extends hylayers {
 
         } else if (type == 'chart') {
 
-            return geometry;
+            return [obj['lon'], obj['lat']];
 
         }
         return geometry;
@@ -368,7 +395,7 @@ export default class hyMap extends hylayers {
         this.clickSelect = new ol.interaction.Select({
             style: function(feature) {
 
-                // console.log(feature)
+                return typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()('', '', 'select') : feature.source.vector.getStyle();
 
             }
 
@@ -399,15 +426,15 @@ export default class hyMap extends hylayers {
             }
             if (selFeatures && selFeatures.length > 0) {
 
-
                 const selFeature = selFeatures[0];
                 const coordinate = selFeature.getGeometry().getCoordinates();
+
                 const layer = selFeature.source.vector;
+
                 let div = null;
                 if (layer.get('showPopup') || layer.get('showPopup') === 'true') {
 
                     // evt.target.addCondition_ = () => (true);
-
                     div = document.getElementById('hy-popup-content');
                     this._overlay.feature = selFeature;
                     this._overlay.setPosition(coordinate);
@@ -426,13 +453,95 @@ export default class hyMap extends hylayers {
                 evt.target.getFeatures().get('length') == 0 && evt.target.getFeatures().push(selFeature);
 
             }
-
             this.dispatchEvent(result);
 
         }, this);
 
     }
-    _createHoverInteraction() {}
+    _createHoverInteraction() {
+
+        this.clickSelect = new ol.interaction.Select({
+            style: function(feature) {
+
+                return typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()('', '', 'hover') : feature.source.vector.getStyle();
+
+            },
+            condition: function(evt) {
+
+                return evt.type === 'pointermove';
+
+            }
+        });
+        this.map.addInteraction(this.clickSelect);
+        this.clickSelect.on('select', function(evt) {
+            // let result = {};
+            // const selFeatures = evt.selected;
+            // const unSelFeatures = evt.deselected;
+            // if (unSelFeatures && unSelFeatures.length > 0) {
+
+            //     const properties = unSelFeatures[0].getProperties();
+            //     result = {
+            //         type: 'geoUnSelect',
+            //         data: properties,
+            //         feature: unSelFeatures[0],
+            //         select: evt.target
+            //     };
+            //     this._hideOverlay();
+            //     evt.target.getFeatures().remove(unSelFeatures[0]);
+
+            // }
+            // if (selFeatures && selFeatures.length > 0) {
+
+
+            //     const selFeature = selFeatures[0];
+            //     const coordinate = selFeature.getGeometry().getCoordinates();
+            //     const layer = selFeature.source.vector;
+            //     let div = null;
+            //     if (layer.get('showPopup') || layer.get('showPopup') === 'true') {
+
+            //         // evt.target.addCondition_ = () => (true);
+
+            //         div = document.getElementById('hy-popup-content');
+            //         this._overlay.feature = selFeature;
+            //         this._overlay.setPosition(coordinate);
+
+            //     }
+
+            //     let properties = selFeature.getProperties();
+            //     delete properties.geometry;
+            //     properties.id = selFeature.getId();
+            //     result = {
+            //         type: 'geoSelect',
+            //         data: properties,
+            //         element: div
+
+            //     };
+            //     evt.target.getFeatures().get('length') == 0 && evt.target.getFeatures().push(selFeature);
+
+            // }
+
+            // this.dispatchEvent(result);
+
+
+        }, this);
+
+    }
+
+    _createStyleModel(serie) {
+
+        const symbolStyle = serie.symbolStyle;
+        symbolStyle.normal = this._style.normal || symbolStyle.normal;
+        symbolStyle.normal.symbol = serie.symbol;
+        symbolStyle.normal.symbolSize = serie.symbolSize;
+        symbolStyle.hover = symbolStyle.hover || symbolStyle.normal;
+        symbolStyle.select = symbolStyle.select || symbolStyle.normal;
+        let styleModel = Object.assign({}, this._style);
+
+        Object.assign(styleModel, symbolStyle);
+        console.log(styleModel);
+        return styleModel;
+
+    }
 
     /**
      * 创建feature的样式
@@ -441,63 +550,168 @@ export default class hyMap extends hylayers {
      */
     _createStyle(serie) {
 
-        const symbolStyle = serie.symbolStyle;
-        const normal = symbolStyle.normal;
-        let icon;
-        let style;
+        const styleModel = this._createStyleModel(serie);
+
+        let normalStyle;
+        let hoverStyle;
+        let selectStyle;
+
         if (serie.type == 'point') {
 
+            let normalIcon;
+            let hoverIcon;
+            let selectIcon;
             if (serie.symbol == 'circle') {
 
-                icon = new ol.style.Circle({
-                    radius: normal.radius,
-                    stroke: new ol.style.Stroke({
-                        color: normal.strokeColor,
-                        width: 1
-                    }),
-                    fill: new ol.style.Fill({
-                        color: normal.fillColor //'rgba(0,255,255,0.3)'
-                    })
-                });
+                normalIcon = this._createCircleStyle(styleModel.normal);
+                hoverIcon = this._createCircleStyle(styleModel.hover);
+                selectIcon = this._createCircleStyle(styleModel.select);
 
-            } else {
+            } else if (serie.symbol == 'rect') {
 
-                const canvas = document.createElement('canvas');
+                normalIcon = this._createRectStyle(styleModel.normal);
+                hoverIcon = this._createRectStyle(styleModel.hover);
+                selectIcon = this._createRectStyle(styleModel.select);
 
-                let ctx = canvas.getContext('2d');
-                let img = new Image();
-                img.src = serie.symbol.split(':')[1];
+            } else if (serie.symbol.indexOf('icon:') === 0) {
 
-                img.onload = function() {
-
-                    ctx.drawImage(img, 0, 0, normal.symbolwidth, normal.symbolwidth);
-
-                };
-                canvas.setAttribute('width', normal.symbolwidth);
-                canvas.setAttribute('height', normal.symbolwidth);
-                icon = new ol.style.Icon({
-                    // anchor: [0.5, 0.5],
-                    img: canvas,
-                    imgSize: [canvas.width, canvas.height]
-                });
+                normalIcon = this._createIconStyle(serie, styleModel.normal);
+                hoverIcon = this._createIconStyle(serie, styleModel.hover);
+                selectIcon = this._createIconStyle(serie, styleModel.select);
 
             }
 
-            style = new ol.style.Style({
-                image: icon
+            normalStyle = new ol.style.Style({
+                image: normalIcon,
+                text: new ol.style.Text({
+                    font: '12px Calibri,sans-serif',
+                    // text: '1111111111',
+                    fill: new ol.style.Fill({
+                        color: '#000'
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: '#fff',
+                        width: 3
+                    })
+                })
+            });
+            hoverStyle = new ol.style.Style({
+                image: hoverIcon,
+                text: new ol.style.Text({
+                    font: '12px Calibri,sans-serif',
+                    // text: '1111111111',
+                    fill: new ol.style.Fill({
+                        color: '#000'
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: '#fff',
+                        width: 3
+                    })
+                })
+            });
+            selectStyle = new ol.style.Style({
+                image: selectIcon,
+                text: new ol.style.Text({
+                    font: '12px Calibri,sans-serif',
+                    // text: '1111111111',
+                    fill: new ol.style.Fill({
+                        color: '#000'
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: '#fff',
+                        width: 3
+                    })
+                })
             });
 
         } else if (serie.type == 'line') {
 
-            style = new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                    color: 'red',
-                    width: 5
-                })
-            });
+            normalStyle = this._createLineStyle();
+
+        } else if (serie.type == 'polygon') {
 
         }
 
+        const styleObject = {
+            'normal': normalStyle,
+            'hover': hoverStyle,
+            'select': selectStyle
+        };
+
+        return styleObject;
+
+    }
+
+    _createCircleStyle(object) {
+
+        let icon = new ol.style.Circle({
+            radius: object.radius,
+            stroke: new ol.style.Stroke({
+                color: object.strokeColor,
+                width: object.strokeWidth
+            }),
+            fill: new ol.style.Fill({
+                color: object.fillColor //'rgba(0,255,255,0.3)'
+            })
+        });
+        return icon;
+
+    }
+
+    _createRectStyle(object) {
+
+        let icon = new ol.style.RegularShape({
+            fill: new ol.style.Fill({
+                color: object.fillColor
+            }),
+            stroke: new ol.style.Stroke({
+                color: object.strokeColor,
+                width: object.strokeWidth
+            }),
+            points: 4,
+            radius: object.radius,
+            angle: Math.PI / 4
+        });
+
+        return icon;
+
+    }
+
+    _createIconStyle(serie, normal) {
+
+        const canvas = document.createElement('canvas');
+
+        let ctx = canvas.getContext('2d');
+        let img = new Image();
+        img.src = serie.symbol.split(':')[1];
+
+        img.onload = function() {
+
+            ctx.drawImage(img, 0, 0, normal.symbolSize[0], normal.symbolSize[1]);
+
+        };
+        canvas.setAttribute('width', normal.symbolSize[0]);
+        canvas.setAttribute('height', normal.symbolSize[1]);
+        let icon = new ol.style.Icon({
+            // anchor: [0.5, 0.5],
+            img: canvas,
+            imgSize: [canvas.width, canvas.height]
+        });
+        return icon;
+
+    }
+
+    _createLineStyle() {
+
+        let style = new ol.style.Style({
+            fill: new ol.style.Fill({
+                color: 'red'
+            }),
+            stroke: new ol.style.Stroke({
+                color: 'red',
+                width: 3
+            })
+        });
         return style;
 
     }
@@ -562,7 +776,21 @@ export default class hyMap extends hylayers {
 
     }
 
+    _reomoveOverlay(overlay) {
 
+        this.map.removeOverlay(overlay);
+
+    }
+
+    _removeMarkerOverlay() {
+
+        this._markerLayer.forEach((obj) => {
+
+            this._reomoveOverlay(obj);
+
+        });
+
+    }
 
     /**
      * [addPoints description]

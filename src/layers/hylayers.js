@@ -1,8 +1,8 @@
 const ol = require('../../public/lib/ol-debug');
 
 export default class hyLayer {
-
     constructor(options) {
+
         this._basicLayersArray = null;
         this._basicLayerGroup = null;
 
@@ -24,7 +24,8 @@ export default class hyLayer {
     _createBasicLayer() {
 
         //放到图层添加功能中
-        this.geoserverUrl = 'http://192.168.0.50:8080/geoserver/wms';
+        console.log(this._geo);
+        this.geoserverUrl = this._geo.serverUrl;
 
         this._basicLayersArray.push(new ol.layer.Tile({
             source: new ol.source.OSM()
@@ -39,16 +40,16 @@ export default class hyLayer {
                 crossOrigin: 'anonymous'
             })
         }));
-        this._basicLayersArray.push(new ol.layer.Tile({
-            source: new ol.source.TileWMS({
-                url: this.geoserverUrl,
-                params: {
-                    'LAYERS': 'hygis:xzqhbz_pt'
-                },
-                serverTyjpe: 'geoserver',
-                crossOrigin: 'anonymous'
-            })
-        }));
+        // this._basicLayersArray.push(new ol.layer.Tile({
+        //     source: new ol.source.TileWMS({
+        //         url: this.geoserverUrl,
+        //         params: {
+        //             'LAYERS': 'hygis:xzqhbz_pt'
+        //         },
+        //         serverTyjpe: 'geoserver',
+        //         crossOrigin: 'anonymous'
+        //     })
+        // }));
 
         const wmsSource = new ol.source.TileWMS({
             url: this.geoserverUrl,
@@ -62,7 +63,7 @@ export default class hyLayer {
             source: wmsSource
         });
 
-        this._basicLayersArray.push(this.wmsTile);
+        // this._basicLayersArray.push(this.wmsTile);
 
     }
 }

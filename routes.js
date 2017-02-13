@@ -18,18 +18,22 @@ import {
 import {
     App,
     circle,
+    rect,
     icon,
-    line
+    line,
+    chart
 
 } from './test/container/index';
 
 
 const route = (
     <Route path="/" component={App}>
-
-    <Route path = 'circle' component = {circle} />
-     <Route path = 'icon' component = {icon} />
-      <Route path = 'line' component = {line} />
+     <IndexRoute component={circle}/>
+        <Route path = 'chart' component = {chart} />
+        <Route path = 'circle' component = {circle} />
+        <Route path = 'icon' component = {icon} />
+        <Route path = 'line' component = {line} />
+        <Route path = 'rect' component = {rect} />
     </Route>
 )
 

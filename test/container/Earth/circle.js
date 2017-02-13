@@ -14,8 +14,10 @@ import React, {
     Component
 } from 'react';
 import map from '../../../src/index';
+
 class circle extends Component {
     componentDidMount() {
+
         let obj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
@@ -40,15 +42,24 @@ class circle extends Component {
                 symbol: 'circle', //circle|react|icon
                 symbolSize: '', //[min,max]
                 symbolStyle: {
-                    'normal': {
-                        radius: 5,
-                        strokeWidth: 1,
-                        strokeColor: 'red',
-                        fillColor: 'green'
-                    },
-                    'emphasis': {
-
-                    }
+                    // 'normal': {
+                    //     radius: 5,
+                    //     strokeWidth: 1,
+                    //     strokeColor: 'black',
+                    //     fillColor: 'orange'
+                    // },
+                    // 'hover': {
+                    //     radius: 10,
+                    //     strokeWidth: 1,
+                    //     strokeColor: 'red',
+                    //     fillColor: 'pink'
+                    // },
+                    // 'select': {
+                    //     radius: 10,
+                    //     strokeWidth: 5,
+                    //     strokeColor: 'blue',
+                    //     fillColor: 'white'
+                    // }
                 },
                 label: 'mc',
                 showPopup: false

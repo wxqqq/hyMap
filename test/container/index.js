@@ -12,11 +12,16 @@
 'use strict';
 import App from './App/App';
 import circle from './Earth/circle';
+import rect from './Earth/rect';
 import icon from './Earth/icon';
-import line from './Earth/line'
+import line from './Earth/line';
+import chart from './Earth/chart';
+
 export {
     App,
     circle,
+    rect,
     icon,
-    line
+    line,
+    chart
 };
