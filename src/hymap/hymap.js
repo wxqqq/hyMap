@@ -131,7 +131,7 @@ export default class hyMap extends hylayers {
         this.setDom(dom);
 
         this._createOverlay();
-        this._createIntercation();
+
 
     }
 
@@ -257,6 +257,7 @@ export default class hyMap extends hylayers {
             this._createLayer(a);
 
         });
+        this._createIntercation();
 
     }
 
@@ -395,7 +396,7 @@ export default class hyMap extends hylayers {
         this.clickSelect = new ol.interaction.Select({
             style: function(feature) {
 
-                return typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()('', '', 'select') : feature.source.vector.getStyle();
+                //     return typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()('', '', 'select') : feature.source.vector.getStyle();
 
             }
 
@@ -407,7 +408,7 @@ export default class hyMap extends hylayers {
         });
         this.map.addInteraction(this.clickSelect);
         this.clickSelect.on('select', function(evt) {
-
+            console.log(evt)
             let result = {};
             const selFeatures = evt.selected;
             const unSelFeatures = evt.deselected;
@@ -460,7 +461,7 @@ export default class hyMap extends hylayers {
     }
     _createHoverInteraction() {
 
-        this.clickSelect = new ol.interaction.Select({
+        this.hoverSelect = new ol.interaction.Select({
             style: function(feature) {
 
                 return typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()('', '', 'hover') : feature.source.vector.getStyle();
@@ -472,8 +473,8 @@ export default class hyMap extends hylayers {
 
             }
         });
-        this.map.addInteraction(this.clickSelect);
-        this.clickSelect.on('select', function(evt) {
+        this.map.addInteraction(this.hoverSelect);
+        this.hoverSelect.on('select', function(evt) {
             // let result = {};
             // const selFeatures = evt.selected;
             // const unSelFeatures = evt.deselected;
@@ -810,7 +811,6 @@ export default class hyMap extends hylayers {
             'type': 'select',
             [geoType]: [feature]
         };
-
         this.clickSelect.dispatchEvent(e);
 
 
