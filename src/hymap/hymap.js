@@ -2,7 +2,8 @@ import hymapOption from '../options/hymapOption';
 import styleModel from '../model/styleModel';
 import events from '../events/events';
 import hylayers from '../layers/hylayers';
-
+import cityObj from '../model/cityModel';
+import animation from '../animation/animation';
 const ol = require('../../public/lib/ol-debug');
 
 require('../../css/ol.css');
@@ -33,7 +34,7 @@ export default class hyMap extends hylayers {
         };
 
         this._init(dom);
-
+        console.log(cityObj);
         this.setOption(options);
 
     }
@@ -881,10 +882,15 @@ export default class hyMap extends hylayers {
     }
 
     /**
-     * [flyTo description]
+     * [flyto description]
      * @return {[type]} [description]
      */
-    flyTo() {
+    flyto(str) {
+
+        var city = cityObj[str];
+        var geometry = new ol.geom.Point(ol.proj.fromLonLat(city.xy, this.map.getView().getProjection()));
+        var animate = new animation(this.map, geometry, city.zoom);
+        city.zoom == 4 ? animate.centerAndZoom() : animate.flyTo();
 
     }
 

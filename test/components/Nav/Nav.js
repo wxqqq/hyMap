@@ -28,6 +28,7 @@ class Nav extends React.Component {
                 <Link to = 'rect' > rect </Link>
                 <Link to = 'icon' > icon </Link>
                 <Link to = 'line' > line </Link>
+                <Link to = 'mapmethod' > method </Link>
             </div>
         );
 

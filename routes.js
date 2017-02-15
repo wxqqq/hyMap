@@ -21,7 +21,8 @@ import {
     rect,
     icon,
     line,
-    chart
+    chart,
+    mapmethod
 
 } from './test/container/index';
 
@@ -34,6 +35,7 @@ const route = (
         <Route path = 'icon' component = {icon} />
         <Route path = 'line' component = {line} />
         <Route path = 'rect' component = {rect} />
+        <Route path = 'mapmethod' component = {mapmethod} />
     </Route>
 )
 

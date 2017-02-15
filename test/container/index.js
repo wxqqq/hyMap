@@ -16,6 +16,7 @@ import rect from './Earth/rect';
 import icon from './Earth/icon';
 import line from './Earth/line';
 import chart from './Earth/chart';
+import mapmethod from './Earth/mapmethod';
 
 export {
     App,
@@ -23,5 +24,6 @@ export {
     rect,
     icon,
     line,
-    chart
+    chart,
+    mapmethod
 };
