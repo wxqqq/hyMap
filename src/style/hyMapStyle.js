@@ -6,6 +6,7 @@ export default class hyMapStyle {
     constructor() {
 
         this._style = styleModel;
+        this._regionsObj = {};
 
     }
     getStyle() {
@@ -30,8 +31,8 @@ export default class hyMapStyle {
      */
     _createRegionsStyle() {
 
-        this._regionsObj = {};
-        this._geo.regions.forEach(region => {
+
+        this._geo.regions && this._geo.regions.forEach(region => {
 
             const style = this._createGeoStyle(region.itemStyle);
             this._regionsObj[region.name] = style;

@@ -445,7 +445,7 @@ export default class hyMap extends hylayers {
 
                     // evt.target.addCondition_ = () => (true);
                     div = document.getElementById('hy-popup-content');
-                    this._showOverlay();
+                    this._showOverlay(selFeature);
 
                 }
                 evt.target.getFeatures().get('length') == 0 && evt.target.getFeatures().push(selFeature);

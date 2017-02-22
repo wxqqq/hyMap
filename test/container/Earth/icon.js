@@ -52,7 +52,7 @@ class icon extends Component {
 
         });
 
-        obj.on('geoSelect', function(data) {
+        obj.on('click', function(data) {
 
             console.log('getdata:', data);
             let str = '';
@@ -65,7 +65,7 @@ class icon extends Component {
 
         });
 
-        obj.on('geoUnSelect', function(data) {
+        obj.on('unClick', function(data) {
 
             console.log('getundata:', data);
 
@@ -76,7 +76,7 @@ class icon extends Component {
         document.getElementById('select').addEventListener('click', () => {
 
             obj.dispatchAction({
-                type: 'geoselect',
+                type: 'click',
                 id: 1
             });
 
@@ -85,7 +85,7 @@ class icon extends Component {
         document.getElementById('unselect').addEventListener('click', () => {
 
             obj.dispatchAction({
-                type: 'geounselect',
+                type: 'unClick',
                 id: 1
             });
 

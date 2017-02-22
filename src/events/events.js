@@ -16,6 +16,14 @@ const event = {
         geounselect: {
             'arrayType': 'deselected',
             'deselected': []
+        },
+        click: {
+            'arrayType': 'selected',
+            'selected': []
+        },
+        unClick: {
+            'arrayType': 'deselected',
+            'deselected': []
         }
     },
 
