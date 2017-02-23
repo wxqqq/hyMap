@@ -24,12 +24,12 @@ export default class hyMapQuery {
             srsName: 'EPSG:4326',
             featureNS: 'http://www.hygis.com/hygis',
             featureTypes: tables,
-            outputFormat: 'application/json',
-            // filter: filter
-            // filter: ol.format.filter.and(
-            //     ol.format.filter.like('name', 'Mississippi*'),
-            //     ol.format.filter.equalTo('waterway', 'riverbank')
-            // )
+            outputFormat: 'application/json'
+                // filter: filter
+                // filter: ol.format.filter.and(
+                //     ol.format.filter.like('name', 'Mississippi*'),
+                //     ol.format.filter.equalTo('waterway', 'riverbank')
+                // )
         });
         return new XMLSerializer().serializeToString(featureRequest);
 
