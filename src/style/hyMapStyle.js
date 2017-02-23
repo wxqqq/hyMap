@@ -48,6 +48,7 @@ export default class hyMapStyle {
      */
     _createItemStyle(symbolStyle) {
 
+        console.log(symbolStyle)
         let styleModel = Object.assign({}, this._style);
         const normal = Object.assign({}, styleModel.normal, symbolStyle.normal);
         const emphasis = Object.assign({}, styleModel.emphasis, symbolStyle.emphasis);
@@ -97,10 +98,13 @@ export default class hyMapStyle {
     _createStyleModel(serie) {
 
         const symbolStyle = serie.symbolStyle;
-        symbolStyle.normal = this._style.normal || symbolStyle.normal;
-        symbolStyle.normal.symbol = serie.symbol;
-        symbolStyle.normal.symbolSize = serie.symbolSize;
-        let styleModel = this._createItemStyle(symbolStyle);
+        let normal = {
+            symbol: serie.symbol,
+            symbolSize: serie.symbolSize
+        };
+        const tmpNormal = Object.assign(normal, symbolStyle.normal);
+        symbolStyle.normal = tmpNormal;
+        const styleModel = this._createItemStyle(symbolStyle);
         return styleModel;
 
     }
@@ -140,30 +144,12 @@ export default class hyMapStyle {
 
             normal = new ol.style.Style({
                 image: normalIcon,
-                text: new ol.style.Text({
-                    font: '12px Calibri,sans-serif',
-                    fill: new ol.style.Fill({
-                        color: '#000'
-                    }),
-                    stroke: new ol.style.Stroke({
-                        color: '#fff',
-                        width: 3
-                    })
-                })
+                text: this._createTextStyle(styleModel.normal)
             });
 
             emphasis = new ol.style.Style({
                 image: selectIcon,
-                text: new ol.style.Text({
-                    font: '12px Calibri,sans-serif',
-                    fill: new ol.style.Fill({
-                        color: '#000'
-                    }),
-                    stroke: new ol.style.Stroke({
-                        color: '#fff',
-                        width: 3
-                    })
-                })
+                text: this._createTextStyle(styleModel.emphasis)
             });
 
         } else if (serie.type == 'line') {
@@ -187,18 +173,43 @@ export default class hyMapStyle {
         return styleObject;
 
     }
+    _createTextStyle(object) {
 
+        return new ol.style.Text({
+            font: '12px Calibri,sans-serif',
+            fill: new ol.style.Fill({
+                color: '#000'
+            }),
+            stroke: new ol.style.Stroke({
+                color: '#fff',
+                width: 3
+            })
+        });
+
+    }
+    _createFill(fillColor) {
+
+        return new ol.style.Fill({
+            color: fillColor //'rgba(0,255,255,0.3)'
+        });
+
+    }
+
+    _createStroke(strokeWidth, strokeColor) {
+
+        return new ol.style.Stroke({
+            width: strokeWidth,
+            color: strokeColor
+
+        });
+
+    }
     _createCircleStyle(object) {
 
         let icon = new ol.style.Circle({
             radius: object.radius,
-            stroke: new ol.style.Stroke({
-                color: object.strokeColor,
-                width: object.strokeWidth
-            }),
-            fill: new ol.style.Fill({
-                color: object.fillColor //'rgba(0,255,255,0.3)'
-            })
+            stroke: this._createStroke(object.strokeWidth, object.strokeColor),
+            fill: this._createFill(object.fillColor)
         });
         return icon;
 
@@ -207,13 +218,8 @@ export default class hyMapStyle {
     _createRectStyle(object) {
 
         let icon = new ol.style.RegularShape({
-            fill: new ol.style.Fill({
-                color: object.fillColor
-            }),
-            stroke: new ol.style.Stroke({
-                color: object.strokeColor,
-                width: object.strokeWidth
-            }),
+            stroke: this._createStroke(object.strokeWidth, object.strokeColor),
+            fill: this._createFill(object.fillColor),
             points: 4,
             radius: object.radius,
             angle: Math.PI / 4

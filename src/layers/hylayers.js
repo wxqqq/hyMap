@@ -32,9 +32,8 @@ export default class hyLayer extends hyMapStyle {
         // }));
         //放到图层添加功能中
         this.geoserverUrl = this._geo.serverUrl;
-        const style1 = this._createItemStyle(this._geo.itemStyle);
         this._createRegionsStyle();
-        let vectorStyle = this._createGeoStyle(style1);
+        let vectorStyle = this._createGeoStyle(this._geo.itemStyle);
         let vectorSource = new ol.source.Vector();
 
         vectorSource.on('addfeature', evt => {
@@ -51,9 +50,9 @@ export default class hyLayer extends hyMapStyle {
                 type = type ? type : 'normal';
 
                 // feature.getGeometry().getType() === 'Point' &&
-                style[type].setText(new ol.style.Text({
-                    text: feature.get('xzqmc')
-                }));
+                // style[type].setText(new ol.style.Text({
+                //     text: feature.get('xzqmc')
+                // }));
                 return style[type];
 
             }
@@ -73,19 +72,17 @@ export default class hyLayer extends hyMapStyle {
             }
         });
 
-        // then post the request and add the received features to a layer
 
-        // this._basicLayersArray.push(new ol.layer.Tile({
-        //     source: new ol.source.TileWMS({
-        //         url: this.geoserverUrl + '/wms',
-        //         params: {
-        //             'LAYERS': this._geo.map,
-        //             'env': 'color:00FF00;name:triangle;size:12'
-        //         },
-        //         serverTyjpe: 'geoserver',
-        //         crossOrigin: 'anonymous'
-        //     })
-        // }));
+        this._basicLayersArray.push(new ol.layer.Tile({
+            source: new ol.source.TileWMS({
+                url: this.geoserverUrl + '/wms',
+                params: {
+                    'LAYERS': 'shandong_area',
+                },
+                serverTyjpe: 'geoserver',
+                crossOrigin: 'anonymous'
+            })
+        }));
 
         const wmsSource = new ol.source.TileWMS({
             url: this.geoserverUrl + '/wms',

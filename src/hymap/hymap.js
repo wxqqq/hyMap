@@ -1,5 +1,5 @@
 import hymapOption from '../options/hymapOption';
-
+import baseUtil from '../util/baseUtil';
 import events from '../events/events';
 import hylayers from '../layers/hylayers';
 import animation from '../animation/animation';
@@ -62,8 +62,7 @@ export default class hyMap extends hylayers {
             return;
 
         }
-        Object.assign(this._geo, opt_options || {});
-
+        baseUtil.merge(this._geo, opt_options || {}, true);
         //
         if (this._geo.show === true) {
 
@@ -399,6 +398,7 @@ export default class hyMap extends hylayers {
                 return typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()(feature, '', 'emphasis') : feature.source.vector.getStyle();
 
             },
+            multi: true
 
             // addCondition: function(evt) {
 
@@ -409,7 +409,6 @@ export default class hyMap extends hylayers {
         this.map.addInteraction(this.clickSelect);
         this.clickSelect.on('select', function(evt) {
 
-            console.log(evt);
             const selFeatures = evt.selected;
             const unSelFeatures = evt.deselected;
             if (unSelFeatures && unSelFeatures.length > 0) {
@@ -440,7 +439,6 @@ export default class hyMap extends hylayers {
                 properties.id = selFeature.getId();
                 const type = (layer.get('type') && layer.get('type') === 'geo') ? 'geoSelect' : 'click';
                 let div = null;
-                console.log(type);
                 if (layer.get('showPopup') || layer.get('showPopup') === 'true') {
 
                     // evt.target.addCondition_ = () => (true);

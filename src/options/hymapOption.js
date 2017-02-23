@@ -11,7 +11,7 @@ export default {
     itemStyle: {}, //地图上每块区域的样式
     selectedMode: '', //地图区域的选中模式
     theme: 'dark', //地图风格
-    regions: '', //  name: '',特殊区域的样式
+    regions: [], //  name: '',特殊区域的样式
     label: '', //文本标签样式
     series: []
 };

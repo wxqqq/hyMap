@@ -6,8 +6,8 @@ export default {
         radius: 3,
         symbolSize: '', //图形大小
         strokeWidth: 1, //边框宽度
-        strokeColor: 'red', //边框颜色
-        fillColor: 'green',
+        strokeColor: '#c7a3ed', //边框颜色
+        fillColor: '#b5ff91',
         opacity: 0.6 //透明度
     },
     'emphasis': {
@@ -16,7 +16,7 @@ export default {
         symbolSize: '', //图形大小
         strokeWidth: 3, //边框宽度
         strokeColor: 'red', //边框颜色
-        fillColor: '#94DBFF',
+        fillColor: '#8ac007',
         opacity: 0.8 //透明度
     }
 
