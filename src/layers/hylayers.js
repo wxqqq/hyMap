@@ -8,7 +8,9 @@ export default class hyLayer extends hyMapStyle {
 
         super(options);
         this._basicLayersArray = new ol.Collection();
-        this._basicLayerGroup = new ol.layer.Group();
+        this._basicLayerGroup = new ol.layer.Group({
+            zIndex: 99
+        });
         this._basicLayerGroup.setLayers(this._basicLayersArray);
 
     }
@@ -32,8 +34,8 @@ export default class hyLayer extends hyMapStyle {
         // }));
         //放到图层添加功能中
         this.geoserverUrl = this._geo.serverUrl;
-        this._createRegionsStyle();
-        let vectorStyle = this._createGeoStyle(this._geo.itemStyle);
+        let vectorStyle = this._createGeoStyle(this._geo.itemStyle, this._geo.label);
+        this._regionsObj = this._createRegionsStyle(this._geo.regions);
         let vectorSource = new ol.source.Vector();
 
         vectorSource.on('addfeature', evt => {
@@ -44,27 +46,17 @@ export default class hyLayer extends hyMapStyle {
         });
         let vector = new ol.layer.Vector({
             source: vectorSource,
-            style: function(feature, resolution, type) {
-
-                const style = feature.get('style') || vectorStyle;
-                type = type ? type : 'normal';
-
-                // feature.getGeometry().getType() === 'Point' &&
-                // style[type].setText(new ol.style.Text({
-                //     text: feature.get('xzqmc')
-                // }));
-                return style[type];
-
-            }
+            style: this._geoStyleFn
         });
         vector.set('type', 'geo');
+        vector.set('fstyle', vectorStyle);
         vectorSource.vector = vector;
 
         this._basicLayersArray.push(vector);
 
         hyMapQuery.spatialQuery({
             'url': this.geoserverUrl,
-            'msg': hyMapQuery.createFeatureRequest([this._geo.map]),
+            'msg': hyMapQuery.createFeatureRequest([this._geo.map + '_country']),
             'callback': function(features) {
 
                 vectorSource.addFeatures(features);
@@ -73,16 +65,16 @@ export default class hyLayer extends hyMapStyle {
         });
 
 
-        this._basicLayersArray.push(new ol.layer.Tile({
-            source: new ol.source.TileWMS({
-                url: this.geoserverUrl + '/wms',
-                params: {
-                    'LAYERS': 'shandong_area',
-                },
-                serverTyjpe: 'geoserver',
-                crossOrigin: 'anonymous'
-            })
-        }));
+        // this._basicLayersArray.push(new ol.layer.Tile({
+        //     source: new ol.source.TileWMS({
+        //         url: this.geoserverUrl + '/wms',
+        //         params: {
+        //             'LAYERS': 'shandong_area',
+        //         },
+        //         serverTyjpe: 'geoserver',
+        //         crossOrigin: 'anonymous'
+        //     })
+        // }));
 
         const wmsSource = new ol.source.TileWMS({
             url: this.geoserverUrl + '/wms',
@@ -97,6 +89,16 @@ export default class hyLayer extends hyMapStyle {
         });
 
         // this._basicLayersArray.push(this.wmsTile);
+
+    }
+    _geoStyleFn(feature, resolution, type = 'normal') {
+
+        const vectorStyle = feature.source.vector.get('fstyle');
+
+        const style = feature.get('style') || vectorStyle;
+        const text = style[type].getText();
+        text.show && text.setText(feature.get('xzqmc'));
+        return style[type];
 
     }
 }

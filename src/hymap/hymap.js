@@ -238,7 +238,9 @@ export default class hyMap extends hylayers {
     _createGroupLayer() {
 
         this._layersArray = new ol.Collection();
-        this._layerGroup = new ol.layer.Group();
+        this._layerGroup = new ol.layer.Group({
+            zIndex: 5
+        });
         this._layerGroup.setLayers(this._layersArray);
         this.map.addLayer(this._layerGroup);
 
@@ -262,8 +264,9 @@ export default class hyMap extends hylayers {
 
     _createIntercation() {
 
-        this._createSelectInteraction();
         this._createHoverInteraction();
+
+        this._createSelectInteraction();
 
     }
 
@@ -312,7 +315,7 @@ export default class hyMap extends hylayers {
 
             });
 
-            const style = this._createStyle(serie);
+            const style = this._createFeatureStyle(serie);
             let source = new ol.source.Vector();
             source.on('addfeature', function(evt) {
 
@@ -397,8 +400,7 @@ export default class hyMap extends hylayers {
 
                 return typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()(feature, '', 'emphasis') : feature.source.vector.getStyle();
 
-            },
-            multi: true
+            }
 
             // addCondition: function(evt) {
 
@@ -426,7 +428,7 @@ export default class hyMap extends hylayers {
                 this.dispatchEvent({
                     type: type,
                     data: properties,
-                    feature: unSelFeature,
+                    feature: unSelFeatures,
                     select: evt.target
                 });
 

@@ -3,13 +3,14 @@ import React, {
     Component
 } from 'react';
 import map from '../../../src/index';
+
 class line extends Component {
     componentDidMount() {
-        console.log(map)
+
         let obj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
-            map: 'xzqh', //当前地图显示哪个地图
+            map: 'shandongsheng', //当前地图显示哪个地图
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 7, //当前地图缩放比例
@@ -31,10 +32,7 @@ class line extends Component {
                 symbolSize: '',
                 symbolStyle: {
                     'normal': {
-
-                        width: 25,
-
-                        height: 25
+                        strokeColor: 'red'
                     },
                     'emphasis': {
 
@@ -47,22 +45,12 @@ class line extends Component {
 
         });
 
-        obj.on('geoSelect', function(data) {
 
-            console.log('getdata:', data);
-
-        });
-
-        obj.on('geoUnSelect', function(data) {
-
-            console.log('getundata:', data);
-
-        });
     }
     render() {
 
         return (<div id = 'map' > </div>);
-    }
 
+    }
 }
-export default line
+export default line;

@@ -15,16 +15,8 @@ export default {
         radius: 5,
         symbolSize: '', //图形大小
         strokeWidth: 3, //边框宽度
-        strokeColor: 'red', //边框颜色
-        fillColor: '#8ac007',
+        strokeColor: 'rgb(130,141,137)', //边框颜色
+        fillColor: 'rgba(138,192,7,0.5)',
         opacity: 0.8 //透明度
     }
-
-    // getColorByRandom(colorList) {
-    //     var colorList = ['#B5FF91', '#94DBFF', '#FFBAFF', '#FFBD9D', '#C7A3ED', '#CC9898', '#8AC007', '#CCC007', '#FFAD5C'];
-
-    //     var colorIndex = Math.floor(Math.random() * colorList.length);
-    //     var color = colorList[colorIndex];
-    //     return color;
-    // }
 };
