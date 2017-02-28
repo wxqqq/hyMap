@@ -213,8 +213,16 @@ instance.show({
 ```
 
 ```
-instance.createGeoLayer(mapName:string)
+instance.setGeo(mapname:string)
+china/shandongsheng/jinanshi 地址的拼音
 设置geo地图
+```
+
+
+```
+instance.setTheme(theme:string)
+'dark','blue','white' 默认为blue
+设置底图主题样式
 ```
 
 ```
@@ -227,6 +235,15 @@ instance.getServerUrl()
 获取设置的地图服务器地址
 ```
 
+```
+instance.addSeries([serie])
+增加serie数据，会清空地图上的serie。
+```
+
+```
+instance.addSerie(serie)
+增加serie数据，不会清除地图上已存在的serie
+```
 
 ------
 ##地图命名规范

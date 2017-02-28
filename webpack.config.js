@@ -18,7 +18,7 @@ const libJson = require('./lib_manifest.json');
 
 // const hotMiddlewareScript = 'webpack-hot-middleware/client?reload=true';
 const hostConfig = {
-    host: 'localhost',
+    host: '192.168.3.144',
     port: '8110'
 };
 const publicPath = '/build/';

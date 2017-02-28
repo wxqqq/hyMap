@@ -74,11 +74,18 @@ export default class hyMap extends hylayers {
 
         }
 
-        this._createView();
-        this.setServerUrl(this._geo.serverUrl);
-        this.setTheme(this._geo.theme);
-        this.setGeo(this._geo.map);
-        this.setSeries(this._geo.series);
+        this.setGeo(this._geo); //设置geo配置
+        this.setSeries(this._geo.series); //设置series
+        this.setTheme(this._geo.theme); //设置theme主题
+
+    }
+
+    setGeo(geo) {
+
+        this.setServerUrl(geo.serverUrl || this._geo.serverUrl);
+        this.setView(geo);
+        this.setGeoStyle(geo);
+        this.setGeoSource(geo.map);
 
     }
 
@@ -175,7 +182,7 @@ export default class hyMap extends hylayers {
     }
 
     /**
-     * 增加logo，未生效
+     * 增加logo
      * @return {[type]} [description]
      */
     getLogo() {
@@ -199,19 +206,24 @@ export default class hyMap extends hylayers {
      * 创建view
      * @return {[type]} [description]
      */
-    _createView() {
+    setView({
+        scaleLimit = [2, 18],
+        roam = true,
+        center = [118.62778784888256, 36.58892145091036],
+        zoom = 3
+    }) {
 
-        let minZoom = this._geo.scaleLimit[0];
-        let maxZoom = this._geo.scaleLimit[1];
+        let minZoom = scaleLimit[0];
+        let maxZoom = scaleLimit[1];
         //限制缩放
-        if (this._geo.roam === 'false' || this._geo.roam == 'pan') {
+        if (roam === 'false' || roam == 'pan') {
 
-            minZoom = this._geo.zoom;
-            maxZoom = this._geo.zoom;
+            minZoom = zoom;
+            maxZoom = zoom;
 
         }
         //限制平移
-        if (this._geo.roam === 'false' || this._geo.roam == 'scale') {
+        if (roam === 'false' || roam == 'scale') {
 
             this.map.on('pointerdrag', this._panFunction);
 
@@ -221,18 +233,14 @@ export default class hyMap extends hylayers {
 
         }
         this.view = new ol.View({
-            center: this._geo.center,
-            zoom: this._geo.zoom,
+            center: center,
+            zoom: zoom,
             enableRotation: false,
             minZoom: minZoom,
             maxZoom: maxZoom,
             projection: 'EPSG:4326'
                 // extent: []
-                // zoomFactor: 2
-                // resolutions: [0.005767822265625, 0.00494384765625,
-                //     0.004119873046875, 0.0020599365234375, 0.00102996826171875,
-                //     0.000514984130859375, 0.0002574920654296875, 0.00012874603271484375
-                // ]
+
         });
 
         this.map.setView(this.view);
@@ -297,7 +305,6 @@ export default class hyMap extends hylayers {
 
         if (serie.type == 'chart') {
 
-            this._removeMarkerOverlay();
             data.forEach(obj => {
 
                 let rootDiv = document.createElement('div');
@@ -335,6 +342,7 @@ export default class hyMap extends hylayers {
             source.on('addfeature', function(evt) {
 
                 evt.feature.source = source;
+
 
             });
             source.addFeatures(array);

@@ -26,10 +26,20 @@ class mapmethod extends Component {
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 7, //当前地图缩放比例
-            scaleLimit: [5, 12], //滚轮缩放的边界
+            scaleLimit: [2, 12], //滚轮缩放的边界
             label: {
                 'normal': {
-                    show: false,
+                    show: true,
+                    textStyle: {
+                        color: '#fff',
+                        fontStyle: 'normal',
+                        fontWeight: 'bold',
+                        fontFamily: 'sans-serif',
+                        fontSize: '16px'
+                    }
+                },
+                'emphasis': {
+                    show: true,
                     textStyle: {
                         color: '#fff',
                         fontStyle: 'normal',
@@ -118,6 +128,27 @@ class mapmethod extends Component {
             });
 
         });
+        //选中
+        document.getElementById('changecq').addEventListener('click', () => {
+
+            obj.setGeo({
+                map: 'chongqing',
+                center: [107.98613, 29.653439],
+                zoom: 8
+            });
+
+
+        });
+        //选中
+        document.getElementById('changesd').addEventListener('click', () => {
+
+            obj.setGeo({
+                map: 'shandongsheng',
+                center: [117, 36.20],
+                zoom: 7
+            });
+
+        });
 
         Array.from(document.getElementsByClassName('theme')).forEach(function(element) {
 
@@ -141,6 +172,8 @@ class mapmethod extends Component {
 
         });
 
+
+
     }
     render() {
 
@@ -149,7 +182,8 @@ class mapmethod extends Component {
                     <input id='show' type='button' value='显示地图' />
                     <input id='fly' type='button' value='飞到济南'/>
                     <input id='flychina' type='button' value='返回全国' />
-
+                    <input id='changecq' type='button' value='修改区域（重庆）'/>
+                    <input id='changesd' type='button' value='修改区域（山东）'/>
                     <div>
                     <input className='theme' id='dark' type='button' value='黑色-dark'/>
                     <input className='theme' id='white' type='button' value='白色-white'/>

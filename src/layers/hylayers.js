@@ -29,13 +29,17 @@ export default class hyLayer extends hyMapStyle {
 
     }
 
+    /**
+     * [createGeoLayer description]
+     * @return {[type]} [description]
+     */
     createGeoLayer() {
 
         this.geoVectorSource = new ol.source.Vector();
         this.geoVectorSource.on('addfeature', evt => {
 
             evt.feature.source = this.geoVectorSource;
-            evt.feature.set('style', this._regionsObj[evt.feature.get('xzqmc')]);
+            evt.feature.set('style', this._regionsObj[evt.feature.get('name')]);
 
         });
         this.geoVector = new ol.layer.Vector({
@@ -49,13 +53,18 @@ export default class hyLayer extends hyMapStyle {
 
     }
 
-    setGeo(mapName) {
+    /**
+     * [setGeoSource description]
+     * @param {[type]} mapName [description]
+     */
+    setGeoSource(mapName) {
 
         if (mapName) {
 
+            this.geoVectorSource.clear();
             hyMapQuery.spatialQuery({
                 'url': this._serverUrl,
-                'msg': hyMapQuery.createFeatureRequest([mapName + '_country']),
+                'msg': hyMapQuery.createFeatureRequest([mapName + '_countries']),
                 'callback': (features) => {
 
                     this.geoVectorSource.addFeatures(features);
@@ -68,13 +77,26 @@ export default class hyLayer extends hyMapStyle {
             this.baseLayer.setSource();
 
         }
-        this._regionsObj = this._createRegionsStyle(this._geo.regions);
-        let vectorStyle = this._createGeoStyle(this._geo.itemStyle, this._geo.label);
-        this.geoVector.set('fstyle', vectorStyle);
 
 
     }
 
+    setGeoStyle({
+        regions,
+        itemStyle,
+        label
+    }) {
+
+        this._regionsObj = this._createRegionsStyle(regions);
+        let vectorStyle = this._createGeoStyle(itemStyle || this._geo.itemStyle, label || this._geo.label);
+        this.geoVector.set('fstyle', vectorStyle);
+
+    }
+
+    /**
+     * [setTheme description]
+     * @param {String} theme [description]
+     */
     setTheme(theme = 'dark') {
 
         if (theme == 'white') {
@@ -157,7 +179,7 @@ export default class hyLayer extends hyMapStyle {
 
         const style = feature.get('style') || vectorStyle;
         const text = style[type].getText();
-        text.show && text.setText(feature.get('xzqmc'));
+        text.show && text.setText(feature.get('name'));
         return style[type];
 
     }
