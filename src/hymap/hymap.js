@@ -77,8 +77,8 @@ export default class hyMap extends hylayers {
         this._createView();
         this.setServerUrl(this._geo.serverUrl);
         this.setTheme(this._geo.theme);
-        this.createGeoLayer(this._geo.map);
-        this._createLayers(this._geo.series);
+        this.setGeo(this._geo.map);
+        this.setSeries(this._geo.series);
 
     }
 
@@ -264,11 +264,13 @@ export default class hyMap extends hylayers {
      * @param  {[type]} series [description]
      * @return {[type]}        [description]
      */
-    _createLayers(series) {
+    setSeries(series) {
 
+        this._layersArray.clear();
+        this._removeMarkerOverlay();
         series.forEach((a) => {
 
-            this._createLayer(a);
+            this.setSerie(a);
 
         });
 
@@ -288,7 +290,7 @@ export default class hyMap extends hylayers {
      * @param  {[type]} serie [description]
      * @return {[type]}       [description]
      */
-    _createLayer(serie) {
+    setSerie(serie) {
 
         const data = serie.data;
         let array = [];
@@ -636,15 +638,6 @@ export default class hyMap extends hylayers {
 
     }
 
-    /**
-     * [addPoints description]
-     * @param {[type]} serie [description]
-     */
-    addPoints(serie) {
-
-        this._createLayer(serie);
-
-    }
 
     dispatchAction(evt) {
 

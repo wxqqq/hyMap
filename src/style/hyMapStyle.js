@@ -150,7 +150,7 @@ export default class hyMapStyle {
     _createRegionsStyle(regions = []) {
 
         let regionObj = {};
-        regions.forEach(region => {
+        regions && regions.forEach(region => {
 
             const style = this._createGeoStyle(region.itemStyle, region.label);
             regionObj[region.name] = style;

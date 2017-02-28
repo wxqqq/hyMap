@@ -13,6 +13,8 @@ export default class hyLayer extends hyMapStyle {
         });
         this._basicLayerGroup.setLayers(this._basicLayersArray);
         this.baseLayer = new ol.layer.Tile();
+        this.geoVectorSource = null;
+
     }
 
     /**
@@ -20,51 +22,62 @@ export default class hyLayer extends hyMapStyle {
      * @return {[type]} [description]
      */
     _createBasicGroup() {
-        this._basicLayersArray.push(this.baseLayer)
+
+        this._basicLayersArray.push(this.baseLayer);
         this.map.addLayer(this._basicLayerGroup);
+        this.createGeoLayer();
 
     }
 
-    createGeoLayer(mapName) {
+    createGeoLayer() {
 
-        let vectorStyle = this._createGeoStyle(this._geo.itemStyle, this._geo.label);
-        this._regionsObj = this._createRegionsStyle(this._geo.regions);
+        this.geoVectorSource = new ol.source.Vector();
+        this.geoVectorSource.on('addfeature', evt => {
 
-        let vectorSource = new ol.source.Vector();
-
-        vectorSource.on('addfeature', evt => {
-
-            evt.feature.source = vectorSource;
+            evt.feature.source = this.geoVectorSource;
             evt.feature.set('style', this._regionsObj[evt.feature.get('xzqmc')]);
 
         });
-        let vector = new ol.layer.Vector({
-            source: vectorSource,
+        this.geoVector = new ol.layer.Vector({
+            source: this.geoVectorSource,
             style: this._geoStyleFn
         });
-        vector.set('type', 'geo');
-        vector.set('fstyle', vectorStyle);
-        vectorSource.vector = vector;
-
-        this._basicLayersArray.push(vector);
-
-        hyMapQuery.spatialQuery({
-            'url': this._serverUrl,
-            'msg': hyMapQuery.createFeatureRequest([mapName + '_country']),
-            'callback': function(features) {
-
-                vectorSource.addFeatures(features);
-
-            }
-        });
-        return vector;
+        this.geoVector.set('type', 'geo');
+        this.geoVectorSource.vector = this.geoVector;
+        this._basicLayersArray.push(this.geoVector);
+        return this.geoVector;
 
     }
 
+    setGeo(mapName) {
 
-    setTheme(mapName = 'dark') {
+        if (mapName) {
 
-        if (mapName == 'white') {
+            hyMapQuery.spatialQuery({
+                'url': this._serverUrl,
+                'msg': hyMapQuery.createFeatureRequest([mapName + '_country']),
+                'callback': (features) => {
+
+                    this.geoVectorSource.addFeatures(features);
+
+                }
+            });
+
+        } else {
+
+            this.baseLayer.setSource();
+
+        }
+        this._regionsObj = this._createRegionsStyle(this._geo.regions);
+        let vectorStyle = this._createGeoStyle(this._geo.itemStyle, this._geo.label);
+        this.geoVector.set('fstyle', vectorStyle);
+
+
+    }
+
+    setTheme(theme = 'dark') {
+
+        if (theme == 'white') {
 
             this.baseLayer.setSource(
                 new ol.source.OSM({
@@ -72,7 +85,7 @@ export default class hyLayer extends hyMapStyle {
                 })
             );
 
-        } else if (mapName == 'dark') {
+        } else if (theme == 'dark') {
 
             this.baseLayer.setSource(
                 new ol.source.TileWMS({
