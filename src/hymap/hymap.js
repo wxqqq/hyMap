@@ -75,8 +75,9 @@ export default class hyMap extends hylayers {
         }
 
         this._createView();
-        this._createBasicLayer();
-
+        this.setServerUrl(this._geo.serverUrl);
+        this.setTheme(this._geo.theme);
+        this.createGeoLayer(this._geo.map);
         this._createLayers(this._geo.series);
 
     }
@@ -130,6 +131,18 @@ export default class hyMap extends hylayers {
 
         this._createOverlay();
         this._createIntercation();
+
+    }
+
+    setServerUrl(url) {
+
+        this._serverUrl = url;
+
+    }
+
+    getServerUrl() {
+
+        return this._serverUrl;
 
     }
 
@@ -714,11 +727,21 @@ export default class hyMap extends hylayers {
      * [flyto description]
      * @return {[type]} [description]
      */
-    flyto(city) {
+    flyto({
+        geoCoord,
+        animateDuration = 2000,
+        zoom = 5,
+        animateEasing = ''
+    }, callback) {
 
-        var geometry = new ol.geom.Point(ol.proj.fromLonLat(city.xy, this.map.getView().getProjection()));
-        var animate = new animation(this.map, geometry, city.zoom);
-        city.zoom === 4 ? animate.centerAndZoom() : animate.flyTo();
+        var geometry = new ol.geom.Point(ol.proj.fromLonLat(geoCoord, this.map.getView().getProjection()));
+        var animate = new animation(this.map, geometry, zoom, animateDuration);
+        zoom === 5 ? animate.centerAndZoom() : animate.flyTo();
+        if (callback && typeof callback == 'function') {
+
+            callback();
+
+        }
 
     }
 

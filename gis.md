@@ -212,6 +212,21 @@ instance.show({
 
 ```
 
+```
+instance.createGeoLayer(mapName:string)
+设置geo地图
+```
+
+```
+instance.setServerUrl(url:string)
+设置地图服务器地址
+```
+
+```
+instance.getServerUrl()
+获取设置的地图服务器地址
+```
+
 
 ------
 ##地图命名规范

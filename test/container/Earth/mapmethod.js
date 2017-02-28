@@ -20,6 +20,7 @@ class mapmethod extends Component {
 
         let obj = map.init(document.getElementById('map'));
         let options = {
+            serverUrl: 'http://192.168.0.50:8080/geoserver',
             show: true, //地图的显示状态 true为显示 false 为不显示
             map: 'shandongsheng', //当前地图显示哪个地图
             roam: 'true', //地图是否开启缩放、平移功能
@@ -67,20 +68,24 @@ class mapmethod extends Component {
                     'normal': {
                         show: true,
                         textStyle: {
-                            color: 'red',
-                            fontStyle: 'normal',
-                            fontWeight: 'normal',
-                            fontFamily: 'sans-serif',
-                            fontSize: '16px'
+                            color: 'red'
                         }
                     },
                     'emphasis': {
-                        color: 'yellow'
+                        show: true,
+                        textStyle: {
+                            color: '#B5FF91',
+                            fontStyle: 'italic',
+                            fontWeight: 'bold',
+                            fontFamily: 'sans-serif',
+                            fontSize: '16px'
+                        }
+
                     }
                 }
             }], //  name: '',特殊区域的样式
             selectedMode: '', //地图区域的选中模式 single mulit
-            theme: 'dark', //地图风格
+            theme: 'blue', //地图风格
             series: []
         };
         obj.setOption(options);
@@ -99,8 +104,8 @@ class mapmethod extends Component {
         document.getElementById('fly').addEventListener('click', () => {
 
             obj.flyto({
-                xy: [116.98514, 36.66443],
-                zoom: 12
+                geoCoord: [116.98514, 36.66443],
+                zoom: 10
             });
 
         });
@@ -108,11 +113,22 @@ class mapmethod extends Component {
         document.getElementById('flychina').addEventListener('click', () => {
 
             obj.flyto({
-                xy: [117, 36.20],
-                zoom: 4
+                geoCoord: [117, 36.20],
+                zoom: 5
             });
 
         });
+
+        Array.from(document.getElementsByClassName('theme')).forEach(function(element) {
+
+            element.addEventListener('click', () => {
+
+                obj.setTheme(element.id);
+
+            });
+
+        });
+
         obj.on('geoSelect', function(data) {
 
             console.log('getdata:', data);
@@ -133,6 +149,12 @@ class mapmethod extends Component {
                     <input id='show' type='button' value='显示地图' />
                     <input id='fly' type='button' value='飞到济南'/>
                     <input id='flychina' type='button' value='返回全国' />
+
+                    <div>
+                    <input className='theme' id='dark' type='button' value='黑色-dark'/>
+                    <input className='theme' id='white' type='button' value='白色-white'/>
+                    <input className='theme' id='blue' type='button' value='蓝色-blue'/>
+                    </div>
                     <div id = 'map' ></div>
             </div>);
 

@@ -5,8 +5,8 @@ export default class animation {
 
         this.map = map;
         this._view = this.map.getView();
-        this.duration = duration ? duration : 2000;
-        this._zoom = zoom ? zoom : 8;
+        this.duration = duration || 2000;
+        this._zoom = zoom || 8;
         this._geometry = geometry;
         this._coords = geometry.getCoordinates();
 

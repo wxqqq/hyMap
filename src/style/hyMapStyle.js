@@ -194,10 +194,11 @@ export default class hyMapStyle {
         const style = this._createItemStyle(itemStyle);
         let nText = this._createTextStyle(normal.textStyle);
         nText.show = normal.show;
-
+        let eText = this._createTextStyle(emphasis.textStyle);
+        eText.show = emphasis.show;
         return {
             normal: this._createStyle(this._createStroke(style.normal.strokeWidth, style.normal.strokeColor), this._createFill(style.normal.fillColor), nText),
-            emphasis: this._createStyle(this._createStroke(style.emphasis.strokeWidth, style.emphasis.strokeColor), this._createFill(style.emphasis.fillColor), this._createTextStyle(emphasis.textStyle))
+            emphasis: this._createStyle(this._createStroke(style.emphasis.strokeWidth, style.emphasis.strokeColor), this._createFill(style.emphasis.fillColor), eText)
         };
 
     }
