@@ -25,7 +25,9 @@ export default class hyLayer extends hyMapStyle {
 
         this._basicLayersArray.push(this.baseLayer);
         this.map.addLayer(this._basicLayerGroup);
-        this.createGeoLayer();
+        this.geoVector = this.createGeoLayer();
+        this._basicLayersArray.push(this.geoVector);
+        this.geoVectorSource = this.geoVector.getSource();
 
     }
 
@@ -35,21 +37,22 @@ export default class hyLayer extends hyMapStyle {
      */
     createGeoLayer() {
 
-        this.geoVectorSource = new ol.source.Vector();
-        this.geoVectorSource.on('addfeature', evt => {
+        let geoVectorSource = new ol.source.Vector();
+        geoVectorSource.on('addfeature', evt => {
 
             evt.feature.source = this.geoVectorSource;
             evt.feature.set('style', this._regionsObj[evt.feature.get('name')]);
 
         });
-        this.geoVector = new ol.layer.Vector({
-            source: this.geoVectorSource,
+        let geoVector = new ol.layer.Vector({
+            source: geoVectorSource,
             style: this._geoStyleFn
         });
-        this.geoVector.set('type', 'geo');
-        this.geoVectorSource.vector = this.geoVector;
-        this._basicLayersArray.push(this.geoVector);
-        return this.geoVector;
+        geoVector.set('type', 'geo');
+        geoVectorSource.vector = geoVector;
+
+
+        return geoVector;
 
     }
 

@@ -134,7 +134,14 @@ class mapmethod extends Component {
             obj.setGeo({
                 map: 'chongqing',
                 center: [107.98613, 29.653439],
-                zoom: 8
+                zoom: 8,
+                itemStyle: {
+                    'normal': {
+                        strokeWidth: 1, //边框宽度
+                        strokeColor: '#111', //边框颜色
+                        fillColor: '#323c48'
+                    }
+                }
             });
 
 

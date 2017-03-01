@@ -20,10 +20,10 @@ class App extends Component {
     render() {
 
         return (<div className = 'App'>
-            <Nav/> {
+            <Nav/><div className='content'> {
                 this.props.children
               
-            } </div>);
+            }</div></div>);
 
     }
 }

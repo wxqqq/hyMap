@@ -9,6 +9,10 @@
 * @Descript:
 */
 
+.Nav {
+	float:left;
+	height: 100%;
+}
 .Nav a {
     display: block;
     text-align: center;
@@ -19,3 +23,10 @@
 .nav a:focus {
     color: blue;
 }
+
+.content{
+	float:right;
+	width: 90%;
+	height: 100%
+}
+
