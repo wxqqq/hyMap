@@ -205,9 +205,8 @@ export default class hyMapStyle {
         const stroke = this._createStroke(styleModel.strokeWidth, styleModel.strokeColor);
         const fill = this._createFill(styleModel.fillColor);
         if (symbol == 'circle') {
-            console.log(symbol)
-            image = this._createCircleStyle(styleModel.symbolSize, fill, stroke);
 
+            image = this._createCircleStyle(styleModel.symbolSize, fill, stroke);
 
         } else if (symbol == 'rect') {
 

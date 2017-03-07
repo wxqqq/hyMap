@@ -348,11 +348,11 @@ export default class hyMap extends hylayers {
             data.forEach((obj) => {
 
                 let feature = new ol.Feature({
-                    geometry: this._createGeometry(serie.type, obj)
+                    geometry: this._createGeometry(serie.type, obj),
+                    dataIndex: new Date().getTime()
 
                 });
                 feature.setProperties(obj);
-
                 feature.setId(obj.id);
                 // const featurestyle = this._createGeoStyle(serie.itemStyle, serie.label);
                 // console.log(featurestyle) 

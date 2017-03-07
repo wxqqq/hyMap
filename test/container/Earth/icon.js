@@ -78,7 +78,7 @@ class icon extends Component {
             obj.setTooltip({
                 show: true,
                 trigger: ['item', 'geo'], // item、map  ['item', 'geo']
-                triggeron: 'mouseover', //'click', // click, mouseover, mousemove, dblclick , ['click'],
+                triggeron: 'click', //'click', // click, mouseover, mousemove, dblclick , ['click'],
                 enterable: true, //true 鼠标是否可进入浮出泡泡框中
                 style: {
                     'border-color': '#cc0',

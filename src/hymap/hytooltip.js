@@ -27,7 +27,6 @@ export default class hytooltip extends hyMapStyle {
     setTooltip(options) {
 
         const opt = options || {};
-        console.log(options)
         this.tooltipShow = opt.show || false;
         this.formatter = baseUtil.isFunction(opt.formatter) ? opt.formatter : undefined;
         this.tooltipOffset = baseUtil.isFunction(opt.position) ? opt.position : [0, 0];
@@ -254,7 +253,7 @@ export default class hytooltip extends hyMapStyle {
 
                 // && (layer.get('showPopup') || layer.get('showPopup') === 'true')) {
                 // evt.target.addCondition_ = () => (true);
-                div = document.getElementById('hy-popup-content');
+                div = this._overlay.getElement();
                 const st = this.formatter({
                     dataIndex: 1,
                     value: 3
@@ -296,11 +295,8 @@ export default class hytooltip extends hyMapStyle {
             }
             if (this.tooltipShow && this.tooltipTrigger.indexOf(layerType) > -1 && this.tooltipTriggeron.indexOf('mouseout') > -1) {
 
-                let div = document.getElementById('hy-popup-content');
-                const st = this.formatter({
-                    dataIndex: 1,
-                    value: 3
-                });
+                let div = this._overlay.getElement();
+                const st = this.formatter(properties);
                 baseUtil.isDom(st) ? div.appendChild(st) : div.innerHTML = st;
                 this._showOverlay(unSelFeature);
 
@@ -328,11 +324,8 @@ export default class hytooltip extends hyMapStyle {
 
                 // && (layer.get('showPopup') || layer.get('showPopup') === 'true')) {
                 // evt.target.addCondition_ = () => (true);
-                div = document.getElementById('hy-popup-content');
-                const st = this.formatter({
-                    dataIndex: 1,
-                    value: 3
-                });
+                div = this._overlay.getElement();
+                const st = this.formatter(properties);
                 baseUtil.isDom(st) ? div.appendChild(st) : div.innerHTML = st;
                 this._showOverlay(selFeature);
 
