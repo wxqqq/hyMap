@@ -1,9 +1,9 @@
 import hyMapQuery from '../query/hyMapQuery';
-import hyMapStyle from '../style/hyMapStyle';
+import tooltip from '../hymap/hytooltip';
 
 const ol = require('../../public/lib/ol');
 
-export default class hyLayer extends hyMapStyle {
+export default class hyLayer extends tooltip {
     constructor(options) {
 
         super(options);
@@ -80,7 +80,6 @@ export default class hyLayer extends hyMapStyle {
             this.baseLayer.setSource();
 
         }
-
 
     }
 
@@ -179,10 +178,9 @@ export default class hyLayer extends hyMapStyle {
     _geoStyleFn(feature, resolution, type = 'normal') {
 
         const vectorStyle = feature.source.vector.get('fstyle');
-
         const style = feature.get('style') || vectorStyle;
         const text = style[type].getText();
-        text.show && text.setText(feature.get('name'));
+        text && text.show && text.setText(feature.get('name'));
         return style[type];
 
     }

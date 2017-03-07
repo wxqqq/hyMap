@@ -54,6 +54,10 @@ export default class hyMapQuery {
 
             options.callback(new ol.format.GeoJSON().readFeatures(json));
 
+        }).catch(function(e) {
+
+            options.callback({});
+
         });
 
     }

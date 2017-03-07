@@ -77,6 +77,7 @@ export default class hyMap extends hylayers {
         this.setGeo(this._geo); //设置geo配置
         this.setSeries(this._geo.series); //设置series
         this.setTheme(this._geo.theme); //设置theme主题
+        this.setTooltip(opt_options.tooltip);
 
     }
 
@@ -325,6 +326,25 @@ export default class hyMap extends hylayers {
 
         } else {
 
+            let source = new ol.source.Vector();
+            source.on('addfeature', function(evt) {
+
+                evt.feature.source = source;
+
+            });
+
+            let vector = new ol.layer.Vector({
+                source: source,
+                style: this._geoStyleFn
+            });
+            vector.set('type', 'item');
+            source.vector = vector;
+            vector.set('showPopup', serie.showPopup);
+            const style = this._createFeatureStyle(serie);
+            vector.set('fstyle', style);
+
+            this._layersArray.push(vector);
+
             data.forEach((obj) => {
 
                 let feature = new ol.Feature({
@@ -332,32 +352,15 @@ export default class hyMap extends hylayers {
 
                 });
                 feature.setProperties(obj);
+
                 feature.setId(obj.id);
+                // const featurestyle = this._createGeoStyle(serie.itemStyle, serie.label);
+                // console.log(featurestyle) 
+                // feature.set('style', featurestyle);
                 array.push(feature);
 
             });
-
-            const style = this._createFeatureStyle(serie);
-            let source = new ol.source.Vector();
-            source.on('addfeature', function(evt) {
-
-                evt.feature.source = source;
-
-
-            });
             source.addFeatures(array);
-            let vector = new ol.layer.Vector({
-                source: source,
-                style: function(feature, resolution, type) {
-
-                    type = type ? type : 'normal';
-                    return style[type];
-
-                }
-            });
-            source.vector = vector;
-            vector.set('showPopup', serie.showPopup);
-            this._layersArray.push(vector);
 
         }
 
@@ -412,241 +415,12 @@ export default class hyMap extends hylayers {
 
     }
 
-    /**
-     * 创建选中事件
-     * @return {[type]} [description]
-     */
-    _createSelectInteraction() {
-
-        this.clickSelect = new ol.interaction.Select({
-            style: function(feature) {
-
-                return typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()(feature, '', 'emphasis') : feature.source.vector.getStyle();
-
-            }
-
-            // addCondition: function(evt) {
-
-            //     return true;
-
-            // }
-        });
-        this.map.addInteraction(this.clickSelect);
-        this.clickSelect.on('select', function(evt) {
-
-            const selFeatures = evt.selected;
-            const unSelFeatures = evt.deselected;
-            if (unSelFeatures && unSelFeatures.length > 0) {
-
-                const unSelFeature = unSelFeatures[0];
-                const properties = unSelFeature.getProperties();
-                const layer = unSelFeature.source.vector;
-                const type = (layer.get('type') && layer.get('type') === 'geo') ? 'geoUnSelect' : 'unClick';
-
-                //隐藏气泡框
-                this._hideOverlay();
-                //针对外部调用进行feature的移除
-                evt.target.getFeatures().remove(unSelFeature);
-                //触发外部钩子
-                this.dispatchEvent({
-                    type: type,
-                    data: properties,
-                    feature: unSelFeatures,
-                    select: evt.target
-                });
-
-            }
-            if (selFeatures && selFeatures.length > 0) {
-
-                const selFeature = selFeatures[0];
-                const layer = selFeature.source.vector;
-                let properties = selFeature.getProperties();
-                properties.id = selFeature.getId();
-                const type = (layer.get('type') && layer.get('type') === 'geo') ? 'geoSelect' : 'click';
-                let div = null;
-                if (layer.get('showPopup') || layer.get('showPopup') === 'true') {
-
-                    // evt.target.addCondition_ = () => (true);
-                    div = document.getElementById('hy-popup-content');
-                    this._showOverlay(selFeature);
-
-                }
-                evt.target.getFeatures().get('length') == 0 && evt.target.getFeatures().push(selFeature);
-                this.dispatchEvent({
-                    type: type,
-                    data: properties,
-                    feature: selFeature,
-                    select: evt.target,
-                    element: div
-                });
-
-            }
-
-
-
-        }, this);
-
-    }
-    _createHoverInteraction() {
-
-        this.hoverSelect = new ol.interaction.Select({
-            style: function(feature) {
-
-                return typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()(feature, '', 'emphasis') : feature.source.vector.getStyle();
-
-            },
-
-            condition: function(evt) {
-
-                return evt.type === 'pointermove';
-
-            }
-        });
-        this.map.addInteraction(this.hoverSelect);
-        // this.hoverSelect.on('select', function(evt) {
-
-        // let result = {};
-        // const selFeatures = evt.selected;
-        // const unSelFeatures = evt.deselected;
-        // if (unSelFeatures && unSelFeatures.length > 0) {
-
-        //     const properties = unSelFeatures[0].getProperties();
-        //     result = {
-        //         type: 'geoUnSelect',
-        //         data: properties,
-        //         feature: unSelFeatures[0],
-        //         select: evt.target
-        //     };
-        //     this._hideOverlay();
-        //     evt.target.getFeatures().remove(unSelFeatures[0]);
-
-        // }
-        // if (selFeatures && selFeatures.length > 0) {
-
-
-        //     const selFeature = selFeatures[0];
-        //     const coordinate = selFeature.getGeometry().getCoordinates();
-        //     const layer = selFeature.source.vector;
-        //     let div = null;
-        //     if (layer.get('showPopup') || layer.get('showPopup') === 'true') {
-
-        //         // evt.target.addCondition_ = () => (true);
-
-        //         div = document.getElementById('hy-popup-content');
-        //         this._overlay.feature = selFeature;
-        //         this._overlay.setPosition(coordinate);
-
-        //     }
-
-        //     let properties = selFeature.getProperties();
-        //     delete properties.geometry;
-        //     properties.id = selFeature.getId();
-        //     result = {
-        //         type: 'geoSelect',
-        //         data: properties,
-        //         element: div
-
-        //     };
-        //     evt.target.getFeatures().get('length') == 0 && evt.target.getFeatures().push(selFeature);
-
-        // }
-
-        // this.dispatchEvent(result);
-
-
-        // }, this);
-
-    }
 
     /**
-     * 创建气泡框dom
-     * @return {[type]} [description]
+     * [dispatchAction description]
+     * @param  {[type]} evt [description]
+     * @return {[type]}     [description]
      */
-    _createPopup() {
-
-        let container = document.createElement('div');
-        container.id = 'popup';
-        container.className = 'ol-popup';
-        let closer = document.createElement('div');
-        closer.id = 'popup-closer';
-        closer.className = 'ol-popup-closer';
-        container.appendChild(closer);
-        let content = document.createElement('div');
-        content.id = 'hy-popup-content';
-        container.appendChild(content);
-        document.body.appendChild(container);
-        closer.onclick = () => {
-
-            this.clickSelect.getFeatures().remove(this._overlay.feature);
-            this._hideOverlay();
-            closer.blur();
-            return false;
-
-        };
-        return container;
-
-    }
-
-    /**
-     * [_showOverlay description]
-     * @return {[type]} [description]
-     */
-    _showOverlay(feature) {
-
-        this._overlay.feature = feature;
-        const coordinate = feature.getGeometry().getCoordinates();
-        this._overlay.setPosition(coordinate);
-
-    }
-
-    /**
-     * 隐藏气泡框
-     * @return {[type]} [description]
-     */
-    _hideOverlay() {
-
-        this._overlay.setPosition(undefined);
-
-    }
-
-    /**
-     * 创建气泡框
-     * @param  {[type]} element [description]
-     * @return {[type]}         [description]
-     */
-    _createOverlay(element) {
-
-        element = this._createPopup();
-        this._overlay = new ol.Overlay({
-            id: 'hy-overly-popup',
-            element: element,
-            autoPan: true,
-            autoPanAnimation: {
-                duration: 250
-            }
-        });
-        this.map.addOverlay(this._overlay);
-        return this._overlay;
-
-    }
-
-    _reomoveOverlay(overlay) {
-
-        this.map.removeOverlay(overlay);
-
-    }
-
-    _removeMarkerOverlay() {
-
-        this._markerLayer.forEach((obj) => {
-
-            this._reomoveOverlay(obj);
-
-        });
-
-    }
-
-
     dispatchAction(evt) {
 
         var feature = this.getFeature(evt.id);

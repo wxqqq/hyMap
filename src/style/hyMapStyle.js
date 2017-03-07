@@ -1,5 +1,6 @@
 import styleModel from '../model/styleModel';
 import labelStyle from '../model/labelStyle';
+import baseUtil from '../util/baseUtil';
 
 const ol = require('../../public/lib/ol');
 
@@ -76,33 +77,24 @@ export default class hyMapStyle {
 
     }
 
-    _createPolygonStyle(object) {
-
-        const style = new ol.style.Style({
-            fill: this._createFill(object.fillColor),
-            stroke: this._createStroke(object.strokeWidth, object.strokeColor)
-        });
-        return style;
-
-    }
-    _createCircleStyle(object) {
+    _createCircleStyle(radius = 3, fill, stroke) {
 
         let icon = new ol.style.Circle({
-            radius: object.radius,
-            stroke: this._createStroke(object.strokeWidth, object.strokeColor),
-            fill: this._createFill(object.fillColor)
+            radius: baseUtil.isArray(radius) ? radius[0] : radius,
+            stroke: stroke,
+            fill: fill
         });
         return icon;
 
     }
 
-    _createRectStyle(object) {
+    _createRectStyle(radius = 1, fill, stroke) {
 
         let icon = new ol.style.RegularShape({
-            stroke: this._createStroke(object.strokeWidth, object.strokeColor),
-            fill: this._createFill(object.fillColor),
+            radius: radius,
+            stroke: stroke,
+            fill: fill,
             points: 4,
-            radius: object.radius,
             angle: Math.PI / 4
         });
 
@@ -110,21 +102,21 @@ export default class hyMapStyle {
 
     }
 
-    _createIconStyle(serie, normal) {
+    _createIconStyle(src, symbolSize) {
 
         const canvas = document.createElement('canvas');
 
         let ctx = canvas.getContext('2d');
         let img = new Image();
-        img.src = serie.symbol.split(':')[1];
+        img.src = src;
 
         img.onload = function() {
 
-            ctx.drawImage(img, 0, 0, normal.symbolSize[0], normal.symbolSize[1]);
+            ctx.drawImage(img, 0, 0, symbolSize[0], symbolSize[1]);
 
         };
-        canvas.setAttribute('width', normal.symbolSize[0]);
-        canvas.setAttribute('height', normal.symbolSize[1]);
+        canvas.setAttribute('width', symbolSize[0]);
+        canvas.setAttribute('height', symbolSize[1]);
         let icon = new ol.style.Icon({
             // anchor: [0.5, 0.5],
             img: canvas,
@@ -133,11 +125,12 @@ export default class hyMapStyle {
         return icon;
 
     }
-    _createStyle(stroke, fill, text) {
+    _createStyle(stroke, fill, text, image) {
 
         return new ol.style.Style({
             fill: fill,
             stroke: stroke,
+            image: image,
             text: text
         });
 
@@ -168,8 +161,8 @@ export default class hyMapStyle {
     _createItemStyle(symbolStyle) {
 
         let styleModel = Object.assign({}, this._style);
-        const normal = Object.assign({}, styleModel.normal, symbolStyle.normal);
-        const emphasis = Object.assign({}, styleModel.emphasis, symbolStyle.emphasis);
+        const normal = Object.assign({}, styleModel.normal, symbolStyle && symbolStyle.normal || {});
+        const emphasis = Object.assign({}, styleModel.emphasis, symbolStyle && symbolStyle.emphasis || {});
         return {
             normal,
             emphasis
@@ -184,41 +177,49 @@ export default class hyMapStyle {
      * @param  {Object} emphasis       [description]
      * @return {[type]}                [description]
      */
-    _createGeoStyle(itemStyle, {
-        normal = {
-            show: false
-        },
-        emphasis = {}
-    } = {}) {
+    _createGeoStyle(itemStyle, label = {}, symbol = 'circle') {
 
         const style = this._createItemStyle(itemStyle);
-        let nText = this._createTextStyle(normal.textStyle);
-        nText.show = normal.show;
-        let eText = this._createTextStyle(emphasis.textStyle);
-        eText.show = emphasis.show;
+        let nText = undefined;
+        let eText = undefined;
+        nText = this._createTextStyle(label.normal && label.normal.textStyle || {});
+        nText.show = label.normal && label.normal.show || false;
+        eText = this._createTextStyle(label.emphasis && label.emphasis.textStyle || {});
+        eText.show = label.emphasis && label.emphasis.show || false;
+        const nStroke = this._createStroke(style.normal.strokeWidth, style.normal.strokeColor);
+        const nFill = this._createFill(style.normal.fillColor);
+        const nImage = this._createImageStyle(symbol, style.normal);
+        const eStroke = this._createStroke(style.emphasis.strokeWidth, style.emphasis.strokeColor);
+        const eFill = this._createFill(style.emphasis.fillColor);
+        const eImage = this._createImageStyle(symbol, style.emphasis);
         return {
-            normal: this._createStyle(this._createStroke(style.normal.strokeWidth, style.normal.strokeColor), this._createFill(style.normal.fillColor), nText),
-            emphasis: this._createStyle(this._createStroke(style.emphasis.strokeWidth, style.emphasis.strokeColor), this._createFill(style.emphasis.fillColor), eText)
+            normal: this._createStyle(nStroke, nFill, nText, nImage),
+            emphasis: this._createStyle(eStroke, eFill, eText, eImage)
         };
 
     }
 
-    /**
-     * [_createStyleModel description]
-     * @param  {[type]} serie [description]
-     * @return {[type]}       [description]
-     */
-    _createStyleModel(serie) {
+    _createImageStyle(symbol, styleModel) {
 
-        const symbolStyle = serie.symbolStyle;
-        let normal = {
-            symbol: serie.symbol,
-            symbolSize: serie.symbolSize
-        };
-        const tmpNormal = Object.assign(normal, symbolStyle.normal);
-        symbolStyle.normal = tmpNormal;
-        const styleModel = this._createItemStyle(symbolStyle);
-        return styleModel;
+        let image = undefined;
+        const stroke = this._createStroke(styleModel.strokeWidth, styleModel.strokeColor);
+        const fill = this._createFill(styleModel.fillColor);
+        if (symbol == 'circle') {
+            console.log(symbol)
+            image = this._createCircleStyle(styleModel.symbolSize, fill, stroke);
+
+
+        } else if (symbol == 'rect') {
+
+            image = this._createRectStyle(styleModel.symbolSize, fill, stroke);
+
+        } else if (symbol.indexOf('icon:') === 0) {
+
+            const src = symbol.split(':')[1];
+            image = this._createIconStyle(src, styleModel.symbolSize);
+
+        }
+        return image;
 
     }
 
@@ -229,55 +230,15 @@ export default class hyMapStyle {
      */
     _createFeatureStyle(serie) {
 
-        const styleModel = this._createStyleModel(serie);
-
-        let normal;
-        let emphasis;
-
-        if (serie.type == 'point') {
-
-            let normalIcon;
-            let selectIcon;
-            if (serie.symbol == 'circle') {
-
-                normalIcon = this._createCircleStyle(styleModel.normal);
-                selectIcon = this._createCircleStyle(styleModel.emphasis);
-
-            } else if (serie.symbol == 'rect') {
-
-                normalIcon = this._createRectStyle(styleModel.normal);
-                selectIcon = this._createRectStyle(styleModel.emphasis);
-
-            } else if (serie.symbol.indexOf('icon:') === 0) {
-
-                normalIcon = this._createIconStyle(serie, styleModel.normal);
-                selectIcon = this._createIconStyle(serie, styleModel.emphasis);
-
-            }
-
-            normal = new ol.style.Style({
-                image: normalIcon,
-                text: this._createTextStyle(styleModel.normal)
-            });
-
-            emphasis = new ol.style.Style({
-                image: selectIcon,
-                text: this._createTextStyle(styleModel.emphasis)
-            });
-
-        } else {
-
-            normal = this._createPolygonStyle(styleModel.normal);
-            emphasis = this._createPolygonStyle(styleModel.emphasis);
-
-        }
-
-        const styleObject = {
-            normal,
-            emphasis
+        const symbolStyle = serie.symbolStyle;
+        let normal = {
+            symbol: serie.symbol,
+            symbolSize: serie.symbolSize
         };
-
-        return styleObject;
+        const tmpNormal = Object.assign(normal, symbolStyle.normal);
+        symbolStyle.normal = tmpNormal;
+        let style = this._createGeoStyle(symbolStyle, serie.label, serie.symbol);
+        return style;
 
     }
 }

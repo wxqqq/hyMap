@@ -43,17 +43,26 @@ class circle extends Component {
             options.series.push({
                 data: values, //{x,y,value}
                 type: 'point', // point|line|polygon|chart|..
-                symbol: 'circle', //circle|rect|icon
-                symbolSize: [1, 2], //[min,max]
+                // symbol: 'rect', //circle|rect|icon
+                symbolSize: [5, 5], //[min,max]
                 symbolStyle: {
                     'normal': {
-                        radius: 5,
                         strokeWidth: 1,
                         strokeColor: 'blue',
                         fillColor: 'orange'
+                    },
+                    'emphasis': {
+                        symbolSize: 10
                     }
                 },
-                label: 'mc',
+                label: {
+                    'normal': {
+                        show: true,
+                        textStyle: {
+
+                        }
+                    }
+                },
                 showPopup: false
 
             });
