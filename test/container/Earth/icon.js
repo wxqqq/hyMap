@@ -155,7 +155,9 @@ class icon extends Component {
 
         document.getElementById('remove').addEventListener('click', () => {
 
-            obj.removeSeries();
+            obj.removeSeries(); //清空所有
+            // obj.removeSeries('id');//清空单个
+            // obj.removeSeries(['id','id1']);//清空多个
 
         });
 
