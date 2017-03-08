@@ -1,21 +1,44 @@
 import hymap from './hymap/hymap';
 
-class map extends hymap {
-    constructor(dom, options) {
-
-        super(dom, options);
-
-    }
-
-}
+const instances = {};
+const DOM_ATTRIBUTE_KEY = '_ymap_instance_';
 
 const config = {
-    init(el) {
+    version: '0.0.1',
+    dependencies: {
+        'openlayers': '3.21.0'
+    },
+    init(DOMNode) {
 
-        return new map(el);
+        if (null == DOMNode) {
+
+            throw new Error('请提供合适的dom节点元素');
+
+        }
+        const nowID = 'v_map_' + new Date().getTime();
+        const map = new hymap(DOMNode);
+        instances[nowID] = map;
+        if (DOMNode.setAttribute) {
+
+            DOMNode.setAttribute(DOM_ATTRIBUTE_KEY, nowID);
+
+        }
+        return map;
+
+    },
+    getInstanceByDom(DOMNode) {
+
+        const key = DOMNode.getAttribute(DOM_ATTRIBUTE_KEY);
+        if (!key) {
+
+            throw new Error('该DOM节点上面没有地图实例');
+
+        } else {
+
+            return instances[key];
+
+        }
 
     }
-
-}
-
+};
 export default config;
