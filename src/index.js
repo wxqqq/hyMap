@@ -2,7 +2,7 @@ import hymap from './hymap/hymap';
 
 const instances = {};
 const DOM_ATTRIBUTE_KEY = '_ymap_instance_';
-
+let idBase = new Date() - 0;
 const config = {
     version: '0.0.1',
     dependencies: {
@@ -15,7 +15,7 @@ const config = {
             throw new Error('请提供合适的dom节点元素');
 
         }
-        const nowID = 'v_map_' + new Date().getTime();
+        const nowID = 'map_' + idBase++;
         const map = new hymap(DOMNode);
         instances[nowID] = map;
         if (DOMNode.setAttribute) {
