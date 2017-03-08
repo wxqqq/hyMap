@@ -24,6 +24,7 @@ export default class hyMap extends hylayers {
             zIndex: 5,
             layers: this._layersArray
         });
+        this._addLayerGroupArray = {};
         this._markerLayer = [];
 
         this._panFunction = function(evt) {
@@ -78,7 +79,7 @@ export default class hyMap extends hylayers {
         this.clearSeries();
         this.setGeo(this._geo); //设置geo配置
 
-        this.addSeries(this._geo.series); //设置series
+        this.addSeries(this._geo.series, this._layersArray); //设置series
         this.setTheme(this._geo.theme); //设置theme主题
         this.setTooltip(opt_options.tooltip);
 
@@ -256,6 +257,13 @@ export default class hyMap extends hylayers {
 
     }
 
+    _createIntercation() {
+
+        this._createHoverInteraction();
+        this._createSelectInteraction();
+
+    }
+
     /**
      * 创建图层组
      * @return {[type]} [description]
@@ -266,27 +274,48 @@ export default class hyMap extends hylayers {
 
     }
 
+    _createLayer(id) {
+
+        let layersArray = new ol.Collection();
+        let layerGroup = new ol.layer.Group({
+            layers: layersArray,
+            id: id
+        });
+        this.map.addLayer(layerGroup);
+        return layerGroup;
+    }
+
+    addLayer(layer) {
+
+        const id = layer.id;
+        const layerGroup = this._createLayer(id);
+        this.addSeries(layer.series, layerGroup.getLayers());
+    }
+
+    removeLayer(id) {
+
+        const group = this._addLayerGroupArray[id];
+        if (group) {
+
+            this.map.removeLayer(group);
+            delete this._addLayerGroupArray[id]
+
+        }
+    }
+
     /**
      * 创建图层数组
      * @param  {[type]} series [description]
      * @return {[type]}        [description]
      */
-    addSeries(series) {
+    addSeries(series, layersArray) {
 
 
         series.forEach((a) => {
 
-            this.addSerie(a);
+            this.addSerie(a, layersArray);
 
         });
-
-
-    }
-
-    _createIntercation() {
-
-        this._createHoverInteraction();
-        this._createSelectInteraction();
 
     }
 
@@ -295,7 +324,7 @@ export default class hyMap extends hylayers {
      * @param  {[type]} serie [description]
      * @return {[type]}       [description]
      */
-    addSerie(serie) {
+    addSerie(serie, layersArray) {
 
         const data = serie.data;
         let array = [];
@@ -312,8 +341,10 @@ export default class hyMap extends hylayers {
                     position: this._createGeometry(serie.type, obj),
                     positioning: 'center-center',
                     element: rootDiv,
-                    stopEvent: false
+                    stopEvent: false,
+                    id: serie.id
                 });
+
                 this._markerLayer.push(marker);
                 this.map.addOverlay(marker);
 
@@ -332,16 +363,16 @@ export default class hyMap extends hylayers {
             let vector = new ol.layer.Vector({
                 source: source,
                 style: this._geoStyleFn,
-                id: serie.id
+                id: serie.id || ''
             });
 
             vector.set('type', 'item');
-            source.vector = vector;
             vector.set('showPopup', serie.showPopup);
+            source.vector = vector;
             const style = this._createFeatureStyle(serie);
             vector.set('fstyle', style);
 
-            this._layersArray.push(vector);
+            layersArray.push(vector);
 
             data.forEach((obj) => {
 
@@ -353,7 +384,6 @@ export default class hyMap extends hylayers {
                 feature.setProperties(obj);
                 feature.setId(obj.id);
                 // const featurestyle = this._createGeoStyle(serie.itemStyle, serie.label);
-                // console.log(featurestyle) 
                 // feature.set('style', featurestyle);
                 array.push(feature);
 

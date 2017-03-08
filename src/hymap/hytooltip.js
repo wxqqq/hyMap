@@ -68,6 +68,7 @@ export default class hytooltip extends hyMapStyle {
         if (offset) {
 
             this._overlay.setOffset(offset());
+
         }
 
 

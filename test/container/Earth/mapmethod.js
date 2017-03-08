@@ -99,6 +99,7 @@ class mapmethod extends Component {
             series: []
         };
         obj.setOption(options);
+
         document.getElementById('hide').addEventListener('click', () => {
 
             obj.hide();

@@ -6,7 +6,7 @@ import map from '../../../src/index';
 
 class icon extends Component {
     componentDidMount() {
-        console.log(map)
+
         let obj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
@@ -155,7 +155,8 @@ class icon extends Component {
 
         document.getElementById('remove').addEventListener('click', () => {
 
-            obj.removeSeries(); //清空所有
+            obj.map.removeLayer(obj._layerGroup);
+            // obj.removeSeries(); //清空所有
             // obj.removeSeries('id');//清空单个
             // obj.removeSeries(['id','id1']);//清空多个
 
