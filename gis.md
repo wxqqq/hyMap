@@ -3,14 +3,14 @@
 ###属性
 [geo](#geo)
 [series](#series)
-
+[tooltip](#series)
 ----
 ###方法
 [类方法](hygis.method)
 [实例方法](#instance.method)
 
-
 -------
+
 ### geo组件 <a name="geo"></a>
 
 ```
@@ -144,19 +144,23 @@ series[0].data  |    Array   [{name: '和平街道卡口', value: 10, geoCoord: 
 ### 类方法 <a name="hygis.method"></a>
 
 ```
-hygis.init(DOM)  0
+hygis.init(DOM)  
 初始化DOM, 返回instance实例
 ```
 
+```
+hygis.getInstanceByDom(dom)
+根据DOM,返回instance实例
+```
 
 ### 实例方法 <a name="instance.method"></a>
 ```
-instance.setOption  0
+instance.setOption  
 设置gis配置
 ```
 
 ```
-instance.on(eventName, handler)  1
+instance.on(eventName, handler)  
 on('geoClick', fn)| on('click', (param, event) => {
     console.log(param)
   }) | on('mouseover', fn) | on('zoom', fn)
@@ -164,7 +168,7 @@ on('geoClick', fn)| on('click', (param, event) => {
 ```
 
 ```
-instance.off(eventName, handler) 1
+instance.off(eventName, handler) 
 解绑事件
 ```
 
@@ -172,16 +176,21 @@ instance.off(eventName, handler) 1
 instance.dispatchAction({
     type: 'geoSelect', || 'geoUnSelect' || 'geoToggleSelect'
     name: '天津市和平区'
-  }) 2
+  }) 
 ```
 
 ```  
-instance.addPoints([{}]) 1
+instance.addSerie([{}]) 
 添加元素{}中参数和series[0]中参数一致
 ```
 
 ```
-instance.dispose   1
+instance.removeSerie(id)
+移除指定的元素
+```
+
+```
+instance.dispose   
 实例销毁
 ```
 
@@ -244,6 +253,8 @@ instance.addSeries([serie])
 instance.addSerie(serie)
 增加serie数据，不会清除地图上已存在的serie
 ```
+
+
 
 ------
 ##地图命名规范

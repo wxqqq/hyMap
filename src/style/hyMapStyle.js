@@ -109,7 +109,8 @@ export default class hyMapStyle {
         let ctx = canvas.getContext('2d');
         let img = new Image();
         img.src = src;
-
+        console.log(img.width);
+        console.log(img.height)
         img.onload = function() {
 
             ctx.drawImage(img, 0, 0, symbolSize[0], symbolSize[1]);
@@ -121,6 +122,8 @@ export default class hyMapStyle {
             // anchor: [0.5, 0.5],
             img: canvas,
             imgSize: [canvas.width, canvas.height]
+                // src: src,
+                // size: [20, 30]
         });
         return icon;
 

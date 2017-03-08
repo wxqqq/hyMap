@@ -6,11 +6,11 @@
   padding: 15px;
   border-radius: 10px;
   border: 1px solid #cccccc;
-  bottom: 25px;
+  bottom: 12px;
   left: -150px;
   min-width: 280px;
 }
-.ol-popup:after, .ol-popup:before {
+/*.ol-popup:after, .ol-popup:before {
   top: 100%;
   border: solid transparent;
   content: " ";
@@ -39,4 +39,4 @@
 }
 .ol-popup-closer:after {
   content: "✖";
-}
+}*/

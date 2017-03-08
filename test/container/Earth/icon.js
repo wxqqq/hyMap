@@ -6,7 +6,7 @@ import map from '../../../src/index';
 
 class icon extends Component {
     componentDidMount() {
-
+        console.log(map)
         let obj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
@@ -57,6 +57,7 @@ class icon extends Component {
 
             });
             options.series.push({
+                id: 3,
                 data: values,
                 type: 'point',
                 symbol: 'icon:img/jingli.png',
@@ -77,16 +78,16 @@ class icon extends Component {
 
             obj.setTooltip({
                 show: true,
-                trigger: ['item', 'geo'], // item、map  ['item', 'geo']
-                triggeron: 'click', //'click', // click, mouseover, mousemove, dblclick , ['click'],
+                trigger: ['item'], // item、map  ['item', 'geo']
+                triggeron: 'mouseover', //'click', // click, mouseover, mousemove, dblclick , ['click'],
                 enterable: true, //true 鼠标是否可进入浮出泡泡框中
                 style: {
                     'border-color': '#cc0',
                     'border-radius': '5',
                     'border-width': '2',
                     'border-style': 'solid',
-                    'width': '100',
-                    'height': '60'
+                    'width': '80',
+                    'height': '30'
                 },
                 formatter: function(param) { //div内的内容
 
@@ -141,6 +142,31 @@ class icon extends Component {
             });
 
         });
+        //取消选中
+        document.getElementById('unselect').addEventListener('click', () => {
+
+            obj.dispatchAction({
+                type: 'unClick',
+                id: 1
+            });
+
+        });
+
+
+        document.getElementById('remove').addEventListener('click', () => {
+
+            obj.removeSeries();
+
+        });
+
+        document.getElementById('add').addEventListener('click', () => {
+
+            obj.addSerie(options.series[0]);
+
+
+        });
+
+
 
     }
 
@@ -149,6 +175,8 @@ class icon extends Component {
         return (<div>
             <input id='select' type='button' value='选中'/>
             <input id='unselect' type='button' value='取消选中' />
+             <input id='remove' type='button' value='移除数据' />
+             <input id='add' type='button' value='增加数据'/>
             <div id = 'map' /> 
             </div>);
 

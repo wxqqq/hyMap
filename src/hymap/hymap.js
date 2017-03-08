@@ -15,15 +15,16 @@ export default class hyMap extends hylayers {
         super(options);
         this._geo = hymapOption;
         this.map = null;
-
         this._show = true;
         this._overlay = null;
         this._event = [];
         this._showLogo = true;
-        this._layersArray = null;
-        this._layerGroup = null;
+        this._layersArray = new ol.Collection();
+        this._layerGroup = new ol.layer.Group({
+            zIndex: 5,
+            layers: this._layersArray
+        });
         this._markerLayer = [];
-
 
         this._panFunction = function(evt) {
 
@@ -74,8 +75,10 @@ export default class hyMap extends hylayers {
 
         }
 
+        this.clearSeries();
         this.setGeo(this._geo); //设置geo配置
-        this.setSeries(this._geo.series); //设置series
+
+        this.addSeries(this._geo.series); //设置series
         this.setTheme(this._geo.theme); //设置theme主题
         this.setTooltip(opt_options.tooltip);
 
@@ -259,11 +262,6 @@ export default class hyMap extends hylayers {
      */
     _createGroupLayer() {
 
-        this._layersArray = new ol.Collection();
-        this._layerGroup = new ol.layer.Group({
-            zIndex: 5
-        });
-        this._layerGroup.setLayers(this._layersArray);
         this.map.addLayer(this._layerGroup);
 
     }
@@ -273,13 +271,12 @@ export default class hyMap extends hylayers {
      * @param  {[type]} series [description]
      * @return {[type]}        [description]
      */
-    setSeries(series) {
+    addSeries(series) {
 
-        this._layersArray.clear();
-        this._removeMarkerOverlay();
+
         series.forEach((a) => {
 
-            this.setSerie(a);
+            this.addSerie(a);
 
         });
 
@@ -289,7 +286,6 @@ export default class hyMap extends hylayers {
     _createIntercation() {
 
         this._createHoverInteraction();
-
         this._createSelectInteraction();
 
     }
@@ -299,7 +295,7 @@ export default class hyMap extends hylayers {
      * @param  {[type]} serie [description]
      * @return {[type]}       [description]
      */
-    setSerie(serie) {
+    addSerie(serie) {
 
         const data = serie.data;
         let array = [];
@@ -335,8 +331,10 @@ export default class hyMap extends hylayers {
 
             let vector = new ol.layer.Vector({
                 source: source,
-                style: this._geoStyleFn
+                style: this._geoStyleFn,
+                id: serie.id
             });
+
             vector.set('type', 'item');
             source.vector = vector;
             vector.set('showPopup', serie.showPopup);
@@ -365,6 +363,70 @@ export default class hyMap extends hylayers {
         }
 
     }
+    _removeSerie(id) {
+
+        this._markerLayer.forEach(obj => {
+
+            const key = obj.get('id');
+            if (key == id) {
+
+                this.map.removeOverlay(obj);
+                return;
+
+            }
+
+        });
+
+        this._layersArray.forEach(obj => {
+
+            const key = obj.get('id');
+            if (key == id) {
+
+                this._layersArray.remove(obj);
+                return;
+
+            }
+
+        });
+
+    }
+
+    removeSeries(id) {
+
+        if (id) {
+
+            if (baseUtil.isArray(id)) {
+
+                id.forEach(obj => {
+
+                    this._removeSerie(obj);
+
+                });
+
+            } else {
+
+                this._removeSerie(id);
+
+            }
+
+
+        } else {
+
+            this.clearSeries();
+
+        }
+
+
+    }
+
+
+    clearSeries() {
+
+        this._layersArray.clear();
+        this._removeMarkerOverlay();
+
+    }
+
 
     /**
      * 创建空间对象

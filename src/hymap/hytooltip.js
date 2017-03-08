@@ -233,6 +233,7 @@ export default class hytooltip extends hyMapStyle {
 
             evt.target.getFeatures().remove(unSelFeature);
             this.dispatchEvent({
+                evt: evt.mapBrowserEvent,
                 type: type,
                 data: properties,
                 feature: unSelFeatures,
@@ -264,6 +265,7 @@ export default class hytooltip extends hyMapStyle {
             }
             evt.target.getFeatures().get('length') == 0 && evt.target.getFeatures().push(selFeature);
             this.dispatchEvent({
+                evt: evt.mapBrowserEvent,
                 type: type,
                 data: properties,
                 feature: selFeature,
@@ -288,9 +290,10 @@ export default class hytooltip extends hyMapStyle {
             const layerType = layer.get('type');
             const type = (layer.get('type') && layer.get('type') === 'map') ? 'geoUnHover' : 'unHover';
 
-            if (this.tooltipTriggeron.indexOf('mouseover') > -1) {
+            if (this.tooltipTriggeron.indexOf('mouseover') > -1 && this.tooltipTrigger.indexOf(layerType) > -1) {
+                window.clearTimeout(() => this.timer);
+                this.timer = window.setTimeout(() => this._hideOverlay(), 600);
 
-                this._hideOverlay();
 
             }
             if (this.tooltipShow && this.tooltipTrigger.indexOf(layerType) > -1 && this.tooltipTriggeron.indexOf('mouseout') > -1) {
@@ -304,6 +307,7 @@ export default class hytooltip extends hyMapStyle {
 
             evt.target.getFeatures().remove(unSelFeature);
             this.dispatchEvent({
+                evt: evt.mapBrowserEvent,
                 type: type,
                 data: properties,
                 feature: unSelFeatures,
@@ -327,11 +331,13 @@ export default class hytooltip extends hyMapStyle {
                 div = this._overlay.getElement();
                 const st = this.formatter(properties);
                 baseUtil.isDom(st) ? div.appendChild(st) : div.innerHTML = st;
+                window.clearTimeout(() => this.timer);
                 this._showOverlay(selFeature);
 
             }
             evt.target.getFeatures().get('length') == 0 && evt.target.getFeatures().push(selFeature);
             this.dispatchEvent({
+                evt: evt.mapBrowserEvent,
                 type: type,
                 data: properties,
                 feature: selFeature,
