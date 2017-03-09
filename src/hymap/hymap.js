@@ -299,7 +299,6 @@ export default class hyMap extends hylayers {
 
 
         const group = this._addLayerGroupArray[id];
-        console.log(group)
         if (group) {
 
             this.map.removeLayer(group);
