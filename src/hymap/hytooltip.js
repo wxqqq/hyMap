@@ -228,7 +228,7 @@ export default class hytooltip extends hyMapStyle {
             const unSelFeature = unSelFeatures[0];
             const properties = unSelFeature.getProperties();
             const layer = unSelFeature.source.vector;
-            const type = (layer.get('type') && layer.get('type') === 'map') ? 'geoUnSelect' : 'unClick';
+            const type = (layer.get('type') && layer.get('type') === 'geo') ? 'geoUnSelect' : 'unClick';
 
             this._hideOverlay();
 
@@ -289,7 +289,7 @@ export default class hytooltip extends hyMapStyle {
             const properties = unSelFeature.getProperties();
             const layer = unSelFeature.source.vector;
             const layerType = layer.get('type');
-            const type = (layer.get('type') && layer.get('type') === 'map') ? 'geoUnHover' : 'unHover';
+            const type = (layer.get('type') && layer.get('type') === 'geo') ? 'geoUnHover' : 'unHover';
 
             if (this.tooltipTriggeron.indexOf('mouseover') > -1 && this.tooltipTrigger.indexOf(layerType) > -1) {
                 window.clearTimeout(() => this.timer);

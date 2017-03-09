@@ -51,7 +51,6 @@ export default class hyLayer extends tooltip {
         geoVector.set('type', 'geo');
         geoVectorSource.vector = geoVector;
 
-
         return geoVector;
 
     }

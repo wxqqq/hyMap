@@ -281,8 +281,10 @@ export default class hyMap extends hylayers {
             layers: layersArray,
             id: id
         });
+        this._addLayerGroupArray[id] = layerGroup;
         this.map.addLayer(layerGroup);
         return layerGroup;
+
     }
 
     addLayer(layer) {
@@ -290,17 +292,21 @@ export default class hyMap extends hylayers {
         const id = layer.id;
         const layerGroup = this._createLayer(id);
         this.addSeries(layer.series, layerGroup.getLayers());
+
     }
 
     removeLayer(id) {
 
+
         const group = this._addLayerGroupArray[id];
+        console.log(group)
         if (group) {
 
             this.map.removeLayer(group);
-            delete this._addLayerGroupArray[id]
+            delete this._addLayerGroupArray[id];
 
         }
+
     }
 
     /**
@@ -309,7 +315,6 @@ export default class hyMap extends hylayers {
      * @return {[type]}        [description]
      */
     addSeries(series, layersArray) {
-
 
         series.forEach((a) => {
 

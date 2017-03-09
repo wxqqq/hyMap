@@ -48,7 +48,7 @@ class icon extends Component {
             //     }
             // }
         };
-
+        const series = []
         fetch('../../../data/car_2012.json').then(response => response.json()).then(function(values) {
 
             values.forEach(obj => {
@@ -56,7 +56,8 @@ class icon extends Component {
                 obj.geoCoord = [obj.lon, obj.lat];
 
             });
-            options.series.push({
+
+            series.push({
                 id: 3,
                 data: values,
                 type: 'point',
@@ -105,15 +106,21 @@ class icon extends Component {
 
         });
 
+        obj.on('geoSelect', function(data) {
+
+            console.log('getdata:', data);
+
+        });
+
+        obj.on('geoUnSelect', function(data) {
+
+            console.log('getundata:', data);
+
+
+        });
         obj.on('click', function(data) {
 
             console.log('getdata:', data);
-            let str = '';
-            for (let i in data.data) {
-
-                str += i + ':' + data.data[i] + '</br>';
-
-            }
 
         });
 
@@ -155,7 +162,7 @@ class icon extends Component {
 
         document.getElementById('remove').addEventListener('click', () => {
 
-            obj.map.removeLayer(obj._layerGroup);
+            obj.removeLayer(5);
             // obj.removeSeries(); //清空所有
             // obj.removeSeries('id');//清空单个
             // obj.removeSeries(['id','id1']);//清空多个
@@ -164,8 +171,10 @@ class icon extends Component {
 
         document.getElementById('add').addEventListener('click', () => {
 
-            obj.addSerie(options.series[0]);
-
+            obj.addLayer({
+                id: 5,
+                series: series
+            });
 
         });
 
