@@ -53,9 +53,30 @@ export default class hyMapStyle {
             textAlign: textAlign,
             textBaseline: textBaseline,
             fill: this._createFill(color),
-            stroke: this._createStroke(strokeWidth, strokeColor)
+            stroke: this._createStroke(strokeWidth, strokeColor),
 
         });
+
+    }
+    getMaxPoly(polys) {
+
+        var polyObj = [];
+        //now need to find which one is the greater and so label only this
+        for (var b = 0; b < polys.length; b++) {
+
+            polyObj.push({
+                poly: polys[b],
+                area: polys[b].getArea()
+            });
+
+        }
+        polyObj.sort(function(a, b) {
+
+            return a.area - b.area;
+
+        });
+
+        return polyObj[polyObj.length - 1].poly;
 
     }
 
@@ -109,8 +130,6 @@ export default class hyMapStyle {
         let ctx = canvas.getContext('2d');
         let img = new Image();
         img.src = src;
-        console.log(img.width);
-        console.log(img.height)
         img.onload = function() {
 
             ctx.drawImage(img, 0, 0, symbolSize[0], symbolSize[1]);
@@ -120,9 +139,11 @@ export default class hyMapStyle {
         canvas.setAttribute('height', symbolSize[1]);
         let icon = new ol.style.Icon({
             // anchor: [0.5, 0.5],
-            img: canvas,
-            imgSize: [canvas.width, canvas.height]
-                // src: src,
+            // img: canvas,
+            // color: '#4271AE',
+            // color: 'green',
+            // imgSize: [canvas.width, canvas.height]
+            src: src
                 // size: [20, 30]
         });
         return icon;
@@ -130,12 +151,29 @@ export default class hyMapStyle {
     }
     _createStyle(stroke, fill, text, image) {
 
-        return new ol.style.Style({
+        return [new ol.style.Style({
             fill: fill,
             stroke: stroke,
-            image: image,
-            text: text
-        });
+            image: image
+
+        }), new ol.style.Style({
+            text: text,
+            geometry: (feature) => {
+
+                var retPoint;
+                if (feature.getGeometry().getType() === 'MultiPolygon') {
+
+                    retPoint = this.getMaxPoly(feature.getGeometry().getPolygons()).getInteriorPoint();
+
+                } else if (feature.getGeometry().getType() === 'Polygon') {
+
+                    retPoint = feature.getGeometry().getInteriorPoint();
+
+                }
+                return retPoint;
+
+            }
+        })];
 
     }
 

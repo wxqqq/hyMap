@@ -66,7 +66,7 @@ export default class hyLayer extends tooltip {
             this.geoVectorSource.clear();
             hyMapQuery.spatialQuery({
                 'url': this._serverUrl,
-                'msg': hyMapQuery.createFeatureRequest([mapName + '_countries']),
+                'msg': hyMapQuery.createFeatureRequest(['area_china_province' /*mapName + '_countries'*/ ]),
                 'callback': (features) => {
 
                     this.geoVectorSource.addFeatures(features);
@@ -178,7 +178,7 @@ export default class hyLayer extends tooltip {
 
         const vectorStyle = feature.source.vector.get('fstyle');
         const style = feature.get('style') || vectorStyle;
-        const text = style[type].getText();
+        const text = style[type][1].getText();
         text && text.show && text.setText(feature.get('name'));
         return style[type];
 

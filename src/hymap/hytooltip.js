@@ -251,15 +251,13 @@ export default class hytooltip extends hyMapStyle {
             const layerType = layer.get('type');
             const type = (layer.get('type') && layer.get('type') === 'geo') ? 'geoSelect' : 'click';
             let div = null;
+            console.log(properties)
             if (this.tooltipShow && this.tooltipTrigger.indexOf(layerType) > -1 && this.tooltipTriggeron.indexOf('click') > -1) {
 
                 // && (layer.get('showPopup') || layer.get('showPopup') === 'true')) {
                 // evt.target.addCondition_ = () => (true);
                 div = this._overlay.getElement();
-                const st = this.formatter({
-                    dataIndex: 1,
-                    value: 3
-                });
+                const st = this.formatter(properties);
                 baseUtil.isDom(st) ? div.appendChild(st) : div.innerHTML = st;
                 this._showOverlay(selFeature);
 

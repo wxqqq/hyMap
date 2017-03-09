@@ -48,7 +48,7 @@ class icon extends Component {
             //     }
             // }
         };
-        const series = []
+        const series = [];
         fetch('../../../data/car_2012.json').then(response => response.json()).then(function(values) {
 
             values.forEach(obj => {
@@ -177,8 +177,6 @@ class icon extends Component {
             });
 
         });
-
-
 
     }
 
