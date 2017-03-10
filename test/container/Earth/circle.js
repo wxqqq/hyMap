@@ -21,7 +21,7 @@ class circle extends Component {
         let obj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
-            map: 'shandongsheng', //当前地图显示哪个地图
+            map: 'shandongsheng1', //当前地图显示哪个地图
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 7, //当前地图缩放比例
@@ -37,11 +37,13 @@ class circle extends Component {
 
             values.forEach(obj => {
 
-                obj.geoCoord = [obj.lon, obj.lat];
+                obj.geoCoord = [Number(obj.lon), Number(obj.lat)];
 
             });
             options.series.push({
                 data: values, //{x,y,value}
+                cluster: true,
+                distance: 50,
                 type: 'point', // point|line|polygon|chart|..
                 // symbol: 'rect', //circle|rect|icon
                 symbolSize: [5, 5], //[min,max]
@@ -52,14 +54,14 @@ class circle extends Component {
                         fillColor: 'orange'
                     },
                     'emphasis': {
-                        symbolSize: 10
+                        symbolSize: 3
                     }
                 },
                 label: {
                     'normal': {
-                        show: true,
+                        show: false,
                         textStyle: {
-
+                            color: 'red'
                         }
                     }
                 },

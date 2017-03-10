@@ -14,7 +14,7 @@ class icon extends Component {
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 7, //当前地图缩放比例
-            scaleLimit: [5, 12], //滚轮缩放的边界
+            scaleLimit: [4, 12], //滚轮缩放的边界
             itemStyle: '', //地图上每块区域的样式
             selectedMode: '', //地图区域的选中模式
             theme: 'dark', //地图风格
@@ -59,9 +59,12 @@ class icon extends Component {
 
             series.push({
                 id: 3,
+                cluster: true, //是否开启聚合
+                distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
+                animationDuration: 700, //聚合动画时间，默认为700毫秒
                 data: values,
                 type: 'point',
-                symbol: 'icon:img/jingli.png',
+                symbol: 'icon:img/jingli.png', //circle|rect|icon
                 symbolSize: [25, 25],
                 symbolStyle: {
                     'normal': {
@@ -71,7 +74,18 @@ class icon extends Component {
                         symbolSize: [30, 30]
                     }
                 },
-                label: 'mc',
+                label: {
+                    'normal': {
+                        show: false,
+                        textStyle: {
+                            color: '#fff',
+                            fontStyle: 'normal',
+                            fontWeight: 'bold',
+                            fontFamily: 'sans-serif',
+                            fontSize: '16px'
+                        }
+                    }
+                },
                 showPopup: true //显示气泡框
             });
             obj.setOption(options);
@@ -80,7 +94,7 @@ class icon extends Component {
             obj.setTooltip({
                 show: true,
                 trigger: ['item'], // item、map  ['item', 'geo']
-                triggeron: 'mouseover', //'click', // click, mouseover, mousemove, dblclick , ['click'],
+                triggeron: 'click', //'click', // click, mouseover, mousemove, dblclick , ['click'],
                 enterable: true, //true 鼠标是否可进入浮出泡泡框中
                 style: {
                     'border-color': '#cc0',

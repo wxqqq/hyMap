@@ -1,7 +1,7 @@
 import hymapOption from '../options/hymapOption';
 import baseUtil from '../util/baseUtil';
 import events from '../events/events';
-import hylayers from '../layers/hylayers';
+import hylayers from './hylayers';
 import animation from '../animation/animation';
 
 const ol = require('../../public/lib/ol');
@@ -357,24 +357,51 @@ export default class hyMap extends hylayers {
 
         } else {
 
+            const style = this._createFeatureStyle(serie);
             let source = new ol.source.Vector();
             source.on('addfeature', function(evt) {
 
-                evt.feature.source = source;
+                evt.feature.source = evt.target;
 
             });
 
-            let vector = new ol.layer.Vector({
-                source: source,
-                style: this._geoStyleFn,
-                id: serie.id || ''
-            });
+            let vector = null;
+            if (serie.cluster == true || serie.cluster === 'true') {
 
-            vector.set('type', 'item');
-            vector.set('showPopup', serie.showPopup);
+                let clusterSource = new ol.source.Cluster({
+                    distance: serie.distance || 20,
+                    source: source
+                });
+                clusterSource.on('addfeature', function(evt) {
+
+                    evt.feature.source = evt.target;
+                });
+                vector = new ol.layer.AnimatedCluster({
+                    source: clusterSource,
+                    style: this._geoStyleFn,
+                    type: 'item',
+                    fstyle: style,
+                    showPopup: serie.showPopup,
+                    id: serie.id || '',
+                    animationDuration: serie.animationDuration || 700,
+                });
+                clusterSource.vector = vector;
+
+            } else {
+
+                vector = new ol.layer.Vector({
+                    source: source,
+                    style: this._geoStyleFn,
+                    type: 'item',
+                    fstyle: style,
+                    showPopup: serie.showPopup,
+                    id: serie.id || ''
+                });
+
+
+            }
+
             source.vector = vector;
-            const style = this._createFeatureStyle(serie);
-            vector.set('fstyle', style);
 
             layersArray.push(vector);
 
@@ -392,6 +419,7 @@ export default class hyMap extends hylayers {
                 array.push(feature);
 
             });
+
             source.addFeatures(array);
 
         }

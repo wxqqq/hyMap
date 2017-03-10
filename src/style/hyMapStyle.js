@@ -129,22 +129,20 @@ export default class hyMapStyle {
 
         let ctx = canvas.getContext('2d');
         let img = new Image();
+        const width = symbolSize[0];
+        const height = symbolSize[1];
         img.src = src;
         img.onload = function() {
 
-            ctx.drawImage(img, 0, 0, symbolSize[0], symbolSize[1]);
+            ctx.drawImage(img, 0, 0, width, height);
 
         };
-        canvas.setAttribute('width', symbolSize[0]);
-        canvas.setAttribute('height', symbolSize[1]);
+        canvas.setAttribute('width', width);
+        canvas.setAttribute('height', height);
         let icon = new ol.style.Icon({
-            // anchor: [0.5, 0.5],
-            // img: canvas,
-            // color: '#4271AE',
-            // color: 'green',
-            // imgSize: [canvas.width, canvas.height]
-            src: src
-                // size: [20, 30]
+            anchor: [0.5, 1],
+            img: canvas,
+            imgSize: [width, height]
         });
         return icon;
 
@@ -168,6 +166,10 @@ export default class hyMapStyle {
                 } else if (feature.getGeometry().getType() === 'Polygon') {
 
                     retPoint = feature.getGeometry().getInteriorPoint();
+
+                } else {
+
+                    retPoint = feature.getGeometry();
 
                 }
                 return retPoint;
@@ -279,6 +281,23 @@ export default class hyMapStyle {
         symbolStyle.normal = tmpNormal;
         let style = this._createGeoStyle(symbolStyle, serie.label, serie.symbol);
         return style;
+
+    }
+
+    /**
+     * [_geoStyleFn description]
+     * @param  {[type]} feature    [description]
+     * @param  {[type]} resolution [description]
+     * @param  {String} type       [description]
+     * @return {[type]}            [description]
+     */
+    _geoStyleFn(feature, resolution, type = 'normal') {
+
+        const vectorStyle = feature.source.vector.get('fstyle');
+        const style = feature.get('style') || vectorStyle;
+        const text = style[type][1].getText();
+        text && text.show && text.setText(feature.get('name'));
+        return style[type];
 
     }
 }

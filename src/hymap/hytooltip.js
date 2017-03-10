@@ -238,12 +238,13 @@ export default class hytooltip extends hyMapStyle {
                 type: type,
                 data: properties,
                 feature: unSelFeatures,
-                select: evt.target
+                // select: evt.target
             });
 
         }
         if (selFeatures && selFeatures.length > 0) {
 
+            console.log(evt);
             const selFeature = selFeatures[0];
             const layer = selFeature.source.vector;
             let properties = selFeature.getProperties();
@@ -251,7 +252,6 @@ export default class hytooltip extends hyMapStyle {
             const layerType = layer.get('type');
             const type = (layer.get('type') && layer.get('type') === 'geo') ? 'geoSelect' : 'click';
             let div = null;
-            console.log(properties)
             if (this.tooltipShow && this.tooltipTrigger.indexOf(layerType) > -1 && this.tooltipTriggeron.indexOf('click') > -1) {
 
                 // && (layer.get('showPopup') || layer.get('showPopup') === 'true')) {
@@ -268,7 +268,7 @@ export default class hytooltip extends hyMapStyle {
                 type: type,
                 data: properties,
                 feature: selFeature,
-                select: evt.target,
+                // select: evt.target,
                 element: div
             });
 
@@ -290,6 +290,7 @@ export default class hytooltip extends hyMapStyle {
             const type = (layer.get('type') && layer.get('type') === 'geo') ? 'geoUnHover' : 'unHover';
 
             if (this.tooltipTriggeron.indexOf('mouseover') > -1 && this.tooltipTrigger.indexOf(layerType) > -1) {
+
                 window.clearTimeout(() => this.timer);
                 this.timer = window.setTimeout(() => this._hideOverlay(), 600);
 
@@ -310,7 +311,7 @@ export default class hytooltip extends hyMapStyle {
                 type: type,
                 data: properties,
                 feature: unSelFeatures,
-                select: evt.target
+                // select: evt.target
             });
 
         }
@@ -340,7 +341,7 @@ export default class hytooltip extends hyMapStyle {
                 type: type,
                 data: properties,
                 feature: selFeature,
-                select: evt.target,
+                // select: evt.target,
                 element: div
             });
 
