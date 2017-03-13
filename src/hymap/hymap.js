@@ -375,6 +375,7 @@ export default class hyMap extends hylayers {
                 clusterSource.on('addfeature', function(evt) {
 
                     evt.feature.source = evt.target;
+
                 });
                 vector = new ol.layer.AnimatedCluster({
                     source: clusterSource,
@@ -383,7 +384,7 @@ export default class hyMap extends hylayers {
                     fstyle: style,
                     showPopup: serie.showPopup,
                     id: serie.id || '',
-                    animationDuration: serie.animationDuration || 700,
+                    animationDuration: serie.animationDuration || 700
                 });
                 clusterSource.vector = vector;
 
@@ -425,6 +426,7 @@ export default class hyMap extends hylayers {
         }
 
     }
+
     _removeSerie(id) {
 
         this._markerLayer.forEach(obj => {
@@ -501,7 +503,8 @@ export default class hyMap extends hylayers {
         let geometry = null;
         if (type == 'point') {
 
-            geometry = new ol.geom.Point(obj['geoCoord']);
+            const coord = obj['geoCoord'];
+            geometry = new ol.geom.Point([Number(coord[0]), Number(coord[1])]);
 
         } else if (type == 'line') {
 
