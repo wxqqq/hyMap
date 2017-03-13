@@ -166,6 +166,4 @@ export default class hyLayer extends hytooltip {
         // 
 
     }
-
-
 }

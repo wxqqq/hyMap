@@ -308,6 +308,30 @@ export default class hyMap extends hylayers {
 
     }
 
+    showLayer(id) {
+
+        const group = this._addLayerGroupArray[id];
+        if (group) {
+
+            group.setVisible(true);
+
+        }
+
+
+    }
+
+    hideLayer(id) {
+
+        const group = this._addLayerGroupArray[id];
+        if (group) {
+
+            group.setVisible(false);
+
+        }
+
+
+    }
+
     /**
      * 创建图层数组
      * @param  {[type]} series [description]
