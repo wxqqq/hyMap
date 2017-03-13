@@ -1,7 +1,7 @@
 import hymap from './hymap/hymap';
 
 const instances = {};
-const DOM_ATTRIBUTE_KEY = 'hy_instance_';
+const DOM_ATTRIBUTE_KEY = '_hy_instance_';
 let idBase = new Date() - 0;
 const config = {
     version: '0.0.1',

@@ -14,7 +14,7 @@ class icon extends Component {
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 7, //当前地图缩放比例
-            scaleLimit: [4, 12], //滚轮缩放的边界
+            scaleLimit: [1, 20], //滚轮缩放的边界
             itemStyle: '', //地图上每块区域的样式
             selectedMode: '', //地图区域的选中模式
             theme: 'dark', //地图风格
@@ -62,6 +62,8 @@ class icon extends Component {
                 cluster: true, //是否开启聚合
                 distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
                 animationDuration: 700, //聚合动画时间，默认为700毫秒
+                maxZoom: 10,
+                // minZoom: 6,
                 data: values,
                 type: 'point',
                 symbol: 'icon:img/jingli.png', //circle|rect|icon
@@ -88,6 +90,7 @@ class icon extends Component {
                 },
                 showPopup: true //显示气泡框
             });
+            options.series = series;
             obj.setOption(options);
 
 
@@ -116,7 +119,6 @@ class icon extends Component {
 
                 }
             });
-
 
         });
 

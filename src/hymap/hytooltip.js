@@ -250,7 +250,7 @@ export default class hytooltip extends hyMapStyle {
             let properties = selFeature.getProperties();
             properties.id = selFeature.getId();
             const layerType = layer.get('type');
-            const type = (layer.get('type') && layer.get('type') === 'geo') ? 'geoSelect' : 'click';
+            let type = 'click';
             let div = null;
             if (this.tooltipShow && this.tooltipTrigger.indexOf(layerType) > -1 && this.tooltipTriggeron.indexOf('click') > -1) {
 
@@ -262,6 +262,17 @@ export default class hytooltip extends hyMapStyle {
                 this._showOverlay(selFeature);
 
             }
+            console.log(layerType);
+            if (layerType == 'geo') {
+
+                type = 'geoSelect';
+                console.log(properties)
+                const zoom = 10;
+                var resolution = this.view.constrainResolution(
+                    this.view.getMaxResolution(), zoom - this.view.minZoom_, 0);
+                console.log(resolution)
+            }
+
             evt.target.getFeatures().get('length') == 0 && evt.target.getFeatures().push(selFeature);
             this.dispatchEvent({
                 evt: evt.mapBrowserEvent,

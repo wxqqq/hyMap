@@ -384,19 +384,22 @@ export default class hyMap extends hylayers {
                     fstyle: style,
                     showPopup: serie.showPopup,
                     id: serie.id || '',
-                    animationDuration: serie.animationDuration || 700
+                    animationDuration: serie.animationDuration || 700,
+                    minResolution: this.getProjectionByZoom(serie.maxZoom),
+                    maxResolution: this.getProjectionByZoom(serie.minZoom)
                 });
                 clusterSource.vector = vector;
 
             } else {
-
                 vector = new ol.layer.Vector({
                     source: source,
                     style: this._geoStyleFn,
                     type: 'item',
                     fstyle: style,
                     showPopup: serie.showPopup,
-                    id: serie.id || ''
+                    id: serie.id || '',
+                    minResolution: this.getProjectionByZoom(serie.maxZoom),
+                    maxResolution: this.getProjectionByZoom(serie.minZoom)
                 });
 
 
@@ -659,6 +662,17 @@ export default class hyMap extends hylayers {
     }
 
     nullFunction() {
+
+    }
+
+    getProjectionByZoom(zoom) {
+
+        if (zoom) {
+
+            return this.view.constrainResolution(
+                this.view.getMaxResolution(), zoom - this.view.minZoom_, 0);
+
+        }
 
     }
 }

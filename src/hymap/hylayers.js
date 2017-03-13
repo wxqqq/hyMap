@@ -1,9 +1,9 @@
 import hyMapQuery from '../query/hyMapQuery';
-import tooltip from '../hymap/hytooltip';
+import hytooltip from '../hymap/hytooltip';
 
 const ol = require('../../public/lib/ol');
 
-export default class hyLayer extends tooltip {
+export default class hyLayer extends hytooltip {
     constructor(options) {
 
         super(options);
