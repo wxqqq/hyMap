@@ -230,8 +230,8 @@ export default class hytooltip extends hyMapStyle {
                 evt: evt.mapBrowserEvent,
                 type: type,
                 data: properties,
-                feature: unSelFeatures,
-                // select: evt.target
+                feature: unSelFeatures
+                    // select: evt.target
             });
 
         }
@@ -257,7 +257,7 @@ export default class hytooltip extends hyMapStyle {
             if (layerType == 'geo') {
 
                 type = 'geoSelect';
-                this.geoGo(properties)
+                this.geoGo(properties);
 
                 // evt.target.getFeatures().remove(selFeature)
 
@@ -311,8 +311,8 @@ export default class hytooltip extends hyMapStyle {
                 evt: evt.mapBrowserEvent,
                 type: type,
                 data: properties,
-                feature: unSelFeatures,
-                // select: evt.target
+                feature: unSelFeatures
+                    // select: evt.target
             });
 
         }

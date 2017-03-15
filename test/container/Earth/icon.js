@@ -10,7 +10,8 @@ class icon extends Component {
         let obj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
-            map: '中国|山东省', //当前地图显示哪个地图
+            map: '中国|山东省', //mapName  格式：undefined|(string|string|string) 为空不加载地图边界信息，否则按传入参数最后一个为当前级别进行数据加载。
+            //目前测试数据包括3级，中国各个省，山东省，济南市的区域数据。
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 7, //当前地图缩放比例
