@@ -1,6 +1,5 @@
 import hyMapStyle from '../style/hyMapStyle';
 import baseUtil from '../util/baseUtil';
-
 const ol = require('../../public/lib/ol');
 
 export default class hytooltip extends hyMapStyle {
@@ -178,12 +177,6 @@ export default class hytooltip extends hyMapStyle {
                 return typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()(feature, '', 'emphasis') : feature.source.vector.getStyle();
 
             }
-
-            // addCondition: function(evt) {
-
-            //     return true;
-
-            // }
         });
         this.map.addInteraction(this.clickSelect);
         this.clickSelect.on('select', (evt) => this._clickFun(evt));
@@ -244,7 +237,6 @@ export default class hytooltip extends hyMapStyle {
         }
         if (selFeatures && selFeatures.length > 0) {
 
-            console.log(evt);
             const selFeature = selFeatures[0];
             const layer = selFeature.source.vector;
             let properties = selFeature.getProperties();
@@ -262,15 +254,13 @@ export default class hytooltip extends hyMapStyle {
                 this._showOverlay(selFeature);
 
             }
-            console.log(layerType);
             if (layerType == 'geo') {
 
                 type = 'geoSelect';
-                console.log(properties)
-                const zoom = 10;
-                var resolution = this.view.constrainResolution(
-                    this.view.getMaxResolution(), zoom - this.view.minZoom_, 0);
-                console.log(resolution)
+                this.geoGo(properties)
+
+                // evt.target.getFeatures().remove(selFeature)
+
             }
 
             evt.target.getFeatures().get('length') == 0 && evt.target.getFeatures().push(selFeature);

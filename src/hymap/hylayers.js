@@ -1,5 +1,5 @@
-import hyMapQuery from '../query/hyMapQuery';
 import hytooltip from '../hymap/hytooltip';
+import hyMapQuery from '../query/hyMapQuery';
 
 const ol = require('../../public/lib/ol');
 
@@ -12,6 +12,7 @@ export default class hyLayer extends hytooltip {
         this._basicLayerGroup.setLayers(this._basicLayersArray);
         this.baseLayer = new ol.layer.Tile();
         this.geoVectorSource = null;
+        this.geoTables = ['province', 'city', 'counties'];
 
     }
 
@@ -55,24 +56,23 @@ export default class hyLayer extends hytooltip {
 
     /**
      * [setGeoSource description]
-     * @param {[type]} mapName [description]
+     * @param {[type]} mapName geo名称 格式：中国|山东省|济南市 为空不加载地图边界信息，否则按传入参数最后一个为当前级别进行数据加载。
      */
     setGeoSource(mapName) {
 
         if (mapName) {
 
-            const table = mapName + '_countries'; //'area_china_province'
-            const filter = null; // ol.format.filter.equalTo('name', mapName);
-            this.geoVectorSource.clear();
-            hyMapQuery.spatialQuery({
-                'url': this._serverUrl,
-                'msg': hyMapQuery.createFeatureRequest([table], filter),
-                'callback': (features) => {
+            //去除最后一个特殊符号，避免数组取值不正确
+            mapName = (mapName.substring(mapName.length - 1) == '|') ? mapName.substring(0, mapName.length - 1) : mapName;
 
-                    this.geoVectorSource.addFeatures(features);
+            this.mapNameArray = mapName.split('|');
+            this.geoLevel = this.mapNameArray.length - 1;
+            const column = {
+                level: this.geoLevel,
+                name: this.mapNameArray[this.mapNameArray.length - 1]
+            };
 
-                }
-            });
+            this.geoQuery(column, false);
 
         } else {
 
@@ -136,34 +136,114 @@ export default class hyLayer extends hytooltip {
 
         }
 
-        //放到图层添加功能中
+    }
+    geoGo(options) {
 
+        this.geoLevel += 1; //当前数据的level+1;
+        this.rollBackName = options.parentname;
+        this.geoQuery({
+            parentname: this.rollBackName,
+            name: options.name,
+            level: this.geoLevel
+        }, true);
 
-        // this._basicLayersArray.push(new ol.layer.Tile({
-        //     source: new ol.source.TileWMS({
-        //         url: this.geoserverUrl + '/wms',
-        //         params: {
-        //             'LAYERS': 'shandong_area',
-        //         },
-        //         serverTyjpe: 'geoserver',
-        //         crossOrigin: 'anonymous'
-        //     })
-        // }));
-
-        // const wmsSource = new ol.source.TileWMS({
-        //     url: this.geoserverUrl + '/wms',
-        //     params: {
-        //         'LAYERS': 'csdlzxx_pl'
-        //     },
-        //     serverTyjpe: 'geoserver',
-        //     crossOrigin: 'anonymous'
-        // });
-        // this.wmsTile = new ol.layer.Tile({
-        //     source: wmsSource
-        // });
-
-        // this._basicLayersArray.push(this.wmsTile);
-        // 
 
     }
+
+    geoGoBack() {
+
+        this.geoLevel -= 1;
+        let name = this.rollBackName;
+        const level = this.mapNameArray.length - 1;
+        if (this.geoLevel == level) {
+
+            name = this.mapNameArray[this.mapNameArray.length - 1];
+
+        } else if (this.geoLevel < level) {
+
+            this.geoLevel += 1;
+            return;
+
+        }
+
+        this.geoQuery({
+            parentname: this.rollBackName,
+            name: name,
+            level: this.geoLevel
+        }, true);
+
+    }
+
+    /**
+     * [geoQuery description]
+     * @param  {[type]} prototype{level,name,} [description]
+     * @return {[type]}        [description]
+     */
+    geoQuery(prototype, flag = true) {
+
+        const tableKey = this.geoTables[prototype.level];
+        if (!tableKey) {
+
+            return;
+
+        }
+        const table = 'area_china_' + tableKey;
+        const column = 'parentname';
+        const filter = ol.format.filter.equalTo(column, prototype.name);
+
+        hyMapQuery.spatialQuery({
+            'url': this._serverUrl,
+            'msg': hyMapQuery.createFeatureRequest([table], filter),
+            'callback': (features) => {
+
+                this.geoQueryCallback(features, flag);
+
+            }
+        });
+
+    }
+
+    geoQueryCallback(features, flag) {
+
+        this.geoVectorSource.clear();
+        this.geoVectorSource.addFeatures(features);
+        //地图根据范围重新定位
+        if (features.length > 0 && flag) {
+
+            this.view.fit(this.geoVectorSource.getExtent());
+
+        }
+
+
+    }
+
+    //放到图层添加功能中
+
+
+    // this._basicLayersArray.push(new ol.layer.Tile({
+    //     source: new ol.source.TileWMS({
+    //         url: this.geoserverUrl + '/wms',
+    //         params: {
+    //             'LAYERS': 'shandong_area',
+    //         },
+    //         serverTyjpe: 'geoserver',
+    //         crossOrigin: 'anonymous'
+    //     })
+    // }));
+
+    // const wmsSource = new ol.source.TileWMS({
+    //     url: this.geoserverUrl + '/wms',
+    //     params: {
+    //         'LAYERS': 'csdlzxx_pl'
+    //     },
+    //     serverTyjpe: 'geoserver',
+    //     crossOrigin: 'anonymous'
+    // });
+    // this.wmsTile = new ol.layer.Tile({
+    //     source: wmsSource
+    // });
+
+    // this._basicLayersArray.push(this.wmsTile);
+    // 
+
 }

@@ -171,12 +171,15 @@ export default class hyMap extends hylayers {
             controls: ol.control.defaults({
                 attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
                     collapsible: false
-                })
+                }),
+                zoom: false
             }).extend([
                 // new ol.control.FullScreen(),
                 // new ol.control.MousePosition(),//鼠标位置
-                // new ol.control.OverviewMap(),//鹰眼
-                new ol.control.ScaleLine()
+                // new ol.control.OverviewMap({
+                //     layers: this._basicLayersArray
+                // }), //鹰眼
+                // new ol.control.ScaleLine()
                 // new ol.control.ZoomSlider(),//地图缩放侧边栏
                 // new ol.control.ZoomToExtent()//一键缩放到全图
             ]),

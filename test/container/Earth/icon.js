@@ -10,11 +10,11 @@ class icon extends Component {
         let obj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
-            map: 'shandongsheng', //当前地图显示哪个地图
+            map: '中国', //当前地图显示哪个地图
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 7, //当前地图缩放比例
-            scaleLimit: [1, 20], //滚轮缩放的边界
+            scaleLimit: [3, 20], //滚轮缩放的边界
             itemStyle: '', //地图上每块区域的样式
             selectedMode: '', //地图区域的选中模式
             theme: 'dark', //地图风格
@@ -59,11 +59,11 @@ class icon extends Component {
 
             series.push({
                 id: 3,
-                cluster: true, //是否开启聚合
+                cluster: false, //是否开启聚合
                 distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
                 animationDuration: 700, //聚合动画时间，默认为700毫秒
-                maxZoom: 10, //数据显示最大级别
-                minZoom: 6, //数据显示最小级别
+                // maxZoom: 10, //数据显示最大级别
+                // minZoom: 6, //数据显示最小级别
                 data: values,
                 type: 'point',
                 symbol: 'icon:img/jingli.png', //circle|rect|icon
@@ -203,6 +203,11 @@ class icon extends Component {
             obj.hideLayer(5);
 
         });
+        document.getElementById('return').addEventListener('click', () => {
+
+            obj.geoGoBack();
+
+        });
 
     }
 
@@ -215,6 +220,7 @@ class icon extends Component {
             <input id='add' type='button' value='增加数据'/>
             <input id='showlayer' type='button' value='显示数据' />
             <input id='hidelayer' type='button' value='隐藏数据'/>
+             <input id='return' type='button' value='返回'/>
             <div id = 'map' /> 
             </div>);
 

@@ -22,7 +22,7 @@ class mapmethod extends Component {
         let options = {
             serverUrl: 'http://192.168.0.50:8080/geoserver',
             show: true, //地图的显示状态 true为显示 false 为不显示
-            map: 'shandongsheng', //当前地图显示哪个地图
+            map: '中国|山东省', //当前地图显示哪个地图
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 7, //当前地图缩放比例
@@ -133,7 +133,7 @@ class mapmethod extends Component {
         document.getElementById('changecq').addEventListener('click', () => {
 
             obj.setGeo({
-                map: 'chongqing',
+                map: '中国|重庆市',
                 center: [107.98613, 29.653439],
                 zoom: 8,
                 itemStyle: {
@@ -151,7 +151,7 @@ class mapmethod extends Component {
         document.getElementById('changesd').addEventListener('click', () => {
 
             obj.setGeo({
-                map: 'shandongsheng',
+                map: '中国|山东省',
                 center: [117, 36.20],
                 zoom: 7
             });
