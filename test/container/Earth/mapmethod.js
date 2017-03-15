@@ -95,7 +95,7 @@ class mapmethod extends Component {
                 }
             }], //  name: '',特殊区域的样式
             selectedMode: '', //地图区域的选中模式 single mulit
-            theme: {
+            theme: { // string('dark'，'blue'，'white')|objectr{mapId,key} 对应maobox中的mapid和access_token
                 mapId: 'zhangyujie.a80cdc83',
                 key: 'sk.eyJ1Ijoiemhhbmd5dWppZSIsImEiOiJkTEp6WDZrIn0.nY5bsQlZegBbb2uGgJ5jEA'
             }, //地图风格
