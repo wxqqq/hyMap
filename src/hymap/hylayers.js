@@ -111,7 +111,17 @@ export default class hyLayer extends hytooltip {
      */
     setTheme(theme = 'white') {
 
-        if (theme == 'white') {
+        if (typeof theme == 'object') {
+
+            this.baseLayer.setSource(
+                new ol.source.XYZ({
+                    // url: 'https://api.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=' + key
+                    url: 'https://api.mapbox.com/v4/' + theme.mapId + '/{z}/{x}/{y}.png?access_token=' + theme.key
+                })
+
+            );
+
+        } else if (theme == 'white') {
 
             this.baseLayer.setSource(
                 new ol.source.OSM({
@@ -121,24 +131,17 @@ export default class hyLayer extends hytooltip {
 
         } else if (theme == 'dark') {
 
-            const key = 'sk.eyJ1Ijoiemhhbmd5dWppZSIsImEiOiJkTEp6WDZrIn0.nY5bsQlZegBbb2uGgJ5jEA';
-            this.baseLayer.setSource(
-                new ol.source.XYZ({
-                    // url: 'https://api.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=' + key
-                    url: 'https://api.mapbox.com/v4/zhangyujie.a80cdc83/{z}/{x}/{y}.png?access_token=' + key
-                })
 
+            this.baseLayer.setSource(
+                new ol.source.TileWMS({
+                    url: this._serverUrl + '/wms',
+                    params: {
+                        'LAYERS': 'hygis:china_vector_group_dark'
+                    },
+                    serverTyjpe: 'geoserver',
+                    crossOrigin: 'anonymous'
+                })
             );
-            // this.baseLayer.setSource(
-            //     new ol.source.TileWMS({
-            //         url: this._serverUrl + '/wms',
-            //         params: {
-            //             'LAYERS': 'hygis:china_vector_group_dark'
-            //         },
-            //         serverTyjpe: 'geoserver',
-            //         crossOrigin: 'anonymous'
-            //     })
-            // );
 
         } else {
 
