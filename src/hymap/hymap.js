@@ -218,7 +218,8 @@ export default class hyMap extends hylayers {
         scaleLimit = [2, 18],
         roam = true,
         center = [118.62778784888256, 36.58892145091036],
-        zoom = 3
+        zoom = 3,
+        projection = 'EPSG:3857'
     }) {
 
         let minZoom = scaleLimit[0];
@@ -240,13 +241,14 @@ export default class hyMap extends hylayers {
             this.map.un('pointerdrag', this._panFunction);
 
         }
+
         this.view = new ol.View({
-            center: center,
+            center: this.transform(center, projection),
             zoom: zoom,
             enableRotation: false,
             minZoom: minZoom,
             maxZoom: maxZoom,
-            projection: 'EPSG:4326'
+            projection: projection
                 // extent: []
 
         });
@@ -418,6 +420,7 @@ export default class hyMap extends hylayers {
                 clusterSource.vector = vector;
 
             } else {
+
                 vector = new ol.layer.Vector({
                     source: source,
                     style: this._geoStyleFn,
@@ -534,16 +537,18 @@ export default class hyMap extends hylayers {
         if (type == 'point') {
 
             const coord = obj['geoCoord'];
-            geometry = new ol.geom.Point([Number(coord[0]), Number(coord[1])]);
+            const coordinate = this.transform([Number(coord[0]), Number(coord[1])]);
+            geometry = new ol.geom.Point(coordinate);
 
         } else if (type == 'line') {
 
             let coords = [];
             const str = obj.xys.split(';');
-            str.forEach(function(obj) {
+            str.forEach((obj) => {
 
                 const coord = obj.split(',');
-                coords.push(coord);
+                const coordinate = this.transform([Number(coord[0]), Number(coord[1])]);
+                coords.push(coordinate);
 
             });
 
@@ -554,14 +559,15 @@ export default class hyMap extends hylayers {
 
             let coords = [];
             const str = obj.xys.split(';');
-            str.forEach(function(obj) {
+            str.forEach((obj) => {
 
                 const coord = obj.split(',');
-                coords.push(coord);
+                const coordinate = this.transform([Number(coord[0]), Number(coord[1])]);
+                coords.push(coordinate);
 
             });
 
-            geometry = new ol.geom.LineString(coords);
+            geometry = new ol.geom.Polygon(coords);
 
         } else if (type == 'chart') {
 
@@ -701,6 +707,10 @@ export default class hyMap extends hylayers {
 
         }
 
+    }
+
+    transform(coords, projection) {
+        return ol.proj.fromLonLat(coords, projection);
     }
 }
 

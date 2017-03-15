@@ -18,10 +18,10 @@ export default class hyMapQuery {
      * @return {[type]}        [description]
      */
 
-    static createFeatureRequest(tables, filter) {
+    static createFeatureRequest(tables, filter, projection = 'EPSG:3857') {
 
         const featureRequest = new ol.format.WFS().writeGetFeature({
-            srsName: 'EPSG:4326',
+            srsName: projection,
             featureNS: 'http://www.hygis.com/hygis',
             featureTypes: tables,
             filter: filter,
