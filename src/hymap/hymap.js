@@ -166,7 +166,7 @@ export default class hyMap extends hylayers {
     _createMap() {
 
         this.map = new ol.Map({
-
+            // renderer: 'webgl',
             // target: ,
             controls: ol.control.defaults({
                 attributionOptions: /** @type {olx.control.AttributionOptions} */ ({

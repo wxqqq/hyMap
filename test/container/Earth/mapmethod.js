@@ -111,6 +111,18 @@ class mapmethod extends Component {
             obj.show();
 
         });
+
+        document.getElementById('hidegeo').addEventListener('click', () => {
+
+            obj.hideGeo();
+
+        });
+        //选中
+        document.getElementById('showgeo').addEventListener('click', () => {
+
+            obj.showGeo();
+
+        });
         //重庆
         document.getElementById('fly').addEventListener('click', () => {
 
@@ -188,6 +200,8 @@ class mapmethod extends Component {
         return (<div>
                     <input id='hide' type='button' value='隐藏地图'/>
                     <input id='show' type='button' value='显示地图' />
+                    <input id='hidegeo' type='button' value='隐藏边界'/>
+                    <input id='showgeo' type='button' value='显示边界' />
                     <input id='fly' type='button' value='飞到济南'/>
                     <input id='flychina' type='button' value='返回全国' />
                     <input id='changecq' type='button' value='修改区域（重庆）'/>
