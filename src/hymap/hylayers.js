@@ -2,7 +2,6 @@ import hytooltip from '../hymap/hytooltip';
 import hyMapQuery from '../query/hyMapQuery';
 
 const ol = require('../../public/lib/ol');
-require('../../public/lib/mapbox-streets-v6-style.js');
 export default class hyLayer extends hytooltip {
     constructor(options) {
 
@@ -114,17 +113,6 @@ export default class hyLayer extends hytooltip {
 
         if (theme == 'white') {
 
-            var key = 'sk.eyJ1Ijoiemhhbmd5dWppZSIsImEiOiJkTEp6WDZrIn0.nY5bsQlZegBbb2uGgJ5jEA';
-
-
-            this.baseLayer.setSource(
-                new ol.source.XYZ({
-                    // url: 'https://api.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=' + key
-                    url: 'https://api.mapbox.com/v4/zhangyujie.a80cdc83/{z}/{x}/{y}.png?access_token=' + key
-                })
-
-            );
-
             this.baseLayer.setSource(
                 new ol.source.OSM({
                     logo: false
@@ -152,12 +140,7 @@ export default class hyLayer extends hytooltip {
             //     })
             // );
 
-        } else if (theme = 'mapbox') {
-
-
-
         } else {
-
 
             this.baseLayer.setSource(
                 new ol.source.TileWMS({
