@@ -607,7 +607,15 @@ export default class hyMap extends hylayers {
 
         } else {
 
-            geometry = new ol.geom.Point(coords[coords.length - 1]);
+            if (coords.length == 1) {
+
+                coords = coords[0];
+            } else {
+
+                coords = this.transform([Number(coords[0]), Number(coords[1])]);
+
+            }
+            geometry = new ol.geom.Point(coords);
 
         }
 
