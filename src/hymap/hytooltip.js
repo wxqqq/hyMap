@@ -58,6 +58,7 @@ export default class hytooltip extends hyMapStyle {
     getToolip() {
 
     }
+
     setPopupStyle() {
 
     }
@@ -172,7 +173,13 @@ export default class hytooltip extends hyMapStyle {
     _createSelectInteraction() {
 
         this.clickSelect = new ol.interaction.Select({
-            style: function(feature) {
+            style: (feature) => {
+
+                if (feature.source.vector instanceof ol.layer.Heatmap) {
+
+                    return this._geoStyleFn(feature, '', 'emphasis');
+
+                }
 
                 return typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()(feature, '', 'emphasis') : feature.source.vector.getStyle();
 
@@ -186,7 +193,13 @@ export default class hytooltip extends hyMapStyle {
     _createHoverInteraction() {
 
         this.hoverSelect = new ol.interaction.Select({
-            style: function(feature) {
+            style: (feature) => {
+
+                if (feature.source.vector instanceof ol.layer.Heatmap) {
+
+                    return this._geoStyleFn(feature, '', 'emphasis');
+
+                }
 
                 return typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()(feature, '', 'emphasis') : feature.source.vector.getStyle();
 
@@ -280,7 +293,6 @@ export default class hytooltip extends hyMapStyle {
 
         const selFeatures = evt.selected;
         const unSelFeatures = evt.deselected;
-
         // click, mouseover, mousemove, dblclick
         if (unSelFeatures && unSelFeatures.length > 0) {
 

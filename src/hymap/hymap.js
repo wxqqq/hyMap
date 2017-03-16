@@ -371,7 +371,7 @@ export default class hyMap extends hylayers {
                 rootDiv.appendChild(obj.container);
                 document.body.appendChild(rootDiv);
                 const marker = new ol.Overlay({
-                    position: this._createGeometry(serie.type, obj),
+                    position: this.transform([Number(obj.geoCoord[0]), Number(obj.geoCoord[1])]),
                     positioning: 'center-center',
                     element: rootDiv,
                     stopEvent: false,
@@ -384,6 +384,49 @@ export default class hyMap extends hylayers {
             });
 
 
+        } else if (serie.type == 'heatmap') {
+
+            const style = this._createFeatureStyle(serie);
+            let source = new ol.source.Vector();
+            source.on('addfeature', function(evt) {
+
+                evt.feature.source = evt.target;
+
+            });
+            let vector = new ol.layer.Heatmap({
+                source: source,
+                type: 'item',
+                gradient: serie.heatOption && serie.heatOption.gradient || undefined,
+                blur: serie.heatOption && serie.heatOption.blur || undefined,
+                radius: serie.heatOption && serie.heatOption.radius || undefined,
+                shadow: serie.heatOption && serie.heatOption.shadow || undefined,
+                fstyle: style,
+                showPopup: serie.showPopup,
+                id: serie.id || '',
+                minResolution: this.getProjectionByZoom(serie.maxZoom),
+                maxResolution: this.getProjectionByZoom(serie.minZoom)
+            });
+            source.vector = vector;
+
+            layersArray.push(vector);
+
+            data.forEach((obj) => {
+
+                let feature = new ol.Feature({
+                    geometry: this._createGeometry(serie.type, obj.geoCoord),
+                    dataIndex: new Date().getTime()
+
+                });
+                feature.setProperties(obj);
+                feature.setId(obj.id);
+                // const featurestyle = this._createGeoStyle(serie.itemStyle, serie.label);
+                // feature.set('style', featurestyle);
+                array.push(feature);
+
+            });
+
+            source.addFeatures(array);
+
         } else {
 
             const style = this._createFeatureStyle(serie);
@@ -395,10 +438,10 @@ export default class hyMap extends hylayers {
             });
 
             let vector = null;
-            if (serie.cluster == true || serie.cluster === 'true') {
+            if (serie.cluster && (serie.cluster.enable == true || serie.cluster.enable === 'true')) {
 
                 let clusterSource = new ol.source.Cluster({
-                    distance: serie.distance || 20,
+                    distance: serie.cluster.distance || 20,
                     source: source
                 });
                 clusterSource.on('addfeature', function(evt) {
@@ -413,7 +456,7 @@ export default class hyMap extends hylayers {
                     fstyle: style,
                     showPopup: serie.showPopup,
                     id: serie.id || '',
-                    animationDuration: serie.animationDuration || 700,
+                    animationDuration: serie.cluster.animationDuration || 700,
                     minResolution: this.getProjectionByZoom(serie.maxZoom),
                     maxResolution: this.getProjectionByZoom(serie.minZoom)
                 });
@@ -442,7 +485,7 @@ export default class hyMap extends hylayers {
             data.forEach((obj) => {
 
                 let feature = new ol.Feature({
-                    geometry: this._createGeometry(serie.type, obj),
+                    geometry: this._createGeometry(serie.type, obj.geoCoord),
                     dataIndex: new Date().getTime()
 
                 });
@@ -531,19 +574,14 @@ export default class hyMap extends hylayers {
      * @param  {[type]} obj  [description]
      * @return {[type]}      [description]
      */
-    _createGeometry(type, obj) {
+    _createGeometry(type, geoCoord) {
 
         let geometry = null;
-        if (type == 'point') {
+        let coords = [];
+        if (baseUtil.isString(geoCoord)) {
 
-            const coord = obj['geoCoord'];
-            const coordinate = this.transform([Number(coord[0]), Number(coord[1])]);
-            geometry = new ol.geom.Point(coordinate);
-
-        } else if (type == 'line') {
-
-            let coords = [];
-            const str = obj.xys.split(';');
+            geoCoord = this.deleteEndSign(geoCoord, ';');
+            const str = geoCoord.split(';');
             str.forEach((obj) => {
 
                 const coord = obj.split(',');
@@ -551,29 +589,28 @@ export default class hyMap extends hylayers {
                 coords.push(coordinate);
 
             });
+
+        } else {
+
+            coords = geoCoord;
+
+        }
+
+        if (type == 'line') {
 
             geometry = new ol.geom.LineString(coords);
 
-
-        } else if (type == 'polygon') {
-
-            let coords = [];
-            const str = obj.xys.split(';');
-            str.forEach((obj) => {
-
-                const coord = obj.split(',');
-                const coordinate = this.transform([Number(coord[0]), Number(coord[1])]);
-                coords.push(coordinate);
-
-            });
+        } else
+        if (type == 'polygon') {
 
             geometry = new ol.geom.Polygon(coords);
 
-        } else if (type == 'chart') {
+        } else {
 
-            return obj['geoCoord'];
+            geometry = new ol.geom.Point(coords[coords.length - 1]);
 
         }
+
         return geometry;
 
     }
@@ -710,7 +747,9 @@ export default class hyMap extends hylayers {
     }
 
     transform(coords, projection) {
+
         return ol.proj.fromLonLat(coords, projection);
+
     }
 }
 

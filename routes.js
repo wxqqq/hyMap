@@ -22,13 +22,14 @@ import {
     icon,
     line,
     chart,
-    mapmethod
+    mapmethod,
+    heatmap
 
 } from './test/container/index';
 
 
 const route = (
-    <Route path="/" component={App}>
+    <Route path='/' component={App}>
      <IndexRoute component={circle}/>
         <Route path = 'chart' component = {chart} />
         <Route path = 'circle' component = {circle} />
@@ -36,7 +37,8 @@ const route = (
         <Route path = 'line' component = {line} />
         <Route path = 'rect' component = {rect} />
         <Route path = 'mapmethod' component = {mapmethod} />
+        <Route path = 'heatmap' component = {heatmap} />
     </Route>
-)
+);
 
-export default route
+export default route;

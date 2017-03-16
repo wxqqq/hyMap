@@ -17,6 +17,7 @@ import icon from './Earth/icon';
 import line from './Earth/line';
 import chart from './Earth/chart';
 import mapmethod from './Earth/mapmethod';
+import heatmap from './Earth/heatmap';
 
 export {
     App,
@@ -25,5 +26,6 @@ export {
     icon,
     line,
     chart,
-    mapmethod
+    mapmethod,
+    heatmap
 };

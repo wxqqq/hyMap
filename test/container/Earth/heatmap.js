@@ -15,13 +15,13 @@ import React, {
 } from 'react';
 import map from '../../../src/index';
 
-class circle extends Component {
+class heatmap extends Component {
     componentDidMount() {
 
         let obj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
-            map: '中国|山东省', //当前地图显示哪个地图
+            map: '中国', //当前地图显示哪个地图
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 7, //当前地图缩放比例
@@ -37,20 +37,20 @@ class circle extends Component {
 
             values.forEach(obj => {
 
-                obj.geoCoord = obj.lon + ',' + obj.lat;
+                obj.geoCoord = [Number(obj.lon), Number(obj.lat)];
 
             });
             options.series.push({
                 data: values, //{x,y,value}
-                cluster: {
-                    enable: true,
-                    distance: 50,
-                    animationDuration: 700
-                },
-                type: 'point', // point|line|polygon|chart|heatmap..
-                // symbol: 'rect', //circle|rect|icon
+                type: 'heatmap', // point|line|polygon|chart|heatmap..
+                // heatOption: { //type为heatmap时该参数生效。
+                //     gradient: ['#00f', '#0ff', '#0f0', '#ff0', '#f00'], //array<string>|undefined 颜色数组 该值为默认
+                //     blur: 15, //number|undefined 模糊 单位：像素 默认15
+                //     radius: 8, //number|undefined 半径 单位：像素 默认8
+                //     shadow: 100 //number|undef 阴影大小 单位：像素 默认250
+                // },
                 symbolSize: [5, 5], //[min,max]
-                symbolStyle: {
+                symbolStyle: { //type为heatmap时，normal样式不生效，emphasis依然有效果
                     'normal': {
                         strokeWidth: 1,
                         strokeColor: 'blue',
@@ -60,7 +60,7 @@ class circle extends Component {
                         symbolSize: 3
                     }
                 },
-                label: {
+                label: { //type为heatmap时，normal样式不生效，emphasis依然有效果
                     'normal': {
                         show: false,
                         textStyle: {
@@ -75,7 +75,7 @@ class circle extends Component {
 
         });
 
-        obj.on('geoSelect', function(data) {
+        obj.on('click', function(data) {
 
             console.log('getdata:', data);
 
@@ -86,7 +86,7 @@ class circle extends Component {
 
         // });
 
-        obj.on('geoUnSelect', function(data) {
+        obj.on('unClick', function(data) {
 
             console.log('getundata:', data);
 
@@ -99,4 +99,4 @@ class circle extends Component {
 
     }
 }
-export default circle;
+export default heatmap;

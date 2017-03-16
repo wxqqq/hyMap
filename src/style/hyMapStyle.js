@@ -294,6 +294,7 @@ export default class hyMapStyle {
     _geoStyleFn(feature, resolution, type = 'normal') {
 
         const vectorStyle = feature.source.vector.get('fstyle');
+
         const style = feature.get('style') || vectorStyle;
         const text = style[type][1].getText();
         text && text.show && text.setText(feature.get('name'));
