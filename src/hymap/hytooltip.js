@@ -270,7 +270,12 @@ export default class hytooltip extends hyMapStyle {
             if (layerType == 'geo') {
 
                 type = 'geoSelect';
-                this.geoGo(properties);
+                if (this.drillDown) {
+
+                    this.geoGo(properties);
+
+                }
+
 
                 // evt.target.getFeatures().remove(selFeature)
 

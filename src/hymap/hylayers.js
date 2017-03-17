@@ -11,6 +11,7 @@ export default class hyLayer extends hytooltip {
         this._basicLayerGroup.setLayers(this._basicLayersArray);
         this.baseLayer = new ol.layer.Tile();
         this.geoVectorSource = null;
+        this.drillDown = false;
         this.geoTables = ['province', 'city', 'counties'];
 
     }
@@ -161,6 +162,32 @@ export default class hyLayer extends hytooltip {
         }
 
     }
+
+    /**
+     * [setDrillDown description]
+     * @param {Boolean} flag [description]
+     */
+    setDrillDown(flag = false) {
+
+        this.drillDown = flag;
+
+    }
+
+    /**
+     * [getDrillDown description]
+     * @return {[type]} [description]
+     */
+    getDrillDown() {
+
+        return this.drillDown;
+
+    }
+
+    /**
+     * [geoGo description]
+     * @param  {[type]} options [description]
+     * @return {[type]}         [description]
+     */
     geoGo(options) {
 
         this.geoLevel += 1; //当前数据的level+1;
@@ -203,9 +230,9 @@ export default class hyLayer extends hytooltip {
      * @param  {[type]} prototype{level,name,} [description]
      * @return {[type]}        [description]
      */
-    geoQuery(prototype, flag = true) {
+    geoQuery(options, flag = true) {
 
-        const tableKey = this.geoTables[prototype.level];
+        const tableKey = this.geoTables[options.level];
         if (!tableKey) {
 
             return;
@@ -213,14 +240,24 @@ export default class hyLayer extends hytooltip {
         }
         const table = 'area_china_' + tableKey;
         const column = 'parentname';
-        const filter = ol.format.filter.equalTo(column, prototype.name);
+        const filter = ol.format.filter.equalTo(column, options.name);
 
         hyMapQuery.spatialQuery({
             'url': this._serverUrl,
             'msg': hyMapQuery.createFeatureRequest([table], filter),
             'callback': (features) => {
 
-                this.geoQueryCallback(features, flag);
+                if (features.length > 0) {
+
+                    this.geoQueryCallback(features, flag);
+
+                } else {
+
+                    this.geoLevel -= 1; //当前数据的level+1;
+                    this.rollBackName = options.parentname;
+
+                }
+
 
             }
         });
@@ -232,12 +269,7 @@ export default class hyLayer extends hytooltip {
         this.geoVectorSource.clear();
         this.geoVectorSource.addFeatures(features);
         //地图根据范围重新定位
-        if (features.length > 0 && flag) {
-
-            this.view.fit(this.geoVectorSource.getExtent());
-
-        }
-
+        flag && this.view.fit(this.geoVectorSource.getExtent());
 
     }
 
@@ -246,34 +278,4 @@ export default class hyLayer extends hytooltip {
         return (str.substring(str.length - 1) == sign) ? str.substring(0, str.length - 1) : str;
 
     }
-
-    //放到图层添加功能中
-
-
-    // this._basicLayersArray.push(new ol.layer.Tile({
-    //     source: new ol.source.TileWMS({
-    //         url: this.geoserverUrl + '/wms',
-    //         params: {
-    //             'LAYERS': 'shandong_area',
-    //         },
-    //         serverTyjpe: 'geoserver',
-    //         crossOrigin: 'anonymous'
-    //     })
-    // }));
-
-    // const wmsSource = new ol.source.TileWMS({
-    //     url: this.geoserverUrl + '/wms',
-    //     params: {
-    //         'LAYERS': 'csdlzxx_pl'
-    //     },
-    //     serverTyjpe: 'geoserver',
-    //     crossOrigin: 'anonymous'
-    // });
-    // this.wmsTile = new ol.layer.Tile({
-    //     source: wmsSource
-    // });
-
-    // this._basicLayersArray.push(this.wmsTile);
-    // 
-
 }

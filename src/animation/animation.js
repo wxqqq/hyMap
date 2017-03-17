@@ -57,18 +57,27 @@ export default class animation {
     }
     centerAndZoom() {
 
-        var pan = this.createPan(this.duration);
-        var zoom = this.createZoom(this.duration);
-        this.map.beforeRender(pan, zoom);
-        this._view.fit(this._geometry, {
-            maxZoom: this._zoom
+        this._view.animate({
+            zoom: this._zoom,
+            center: this._coords
         });
+        // var pan = this.createPan(this.duration);
+        // var zoom = this.createZoom(this.duration);
+        // this.map.beforeRender(pan, zoom);
+        // this._view.fit(this._geometry, {
+        //     maxZoom: this._zoom
+        // });
 
     }
     flyTo() {
 
         var bounce = this.createBounce(this.duration);
         var pan = this.createPan(this.duration);
+        // this._view.animate({
+        //     zoom: this._zoom,
+        //     center: this._coords,
+        //     duration: this.duration
+        // });
         this.map.beforeRender(pan, bounce);
         this._view.setZoom(this._zoom);
         this._view.setCenter(this._coords);
