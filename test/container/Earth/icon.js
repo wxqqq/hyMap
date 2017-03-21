@@ -10,7 +10,7 @@ class icon extends Component {
         let obj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
-            map: '中国|山东省', //mapName  格式：undefined|(string|string|string) 为空不加载地图边界信息，否则按传入参数最后一个为当前级别进行数据加载。
+            map: '', //mapName  格式：undefined|(string|string|string) 为空不加载地图边界信息，否则按传入参数最后一个为当前级别进行数据加载。
             //目前测试数据包括3级，中国各个省，山东省，济南市的区域数据。
             drillDown: true, //是否开启区域点击下钻功能。
             roam: 'true', //地图是否开启缩放、平移功能
@@ -40,25 +40,17 @@ class icon extends Component {
                     distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
                     animationDuration: 700 //聚合动画时间，默认为700毫秒
                 },
-                animation: {
-                    enable: false, //是否开启动画
-                    effectType: 'ripple', //scale 动画效果类型 ripple 涟漪 scale 图标缩放
-                    animationThreshold: 2000, // 图标上限，超出该上限后去取消动画效果
-                    // animationEasing: "", // 动画效果执行方式
-                    showEffectOn: 'render', //render emphasis 动画显示时机，普通，高亮后
-                    brushType: 'stroke', //stroke fill 动画方式
-                    period: 4, //动画执行时长
-                    scale: 2.5 //缩放比例
-                },
                 // maxZoom: 10, //数据显示最大级别
                 // minZoom: 6, //数据显示最小级别
                 data: values,
                 type: 'point',
-                symbol: 'icon:img/jingli.png', //circle|rect|icon
+                symbol: 'icon:img/jingli.png',
                 symbolSize: [25, 25],
                 symbolStyle: {
                     'normal': {
-                        symbolSize: [20, 20]
+                        // symbolSize: [15, 15],
+                        fillColor: 'rgb(140,0,140)',
+                        strokeColor: 'rbg(140,0,140)',
                     },
                     'emphasis': {
                         symbolSize: [30, 30]

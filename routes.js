@@ -23,7 +23,8 @@ import {
     line,
     chart,
     mapmethod,
-    heatmap
+    heatmap,
+    ripple
 
 } from './test/container/index';
 
@@ -38,6 +39,7 @@ const route = (
         <Route path = 'rect' component = {rect} />
         <Route path = 'mapmethod' component = {mapmethod} />
         <Route path = 'heatmap' component = {heatmap} />
+        <Route path = 'ripple' component = {ripple} />
     </Route>
 );
 

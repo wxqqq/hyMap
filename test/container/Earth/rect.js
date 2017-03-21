@@ -47,7 +47,7 @@ class rect extends Component {
                 symbolSize: '', //[min,max]
                 symbolStyle: {
                     'normal': {
-                        radius: 5,
+                        symbolSize: 5,
                         strokeWidth: 1,
                         strokeColor: 'black',
                         fillColor: 'orange'

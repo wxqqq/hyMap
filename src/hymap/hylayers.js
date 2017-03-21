@@ -11,7 +11,7 @@ export default class hyLayer extends hytooltip {
         this._basicLayerGroup.setLayers(this._basicLayersArray);
         this.baseLayer = new ol.layer.Tile();
         this.geoVectorSource = null;
-        this.drillDown = false;
+        this.geoDrillDown = false;
         this.geoTables = ['province', 'city', 'counties'];
 
     }
@@ -51,6 +51,18 @@ export default class hyLayer extends hytooltip {
         geoVectorSource.vector = geoVector;
 
         return geoVector;
+
+    }
+
+    setGeo(geo) {
+
+
+
+        this.setGeoStyle(geo);
+        this.setGeoSource(geo.map);
+        this.setGeoDrillDown(geo.drillDown);
+        this.setTheme(geo.theme); //设置theme主题
+
 
     }
 
@@ -167,9 +179,9 @@ export default class hyLayer extends hytooltip {
      * [setDrillDown description]
      * @param {Boolean} flag [description]
      */
-    setDrillDown(flag = false) {
+    setGeoDrillDown(flag = false) {
 
-        this.drillDown = flag;
+        this.geoDrillDown = flag;
 
     }
 
@@ -177,9 +189,9 @@ export default class hyLayer extends hytooltip {
      * [getDrillDown description]
      * @return {[type]} [description]
      */
-    getDrillDown() {
+    getGeoDrillDown() {
 
-        return this.drillDown;
+        return this.geoDrillDown;
 
     }
 

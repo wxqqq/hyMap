@@ -30,6 +30,7 @@ class Nav extends React.Component {
                 <Link to = 'line' > line </Link>
                 <Link to = 'mapmethod' > method </Link>
                 <Link to = 'heatmap' > heatmap </Link>
+                <Link to = 'ripple' > ripple </Link>
             </div>
         );
 

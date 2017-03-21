@@ -1,19 +1,25 @@
 import hymapOption from '../options/hymapOption';
 import baseUtil from '../util/baseUtil';
+import colorUtil from '../util/colorUtil';
 import events from '../events/events';
 import hylayers from './hylayers';
 import animation from '../animation/animation';
+import serieModel from '../model/serieModel';
 
 const ol = require('../../public/lib/ol');
 
 require('../../css/ol.css');
 require('../../css/popup.css');
 
+/**
+ * 
+ */
 export default class hyMap extends hylayers {
     constructor(dom, options) {
 
         super(options);
         this._geo = hymapOption;
+
         this.map = null;
         this._show = true;
         this._overlay = null;
@@ -36,6 +42,11 @@ export default class hyMap extends hylayers {
 
         this._init(dom);
         this.setOption(options);
+        this.duration = 4000;
+        animation.intervaldate_ = new Date().getTime();
+        this.spliceElapsed = 0;
+
+
 
     }
 
@@ -75,24 +86,17 @@ export default class hyMap extends hylayers {
             this.hide();
 
         }
-
         this.clearSeries();
+        this.setServerUrl(this._geo.serverUrl);
         this.setGeo(this._geo); //设置geo配置
-
-        this.addSeries(this._geo.series, this._layersArray); //设置series
-        this.setTheme(this._geo.theme); //设置theme主题
+        this.setView(this._geo);
         this.setTooltip(opt_options.tooltip);
+        this.addSeries(this._geo.series, this._layersArray); //设置series
+
 
     }
 
-    setGeo(geo) {
 
-        this.setServerUrl(geo.serverUrl || this._geo.serverUrl);
-        this.setView(geo);
-        this.setGeoStyle(geo);
-        this.setGeoSource(geo.map);
-
-    }
 
     /**
      * 获取option对象
@@ -344,9 +348,11 @@ export default class hyMap extends hylayers {
      */
     addSeries(series, layersArray) {
 
-        series.forEach((a) => {
+        series.forEach((serie) => {
 
-            this.addSerie(a, layersArray);
+            let newserie = baseUtil.clone({}, serieModel);
+            baseUtil.merge(newserie, serie || {}, true);
+            this.addSerie(newserie, layersArray);
 
         });
 
@@ -385,12 +391,27 @@ export default class hyMap extends hylayers {
 
 
         } else if (serie.type == 'heatmap') {
+            data.forEach((obj) => {
+
+                let feature = new ol.Feature({
+                    geometry: this._createGeometry(serie.type, obj.geoCoord),
+                    dataIndex: new Date().getTime()
+
+                });
+                feature.setProperties(obj);
+                feature.setId(obj.id);
+                // const featurestyle = this._createGeoStyle(serie.itemStyle, serie.label);
+                // feature.set('style', featurestyle);
+                array.push(feature);
+
+            });
 
             const style = this._createFeatureStyle(serie);
             let source = new ol.source.Vector();
             source.on('addfeature', function(evt) {
 
                 evt.feature.source = evt.target;
+
 
             });
             let vector = new ol.layer.Heatmap({
@@ -410,6 +431,10 @@ export default class hyMap extends hylayers {
 
             layersArray.push(vector);
 
+
+            source.addFeatures(array);
+
+        } else {
             data.forEach((obj) => {
 
                 let feature = new ol.Feature({
@@ -425,15 +450,12 @@ export default class hyMap extends hylayers {
 
             });
 
-            source.addFeatures(array);
-
-        } else {
-
             const style = this._createFeatureStyle(serie);
             let source = new ol.source.Vector();
             source.on('addfeature', function(evt) {
 
                 evt.feature.source = evt.target;
+                evt.feature.setStyle(style['normal'])
 
             });
 
@@ -464,6 +486,7 @@ export default class hyMap extends hylayers {
 
             } else {
 
+                this.openAnimate(array, serie.animation)
                 vector = new ol.layer.Vector({
                     source: source,
                     style: this._geoStyleFn,
@@ -475,34 +498,185 @@ export default class hyMap extends hylayers {
                     maxResolution: this.getProjectionByZoom(serie.minZoom)
                 });
 
-
             }
 
             source.vector = vector;
-
             layersArray.push(vector);
-
-            data.forEach((obj) => {
-
-                let feature = new ol.Feature({
-                    geometry: this._createGeometry(serie.type, obj.geoCoord),
-                    dataIndex: new Date().getTime()
-
-                });
-                feature.setProperties(obj);
-                feature.setId(obj.id);
-                // const featurestyle = this._createGeoStyle(serie.itemStyle, serie.label);
-                // feature.set('style', featurestyle);
-                array.push(feature);
-
-            });
-
             source.addFeatures(array);
 
         }
 
     }
 
+    openAnimate(array, animation) {
+
+        const animationThreshold = animation.animationThreshold ? animation.animationThreshold : 1000;
+        if (animation && animation.enable) {
+
+            if (array.length > animationThreshold) {
+
+                return;
+
+            }
+            animation.intervaldate_ = new Date().getTime();
+            if (animation.effectType == 'ripple') {
+
+                this.map.on('postcompose', (evt) => {
+
+                    this.animationRipple(evt, array, animation);
+
+                });
+
+            } else {
+
+                this.map.on('postcompose', (evt) => {
+
+                    this.animateFlights(evt, array, animation);
+
+                });
+
+            }
+
+        }
+
+    }
+    animateFlights(event, array, animation) {
+
+        const duration = animation.period * 1000;
+        let elapsed = event.frameState.time - animation.intervaldate_;
+        if (elapsed > duration) {
+
+            animation.intervaldate_ = new Date().getTime();
+            elapsed = event.frameState.time - animation.intervaldate_;
+
+        }
+        let elapsedRatio = elapsed / duration;
+
+        for (let i = 0; i < array.length; i++) {
+
+            let feature = array[i];
+            if (feature.getStyle()) {
+
+                const image = feature.getStyle()[0].getImage();
+                image.setScale(ol.easing.upAndDown(elapsedRatio) + 1);
+                image.setOpacity(ol.easing.upAndDown(elapsedRatio) + 0.6);
+                feature.set('scale', elapsedRatio);
+
+            }
+
+        }
+        this.map.render();
+
+    }
+
+    /**
+     * 涟漪动画
+     * @param  {[type]} event [description]
+     * @param  {[type]} array [description]
+     * @return {[type]}       [description]
+     */
+    animationRipple(event, array, animation) {
+
+        const duration = animation.period * 1000;
+        let vectorContext = event.vectorContext;
+        let elapsed = event.frameState.time - animation.intervaldate_;
+        //当时间超过周期2倍时，修改start为当前-周期。保证循环播放能够顺序进行。
+        if (elapsed > duration * 2) {
+
+            animation.intervaldate_ = new Date().getTime() - duration;
+            elapsed = event.frameState.time - animation.intervaldate_;
+
+        }
+        //获取涟漪生产的间隔。
+        const step = Math.ceil((elapsed / duration * 3));
+        let elapsedRatio = elapsed / duration;
+
+
+        for (let i = 0; i < array.length; i++) {
+
+            let feature = array[i];
+            const styleObj = feature.getStyle()[0];
+            const icon = styleObj.getImage();
+            const radius = (icon instanceof ol.style.Icon) ? icon.getImageSize()[0] / 2 : icon.getRadius();
+            const color = (icon instanceof ol.style.Icon) ? undefined : icon.getFill().getColor();
+            const flashGeom1 = feature.clone();
+            const style1 = this._createAnimationStyle(elapsedRatio, radius, animation.scale, animation.brushType, color);
+            vectorContext.drawFeature(flashGeom1, style1);
+            //根据间隔进行多个圈的绘制。模拟多次扩展效果
+            for (let n = 0; n < step; n++) {
+
+                let flashGeom = feature.clone();
+                const elapsed1 = elapsed - n * duration / 3;
+                const elapseRatio1 = elapsed1 / duration;
+                if (elapsed1 > 0) {
+
+                    const style = this._createAnimationStyle(elapseRatio1, radius, animation.scale, animation.brushType, color);
+                    vectorContext.drawFeature(flashGeom, style);
+
+                }
+
+            }
+
+        }
+
+        this.map.render();
+
+    }
+
+    /**
+     * 涟漪动画样式设置
+     * @param  {[type]} elapsedRatio [description]
+     * @param  {[type]} iconradius   [description]
+     * @param  {Number} scale        [description]
+     * @param  {String} type         [description]
+     * @return {[type]}              [description]
+     */
+    _createAnimationStyle(elapsedRatio, iconradius, scale = 2.5, type = 'stroke', color = 'rgba(140,0,140,1)') {
+
+        let opacity = ol.easing.easeOut(1 - elapsedRatio) - 0.2;
+        const radius = ol.easing.easeOut(elapsedRatio) * (scale - 1) * iconradius + iconradius;
+        let image;
+        if (color.indexOf('rgb') > -1) {
+
+            if (color.indexOf('rgba') > -1) {
+
+                color = colorUtil.rgbaToRgb(color);
+
+            }
+            color = colorUtil.colorHex(color);
+
+        }
+
+        const colorRgba = colorUtil.hexToRgba(color, opacity);
+
+        if (type == 'stroke') {
+
+            image = new ol.style.Circle({
+                radius: radius,
+                snapToPixel: false,
+                stroke: new ol.style.Stroke({
+                    color: colorRgba,
+                    width: 0.25 + opacity
+                })
+            });
+
+        } else {
+
+            image = new ol.style.Circle({
+                radius: radius,
+                snapToPixel: false,
+                fill: new ol.style.Fill({
+                    color: colorRgba
+
+                })
+            });
+
+        }
+        return new ol.style.Style({
+            image: image
+        });
+
+    }
     _removeSerie(id) {
 
         this._markerLayer.forEach(obj => {
@@ -610,6 +784,7 @@ export default class hyMap extends hylayers {
             if (coords.length == 1) {
 
                 coords = coords[0];
+
             } else {
 
                 coords = this.transform([Number(coords[0]), Number(coords[1])]);
@@ -631,7 +806,7 @@ export default class hyMap extends hylayers {
      */
     dispatchAction(evt) {
 
-        var feature = this.getFeature(evt.id);
+        let feature = this.getFeature(evt.id);
         const geoType = this.geoType_[evt.type]['arrayType'];
         let e = {
             'type': 'select',
@@ -717,8 +892,8 @@ export default class hyMap extends hylayers {
         animateEasing = ''
     }, callback) {
 
-        var geometry = new ol.geom.Point(ol.proj.fromLonLat(geoCoord, this.map.getView().getProjection()));
-        var animate = new animation(this.map, geometry, zoom, animateDuration);
+        let geometry = new ol.geom.Point(ol.proj.fromLonLat(geoCoord, this.map.getView().getProjection()));
+        let animate = new animation(this.map, geometry, zoom, animateDuration);
         zoom === 5 ? animate.centerAndZoom() : animate.flyTo();
         if (callback && typeof callback == 'function') {
 

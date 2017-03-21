@@ -18,7 +18,7 @@ import line from './Earth/line';
 import chart from './Earth/chart';
 import mapmethod from './Earth/mapmethod';
 import heatmap from './Earth/heatmap';
-
+import ripple from './Earth/ripple';
 export {
     App,
     circle,
@@ -27,5 +27,6 @@ export {
     line,
     chart,
     mapmethod,
-    heatmap
+    heatmap,
+    ripple
 };

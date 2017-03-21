@@ -100,7 +100,7 @@ export default class hyMapStyle {
 
     _createCircleStyle(radius = 3, fill, stroke) {
 
-        let icon = new ol.style.Circle({
+        const icon = new ol.style.Circle({
             radius: baseUtil.isArray(radius) ? radius[0] : radius,
             stroke: stroke,
             fill: fill
@@ -109,10 +109,10 @@ export default class hyMapStyle {
 
     }
 
-    _createRectStyle(radius = 1, fill, stroke) {
+    _createRectStyle(radius = 10, fill, stroke) {
 
-        let icon = new ol.style.RegularShape({
-            radius: radius,
+        const icon = new ol.style.RegularShape({
+            radius: baseUtil.isArray(radius) ? radius[0] : radius,
             stroke: stroke,
             fill: fill,
             points: 4,
@@ -279,7 +279,7 @@ export default class hyMapStyle {
         };
         const tmpNormal = Object.assign(normal, symbolStyle.normal);
         symbolStyle.normal = tmpNormal;
-        let style = this._createGeoStyle(symbolStyle, serie.label, serie.symbol);
+        const style = this._createGeoStyle(symbolStyle, serie.label, serie.symbol);
         return style;
 
     }
