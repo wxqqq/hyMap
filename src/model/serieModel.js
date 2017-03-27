@@ -21,24 +21,16 @@ export default {
     type: 'point',
     // symbol: 'icon:img/jingli.png',
     symbol: 'circle', //circle|rect|icon
-    symbolSize: [25, 25],
+    symbolSize: [5, 5],
     symbolStyle: {
         'normal': {
-            symbol: 'circle', //circle|react|icon:img/jingli.png
-            symbolSize: 3, //图形大小
-            strokeWidth: 1, //边框宽度
+            // symbol: 'circle', //circle|react|icon:img/jingli.png
+            strokeWidth: 0, //边框宽度
             strokeColor: '#c7a3ed', //边框颜色
             fillColor: 'rgba(0,0,0,0.1)',
             opacity: 0.6 //透明度
         },
-        'emphasis': {
-            symbol: 'circle', //circle|react|icon:img/jingli.png
-            symbolSize: 3, //图形大小
-            strokeWidth: 1, //边框宽度
-            strokeColor: '#c7a3ed', //边框颜色
-            fillColor: 'rgba(0,0,0,0.1)',
-            opacity: 0.6 //透明度
-        }
+        'emphasis': {}
     },
     label: {
         'normal': {
@@ -60,15 +52,19 @@ export default {
         'emphasis': {
             show: false,
             textStyle: {
-                symbol: 'circle', //circle|react|icon:img/jingli.png
-                symbolSize: 1, //图形大小
-                strokeWidth: 3, //边框宽度
-                strokeColor: 'rgb(130,141,137)', //边框颜色
-                fillColor: 'rgba(0,0,0,0.3)',
-                opacity: 0.8 //透明度
+                color: '#fff',
+                fontStyle: 'normal',
+                fontWeight: 'normal',
+                fontFamily: 'sans-serif',
+                fontSize: 12,
+                offsetX: 0,
+                offsetY: 0,
+                text: '',
+                textAlign: '',
+                strokeWidth: '',
+                strokeColor: ''
             }
         }
     },
-    showPopup: true //显示气泡框
-
-}
+    showPopup: false //显示气泡框
+};

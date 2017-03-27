@@ -12,20 +12,6 @@ export default class hyMapStyle {
         this._regionsObj = {};
 
     }
-    getStyle() {
-
-
-    }
-
-    getStyleByType(type) {
-
-    }
-
-    getStyleModel() {
-
-        return this._style;
-
-    }
 
     _createTextStyle({
         fontStyle = '',
@@ -53,7 +39,7 @@ export default class hyMapStyle {
             textAlign: textAlign,
             textBaseline: textBaseline,
             fill: this._createFill(color),
-            stroke: this._createStroke(strokeWidth, strokeColor),
+            stroke: this._createStroke(strokeWidth, strokeColor)
 
         });
 
@@ -80,7 +66,7 @@ export default class hyMapStyle {
 
     }
 
-    _createFill(color = '#333') {
+    _createFill(color = 'rgba(0,0,0,0)') {
 
         return new ol.style.Fill({
             color: color //'rgba(0,255,255,0.3)'
@@ -88,8 +74,13 @@ export default class hyMapStyle {
 
     }
 
-    _createStroke(width = 0, color = 'rgba(0,0,0,0)') {
+    _createStroke(width, color = 'rgba(0,0,0,0)') {
 
+        if (width == 0 || isNaN(width)) {
+
+            return null;
+
+        }
         return new ol.style.Stroke({
             width: width,
             color: color
@@ -125,25 +116,31 @@ export default class hyMapStyle {
 
     _createIconStyle(src, symbolSize) {
 
-        const canvas = document.createElement('canvas');
+        let canvas = document.createElement('canvas');
 
         let ctx = canvas.getContext('2d');
         let img = new Image();
         const width = symbolSize[0];
-        const height = symbolSize[1];
-        img.src = src;
+        let scale = 1;
         img.onload = function() {
 
-            ctx.drawImage(img, 0, 0, width, height);
+            scale = img.width / img.height;
+            ctx.scale(width / img.width, width / img.width / scale);
+            ctx.drawImage(img, 0, 0, this.width, this.height);
 
         };
-        canvas.setAttribute('width', width);
-        canvas.setAttribute('height', height);
+        img.src = src;
+
+
+        // canvas.setAttribute('width', width);
+        // canvas.setAttribute('height', height);
         let icon = new ol.style.Icon({
             anchor: [0.5, 1],
             img: canvas,
-            imgSize: [width, height]
+            imgSize: [width, width / scale]
         });
+        console.log(icon.getImageSize())
+
         return icon;
 
     }
@@ -214,37 +211,40 @@ export default class hyMapStyle {
     }
 
     /**
-     * [_createGeoStyle description]
+     * 创建样式数组对象
      * @param  {[type]} itemStyle      [description]
      * @param  {Object} options.normal [description]
      * @param  {Object} emphasis       [description]
      * @return {[type]}                [description]
      */
-    _createGeoStyle(itemStyle, label = {}, symbol = 'circle') {
+    _createGeoStyle(itemStyle, label = {}) {
+
 
         const style = this._createItemStyle(itemStyle);
-        let nText = undefined;
-        let eText = undefined;
-        nText = this._createTextStyle(label.normal && label.normal.textStyle || {});
-        nText.show = label.normal && label.normal.show || false;
-        eText = this._createTextStyle(label.emphasis && label.emphasis.textStyle || {});
-        eText.show = label.emphasis && label.emphasis.show || false;
-        const nStroke = this._createStroke(style.normal.strokeWidth, style.normal.strokeColor);
-        const nFill = this._createFill(style.normal.fillColor);
-        const nImage = this._createImageStyle(symbol, style.normal);
-        const eStroke = this._createStroke(style.emphasis.strokeWidth, style.emphasis.strokeColor);
-        const eFill = this._createFill(style.emphasis.fillColor);
-        const eImage = this._createImageStyle(symbol, style.emphasis);
         return {
-            normal: this._createStyle(nStroke, nFill, nText, nImage),
-            emphasis: this._createStyle(eStroke, eFill, eText, eImage)
+            normal: this._createDataStyle(style.normal, label.normal),
+            emphasis: this._createDataStyle(style.emphasis, label.emphasis)
         };
+
+    }
+
+    _createDataStyle(style, label = {}) {
+
+        let text = undefined;
+        text = this._createTextStyle(label && label.textStyle || {});
+        text.show = label && label.show || false;
+
+        const stroke = this._createStroke(style.strokeWidth, style.strokeColor);
+        const image = this._createImageStyle(style.symbol, style);
+        const fill = this._createFill(style.fillColor);
+        return this._createStyle(stroke, fill, text, image);
 
     }
 
     _createImageStyle(symbol, styleModel) {
 
         let image = undefined;
+
         const stroke = this._createStroke(styleModel.strokeWidth, styleModel.strokeColor);
         const fill = this._createFill(styleModel.fillColor);
         if (symbol == 'circle') {
@@ -273,32 +273,71 @@ export default class hyMapStyle {
     _createFeatureStyle(serie) {
 
         const symbolStyle = serie.symbolStyle;
-        let normal = {
-            symbol: serie.symbol,
-            symbolSize: serie.symbolSize
-        };
-        const tmpNormal = Object.assign(normal, symbolStyle.normal);
-        symbolStyle.normal = tmpNormal;
-        const style = this._createGeoStyle(symbolStyle, serie.label, serie.symbol);
+
+        symbolStyle.normal.symbol = symbolStyle.normal.symbol || serie.symbol;
+        symbolStyle.normal.symbolSize = symbolStyle.normal.symbolSize || serie.symbolSize;
+
+        symbolStyle.emphasis.symbol = symbolStyle.emphasis.symbol || serie.symbol;
+        symbolStyle.emphasis.symbolSize = symbolStyle.emphasis.symbolSize || serie.symbolSize;
+
+        symbolStyle.emphasis = Object.assign({}, symbolStyle.normal, symbolStyle.emphasis);
+        console.log(symbolStyle)
+        const style = this._createGeoStyle(symbolStyle, serie.label);
         return style;
 
     }
 
     /**
-     * [_geoStyleFn description]
-     * @param  {[type]} feature    [description]
-     * @param  {[type]} resolution [description]
-     * @param  {String} type       [description]
-     * @return {[type]}            [description]
+     * style回调方法
+     * @param  {ol.feature} feature    [description]
+     * @param  {array} resolution [description]
+     * @param  {String} type  样式类型     [description]
+     * @return {[ol.style,ol.style]}  显示的定义样式
      */
     _geoStyleFn(feature, resolution, type = 'normal') {
 
         const vectorStyle = feature.source.vector.get('fstyle');
-
         const style = feature.get('style') || vectorStyle;
-        const text = style[type][1].getText();
+        const symbolSize = feature.source.vector.get('fSymbol');
+        const rStyle = style[type];
+        // console.log(symbolSize, rStyle[0].getImage().getRadius())
+        //判断是否对图形大小进行动态设置
+        if (symbolSize && symbolSize[0] != symbolSize[1]) {
+
+            const geoScaleNum = feature.source.vector.get('fScaleNum');
+            const value = feature.get('value');
+            const scale = Math.floor(value / geoScaleNum);
+            const icon = rStyle[0].getImage();
+            if (icon instanceof ol.style.Icon) {
+
+                // console.log((scale + symbolSize[0]) / symbolSize[0] * icon.getScale(), icon.getImageSize())
+                icon.setScale((scale + symbolSize[0]) / symbolSize[0]);
+
+            } else {
+
+                icon.setRadius(scale + symbolSize[0]);
+
+            }
+
+        }
+        if (type != 'normal') {
+
+            console.log(rStyle);
+
+        }
+
+        //判断是否需要进行文本标签显示
+        const text = rStyle[1].getText();
         text && text.show && text.setText(feature.get('name'));
-        return style[type];
+        return rStyle;
+
+    }
+
+
+    _geoSymbolScale(symbolSize, min, max) {
+
+        let a = symbolSize[1] - symbolSize[0] + 1;
+        return max / a;
 
     }
 }

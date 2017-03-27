@@ -45,15 +45,17 @@ class icon extends Component {
                 data: values,
                 type: 'point',
                 symbol: 'icon:img/jingli.png',
-                symbolSize: [25, 25],
+                symbolSize: [20, 40],
                 symbolStyle: {
                     'normal': {
-                        // symbolSize: [15, 15],
+                        // symbolSize: [30, 30],
                         fillColor: 'rgb(140,0,140)',
-                        strokeColor: 'rbg(140,0,140)',
+                        strokeWitdh: 1,
+                        strokeColor: 'rbg(140,0,140)'
                     },
                     'emphasis': {
-                        symbolSize: [30, 30]
+                        strokeWitdh: 2,
+                        symbolSize: [30, 40]
                     }
                 },
                 label: {
@@ -68,13 +70,13 @@ class icon extends Component {
                         }
                     }
                 },
-                showPopup: true //显示气泡框
+                showPopup: false //显示气泡框
             });
             obj.setOption(options);
 
 
             obj.setTooltip({
-                show: true,
+                show: false,
                 trigger: ['item'], // item、map  ['item', 'geo']
                 triggeron: 'click', //'click', // click, mouseover, mousemove, dblclick , ['click'],
                 enterable: true, //true 鼠标是否可进入浮出泡泡框中
@@ -144,13 +146,23 @@ class icon extends Component {
             });
 
         });
-        //取消选中
-        document.getElementById('unselect').addEventListener('click', () => {
 
+        //筛选
+        document.getElementById('filter').addEventListener('click', () => {
+
+            //获取value=4468的feature
+            //
+            console.log(obj.map.getLayers());
+            const feature = obj.getFeaturesByProperty('value', 4468);
+            console.log(feature);
+            const xy = feature[0].properties.geoCoord;
+            //对feature触发click
             obj.dispatchAction({
-                type: 'unClick',
-                id: 1
+                type: 'click',
+                id: feature[0].properties.id
             });
+
+            console.log(obj.getPixelFromCoords(xy));
 
         });
 
@@ -196,6 +208,7 @@ class icon extends Component {
         return (<div>
             <input id='select' type='button' value='选中'/>
             <input id='unselect' type='button' value='取消选中' />
+              <input id='filter' type='button' value='筛选' />
             <input id='remove' type='button' value='移除数据' />
             <input id='add' type='button' value='增加数据'/>
             <input id='showlayer' type='button' value='显示数据' />

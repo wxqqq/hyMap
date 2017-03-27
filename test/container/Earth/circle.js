@@ -21,7 +21,7 @@ class circle extends Component {
         let obj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
-            map: '中国|山东省', //当前地图显示哪个地图
+            map: '', //'中国|山东省', //当前地图显示哪个地图
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 7, //当前地图缩放比例
@@ -33,7 +33,7 @@ class circle extends Component {
             series: []
         };
 
-        fetch('../../../data/station.json').then(response => response.json()).then(function(values) {
+        fetch('../../../data/car_2012.json').then(response => response.json()).then(function(values) {
 
             values.forEach(obj => {
 
@@ -43,21 +43,23 @@ class circle extends Component {
             options.series.push({
                 data: values, //{x,y,value}
                 cluster: {
-                    enable: true,
+                    enable: false,
                     distance: 50,
                     animationDuration: 700
                 },
                 type: 'point', // point|line|polygon|chart|heatmap..
-                // symbol: 'rect', //circle|rect|icon
-                symbolSize: [5, 5], //[min,max]
+                symbol: 'circle', //circle|rect|icon
+                symbolSize: 10, //[min,max]
                 symbolStyle: {
                     'normal': {
-                        strokeWidth: 1,
-                        strokeColor: 'blue',
+                        strokeWidth: 0,
+                        strokeColor: 'red',
                         fillColor: 'orange'
                     },
                     'emphasis': {
-                        symbolSize: 3
+                        strokeWidth: 1,
+                        // strokeColor: 'green',
+                        fillColor: 'rgb(133,122,55)'
                     }
                 },
                 label: {

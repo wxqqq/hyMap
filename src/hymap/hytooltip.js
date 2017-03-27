@@ -223,6 +223,7 @@ export default class hytooltip extends hyMapStyle {
 
     }
 
+
     _clickFun(evt) {
 
         const selFeatures = evt.selected;

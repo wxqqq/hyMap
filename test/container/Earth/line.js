@@ -28,8 +28,6 @@ class line extends Component {
             options.series.push({
                 data: values,
                 type: 'line',
-                symbol: '',
-                symbolSize: '',
                 symbolStyle: {
                     'normal': {
                         strokeColor: 'red'

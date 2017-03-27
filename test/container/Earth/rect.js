@@ -52,14 +52,8 @@ class rect extends Component {
                         strokeColor: 'black',
                         fillColor: 'orange'
                     },
-                    'hover': {
-                        radius: 15,
-                        strokeWidth: 1,
-                        strokeColor: 'red',
-                        fillColor: 'pink'
-                    },
                     'emphasis': {
-                        radius: 25,
+                        symbolSize: 25,
                         strokeWidth: 1,
                         strokeColor: 'blue',
                         fillColor: 'white'

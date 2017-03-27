@@ -27,7 +27,6 @@ export default class hyMap extends hylayers {
         this._showLogo = true;
         this._layersArray = new ol.Collection();
         this._layerGroup = new ol.layer.Group({
-            zIndex: 5,
             layers: this._layersArray
         });
         this._addLayerGroupArray = {};
@@ -43,7 +42,7 @@ export default class hyMap extends hylayers {
         this._init(dom);
         this.setOption(options);
         this.duration = 4000;
-        animation.intervaldate_ = new Date().getTime();
+        animation._intervaldate = new Date().getTime();
         this.spliceElapsed = 0;
 
 
@@ -350,8 +349,8 @@ export default class hyMap extends hylayers {
 
         series.forEach((serie) => {
 
-            let newserie = baseUtil.clone({}, serieModel);
-            baseUtil.merge(newserie, serie || {}, true);
+            let newserie = baseUtil.clone(serieModel);
+            baseUtil.merge(newserie, serie, true);
             this.addSerie(newserie, layersArray);
 
         });
@@ -359,14 +358,15 @@ export default class hyMap extends hylayers {
     }
 
     /**
-     * 创建图层
-     * @param  {[type]} serie [description]
-     * @return {[type]}       [description]
+     * 增加数据
+     * @author WXQ
+     * @date   2017-03-22
+     * @param  {object}   serie       数据
+     * @param  {ol.layer.Group}   layersArray 数据的父容器
      */
     addSerie(serie, layersArray) {
 
         const data = serie.data;
-        let array = [];
 
         if (serie.type == 'chart') {
 
@@ -389,128 +389,126 @@ export default class hyMap extends hylayers {
 
             });
 
-
-        } else if (serie.type == 'heatmap') {
-            data.forEach((obj) => {
-
-                let feature = new ol.Feature({
-                    geometry: this._createGeometry(serie.type, obj.geoCoord),
-                    dataIndex: new Date().getTime()
-
-                });
-                feature.setProperties(obj);
-                feature.setId(obj.id);
-                // const featurestyle = this._createGeoStyle(serie.itemStyle, serie.label);
-                // feature.set('style', featurestyle);
-                array.push(feature);
-
-            });
-
-            const style = this._createFeatureStyle(serie);
-            let source = new ol.source.Vector();
-            source.on('addfeature', function(evt) {
-
-                evt.feature.source = evt.target;
-
-
-            });
-            let vector = new ol.layer.Heatmap({
-                source: source,
-                type: 'item',
-                gradient: serie.heatOption && serie.heatOption.gradient || undefined,
-                blur: serie.heatOption && serie.heatOption.blur || undefined,
-                radius: serie.heatOption && serie.heatOption.radius || undefined,
-                shadow: serie.heatOption && serie.heatOption.shadow || undefined,
-                fstyle: style,
-                showPopup: serie.showPopup,
-                id: serie.id || '',
-                minResolution: this.getProjectionByZoom(serie.maxZoom),
-                maxResolution: this.getProjectionByZoom(serie.minZoom)
-            });
-            source.vector = vector;
-
-            layersArray.push(vector);
-
-
-            source.addFeatures(array);
-
         } else {
-            data.forEach((obj) => {
 
-                let feature = new ol.Feature({
-                    geometry: this._createGeometry(serie.type, obj.geoCoord),
-                    dataIndex: new Date().getTime()
-
-                });
-                feature.setProperties(obj);
-                feature.setId(obj.id);
-                // const featurestyle = this._createGeoStyle(serie.itemStyle, serie.label);
-                // feature.set('style', featurestyle);
-                array.push(feature);
-
-            });
-
-            const style = this._createFeatureStyle(serie);
-            let source = new ol.source.Vector();
+            const featuresObj = this.getFeatures(data, serie.type);
+            const array = featuresObj.features;
+            const geoScaleNum = this._geoSymbolScale(serie.symbolSize, featuresObj.min, featuresObj.max)
+            const source = new ol.source.Vector();
             source.on('addfeature', function(evt) {
 
                 evt.feature.source = evt.target;
-                evt.feature.setStyle(style['normal'])
 
             });
-
+            source.addFeatures(array);
             let vector = null;
-            if (serie.cluster && (serie.cluster.enable == true || serie.cluster.enable === 'true')) {
+            const style = this._createFeatureStyle(serie);
 
-                let clusterSource = new ol.source.Cluster({
-                    distance: serie.cluster.distance || 20,
-                    source: source
-                });
-                clusterSource.on('addfeature', function(evt) {
+            if (serie.type == 'heatmap') {
 
-                    evt.feature.source = evt.target;
-
-                });
-                vector = new ol.layer.AnimatedCluster({
-                    source: clusterSource,
-                    style: this._geoStyleFn,
-                    type: 'item',
-                    fstyle: style,
-                    showPopup: serie.showPopup,
+                vector = new ol.layer.Heatmap({
                     id: serie.id || '',
-                    animationDuration: serie.cluster.animationDuration || 700,
+                    source: source,
+                    type: 'item',
+                    gradient: serie.heatOption && serie.heatOption.gradient || undefined,
+                    blur: serie.heatOption && serie.heatOption.blur || undefined,
+                    radius: serie.heatOption && serie.heatOption.radius || undefined,
+                    shadow: serie.heatOption && serie.heatOption.shadow || undefined,
+                    showPopup: serie.showPopup,
+                    fstyle: style,
+                    fScaleNum: geoScaleNum,
+                    fSymbol: serie.symbolSize,
                     minResolution: this.getProjectionByZoom(serie.maxZoom),
                     maxResolution: this.getProjectionByZoom(serie.minZoom)
                 });
-                clusterSource.vector = vector;
 
             } else {
 
-                this.openAnimate(array, serie.animation)
-                vector = new ol.layer.Vector({
-                    source: source,
-                    style: this._geoStyleFn,
-                    type: 'item',
-                    fstyle: style,
-                    showPopup: serie.showPopup,
-                    id: serie.id || '',
-                    minResolution: this.getProjectionByZoom(serie.maxZoom),
-                    maxResolution: this.getProjectionByZoom(serie.minZoom)
-                });
+                if (serie.cluster && (serie.cluster.enable == true || serie.cluster.enable === 'true')) {
+
+                    let clusterSource = new ol.source.Cluster({
+                        distance: serie.cluster.distance || 20,
+                        source: source
+                    });
+                    clusterSource.on('addfeature', function(evt) {
+
+                        evt.feature.source = evt.target;
+
+                    });
+                    vector = new ol.layer.AnimatedCluster({
+                        source: clusterSource,
+                        style: this._geoStyleFn,
+                        type: 'item',
+                        showPopup: serie.showPopup,
+                        id: serie.id || '',
+                        fstyle: style,
+                        fScaleNum: geoScaleNum,
+                        fSymbol: serie.symbolSize,
+                        animationDuration: serie.cluster.animationDuration || 700,
+                        minResolution: this.getProjectionByZoom(serie.maxZoom),
+                        maxResolution: this.getProjectionByZoom(serie.minZoom)
+                    });
+                    clusterSource.vector = vector;
+
+                } else {
+
+                    this.openAnimate(array, serie.animation); //涟漪动画
+
+                    vector = new ol.layer.Vector({
+                        id: serie.id || new Date().getTime(),
+                        source: source,
+                        style: this._geoStyleFn,
+                        type: 'item',
+                        showPopup: serie.showPopup,
+                        fstyle: style,
+                        fScaleNum: geoScaleNum,
+                        fSymbol: serie.symbolSize,
+                        minResolution: this.getProjectionByZoom(serie.maxZoom),
+                        maxResolution: this.getProjectionByZoom(serie.minZoom)
+                    });
+
+                }
 
             }
 
             source.vector = vector;
             layersArray.push(vector);
-            source.addFeatures(array);
 
         }
 
     }
 
+    getFeatures(data, type) {
+
+        let features = [];
+        let valueArray = [];
+        data.forEach((obj) => {
+
+            let feature = new ol.Feature({
+                geometry: this._createGeometry(type, obj.geoCoord),
+                dataIndex: new Date().getTime()
+
+            });
+            feature.setProperties(obj);
+            feature.setId(obj.id);
+            // const featurestyle = this._createGeoStyle(serie.itemStyle, serie.label);
+            // feature.set('style', featurestyle);
+            features.push(feature);
+            valueArray.push(obj.value);
+
+
+        });
+        const max = Math.max(...valueArray);
+        const min = Math.min(...valueArray);
+        return {
+            features,
+            max,
+            min
+        };
+
+    }
     openAnimate(array, animation) {
 
-        const animationThreshold = animation.animationThreshold ? animation.animationThreshold : 1000;
         if (animation && animation.enable) {
 
             if (array.length > animationThreshold) {
@@ -518,7 +516,9 @@ export default class hyMap extends hylayers {
                 return;
 
             }
-            animation.intervaldate_ = new Date().getTime();
+            const animationThreshold = animation.animationThreshold ? animation.animationThreshold : 1000;
+
+            animation._intervaldate = new Date().getTime();
             if (animation.effectType == 'ripple') {
 
                 this.map.on('postcompose', (evt) => {
@@ -543,11 +543,11 @@ export default class hyMap extends hylayers {
     animateFlights(event, array, animation) {
 
         const duration = animation.period * 1000;
-        let elapsed = event.frameState.time - animation.intervaldate_;
+        let elapsed = event.frameState.time - animation._intervaldate;
         if (elapsed > duration) {
 
-            animation.intervaldate_ = new Date().getTime();
-            elapsed = event.frameState.time - animation.intervaldate_;
+            animation._intervaldate = new Date().getTime();
+            elapsed = event.frameState.time - animation._intervaldate;
 
         }
         let elapsedRatio = elapsed / duration;
@@ -555,14 +555,21 @@ export default class hyMap extends hylayers {
         for (let i = 0; i < array.length; i++) {
 
             let feature = array[i];
-            if (feature.getStyle()) {
+            let style = feature.getStyle();
+            if (!style) {
 
-                const image = feature.getStyle()[0].getImage();
-                image.setScale(ol.easing.upAndDown(elapsedRatio) + 1);
-                image.setOpacity(ol.easing.upAndDown(elapsedRatio) + 0.6);
-                feature.set('scale', elapsedRatio);
+                style = typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()(feature) : feature.source.vector.getStyle();
+
+                feature.setStyle(style);
 
             }
+
+            const image = style[0].getImage();
+            image.setScale(ol.easing.upAndDown(elapsedRatio) + 1);
+            image.setOpacity(ol.easing.upAndDown(elapsedRatio) + 0.6);
+            feature.set('scale', elapsedRatio);
+
+
 
         }
         this.map.render();
@@ -579,12 +586,12 @@ export default class hyMap extends hylayers {
 
         const duration = animation.period * 1000;
         let vectorContext = event.vectorContext;
-        let elapsed = event.frameState.time - animation.intervaldate_;
+        let elapsed = event.frameState.time - animation._intervaldate;
         //当时间超过周期2倍时，修改start为当前-周期。保证循环播放能够顺序进行。
         if (elapsed > duration * 2) {
 
-            animation.intervaldate_ = new Date().getTime() - duration;
-            elapsed = event.frameState.time - animation.intervaldate_;
+            animation._intervaldate = new Date().getTime() - duration;
+            elapsed = event.frameState.time - animation._intervaldate;
 
         }
         //获取涟漪生产的间隔。
@@ -595,7 +602,15 @@ export default class hyMap extends hylayers {
         for (let i = 0; i < array.length; i++) {
 
             let feature = array[i];
-            const styleObj = feature.getStyle()[0];
+            let style = feature.getStyle();
+            if (!style) {
+
+                style = typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()(feature) : feature.source.vector.getStyle();
+
+
+            }
+
+            const styleObj = style[0]; //0位置为图标。1为文本
             const icon = styleObj.getImage();
             const radius = (icon instanceof ol.style.Icon) ? icon.getImageSize()[0] / 2 : icon.getRadius();
             const color = (icon instanceof ol.style.Icon) ? undefined : icon.getFill().getColor();
@@ -677,6 +692,14 @@ export default class hyMap extends hylayers {
         });
 
     }
+
+    /**
+     * [_removeSerie description]
+     * @author WXQ
+     * @date   2017-03-22
+     * @param  {[type]}   id [description]
+     * @return {[type]}      [description]
+     */
     _removeSerie(id) {
 
         this._markerLayer.forEach(obj => {
@@ -819,15 +842,72 @@ export default class hyMap extends hylayers {
 
     getFeature(id) {
 
-        const layers = this._layerGroup.getLayers();
+        const layersGroup = this.map.getLayers();
         let feature = null;
-        layers.forEach(function(element) {
+        layersGroup.forEach((group) => {
 
-            feature = element.getSource().getFeatureById(id);
+            const layers = group.getLayers();
+            layers.forEach(function(element) {
+
+                feature = element.getSource().getFeatureById && element.getSource().getFeatureById(id);
+
+            });
 
         });
         return feature;
 
+
+    }
+
+    getFeaturesByProperty(key, value) {
+
+        const layersGroup = this.map.getLayers();
+        let array = [];
+        layersGroup.forEach((group) => {
+
+            const layers = group.getLayers();
+            layers.forEach((element) => {
+
+                const features = element.getSource().getFeatures && element.getSource().getFeatures();
+
+                features && features.forEach((feature) => {
+
+                    if (feature.get(key) && feature.get(key) == value) {
+
+                        const pixel = this.getPixelFromCoords(feature.getGeometry().getCoordinates());
+                        array.push({
+                            pixel: pixel,
+                            properties: feature.getProperties()
+                        });
+
+                    }
+
+                });
+
+            });
+
+        });
+        return array;
+
+    }
+
+
+    /**
+     * 根据坐标获取经纬度
+     * @author WXQ
+     * @date   2017-03-24
+     * @param  {[type]}   coords [description]
+     * @return {[type]}          [description]
+     */
+    getPixelFromCoords(coords) {
+
+        if (!coords) {
+
+            return;
+
+        }
+        const newcoords = ol.proj.fromLonLat(coords);
+        return this.map.getPixelFromCoordinate(newcoords);
 
     }
 
