@@ -139,7 +139,6 @@ export default class hyMapStyle {
             img: canvas,
             imgSize: [width, width / scale]
         });
-        console.log(icon.getImageSize())
 
         return icon;
 
@@ -281,7 +280,6 @@ export default class hyMapStyle {
         symbolStyle.emphasis.symbolSize = symbolStyle.emphasis.symbolSize || serie.symbolSize;
 
         symbolStyle.emphasis = Object.assign({}, symbolStyle.normal, symbolStyle.emphasis);
-        console.log(symbolStyle)
         const style = this._createGeoStyle(symbolStyle, serie.label);
         return style;
 
@@ -322,7 +320,6 @@ export default class hyMapStyle {
         }
         if (type != 'normal') {
 
-            console.log(rStyle);
 
         }
 

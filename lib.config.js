@@ -12,18 +12,16 @@
 'use strict';
 const webpack = require('webpack');
 
-const libs = [
-
-];
 module.exports = {
+    entry: [
+        '../src/index.js'
+    ],
     output: {
         path: 'public/lib',
         filename: '[name].js',
         library: '[name]'
     },
-    entry: {
-        libs
-    },
+
     module: {
         loaders: []
     },
@@ -33,5 +31,9 @@ module.exports = {
             name: '[name]',
             context: __dirname
         })
-    ]
+    ],
+    babel: {
+        presets: ['es2015', 'react', 'stage-3'],
+        plugins: ['transform-object-rest-spread', 'transform-class-properties']
+    }
 };

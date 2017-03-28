@@ -43,7 +43,7 @@ let webpackConfig = {
         port: hostConfig.port,
         historyApiFallback: true
     },
-    devtool: 'cheap-module-eval-source-map',
+    devtool: 'inline-source-map',
     module: {
         loaders: [{
             test: /\.css$/,

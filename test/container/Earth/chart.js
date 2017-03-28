@@ -34,7 +34,7 @@ class chart extends Component {
             series: []
         };
 
-        fetch('../../../data/car_2012.json').then(response => response.json()).then(function(values) {
+        fetch('../test/data/car_2012.json').then(response => response.json()).then(function(values) {
 
             values.forEach(obj => {
 

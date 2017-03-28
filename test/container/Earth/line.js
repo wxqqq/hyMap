@@ -23,7 +23,7 @@ class line extends Component {
             series: []
         };
 
-        fetch('../../../data/gdll.json').then(response => response.json()).then(function(values) {
+        fetch('../test/data/gdll.json').then(response => response.json()).then(function(values) {
 
             options.series.push({
                 data: values,

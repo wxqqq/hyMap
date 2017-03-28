@@ -25,7 +25,7 @@ class icon extends Component {
             series: []
         };
         const series = [];
-        fetch('../../../data/car_2012.json').then(response => response.json()).then(function(values) {
+        fetch('../test/data/car_2012.json').then(response => response.json()).then(function(values) {
 
             values.forEach(obj => {
 
@@ -44,7 +44,7 @@ class icon extends Component {
                 // minZoom: 6, //数据显示最小级别
                 data: values,
                 type: 'point',
-                symbol: 'icon:img/jingli.png',
+                symbol: 'icon:test/data/jingli.png',
                 symbolSize: [20, 40],
                 symbolStyle: {
                     'normal': {

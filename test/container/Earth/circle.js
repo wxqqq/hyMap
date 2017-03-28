@@ -33,7 +33,7 @@ class circle extends Component {
             series: []
         };
 
-        fetch('../../../data/car_2012.json').then(response => response.json()).then(function(values) {
+        fetch('../test/data/car_2012.json').then(response => response.json()).then(function(values) {
 
             values.forEach(obj => {
 
@@ -52,6 +52,7 @@ class circle extends Component {
                 symbolSize: 10, //[min,max]
                 symbolStyle: {
                     'normal': {
+
                         strokeWidth: 0,
                         strokeColor: 'red',
                         fillColor: 'orange'

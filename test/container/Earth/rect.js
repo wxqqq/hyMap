@@ -34,7 +34,7 @@ class rect extends Component {
             series: []
         };
 
-        fetch('../../../data/station.json').then(response => response.json()).then(function(values) {
+        fetch('../test/data/station.json').then(response => response.json()).then(function(values) {
             values.forEach(obj => {
 
                 obj.geoCoord = [obj.lon, obj.lat];
