@@ -2,6 +2,9 @@
   "presets": [
     "es2015"
   ],
+  "ignore":[
+    "ol.js"
+  ],
   "plugins": ["transform-class-properties"],
   "env": {
     "development": {

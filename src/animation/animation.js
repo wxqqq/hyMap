@@ -1,3 +1,13 @@
+/*
+ * @Author: wxq
+ * @Date:   2017-02-13 13:45:00
+ * @Last Modified by:   wxq
+ * @Last Modified time: 2017-03-30 19:25:08
+ * @Email: 304861063@qq.com
+ * @File Path: H:\hyMap\src\animation\animation.js
+ * @File Name: animation.js
+ * @Descript: 
+ */
 const ol = require('../../public/lib/ol');
 
 export default class animation {

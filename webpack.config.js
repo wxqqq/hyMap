@@ -1,10 +1,10 @@
 /*
  * @Author: FunctionRun
  * @Date:   2017-01-10 10:15:18
- * @Last Modified by:   hydata
- * @Last Modified time: 2017-01-16 15:02:36
+ * @Last Modified by:   wxq
+ * @Last Modified time: 2017-04-05 16:25:37
  * @Email: zhangyujie3344521@163.com
- * @File Path: /Users/zhangyujie/GitHub/FEscaffold/webpack.config.js
+ * @File Path: H:\work\hyMap\webpack.config.js
  * @File Name: webpack.config.js
  * @Descript:
  */
@@ -18,7 +18,7 @@ const libJson = require('./lib_manifest.json');
 
 // const hotMiddlewareScript = 'webpack-hot-middleware/client?reload=true';
 const hostConfig = {
-    host: '192.168.3.144',
+    host: '127.0.0.1',
     port: '8110'
 };
 const publicPath = '/build/';
