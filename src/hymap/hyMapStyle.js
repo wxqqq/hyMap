@@ -124,9 +124,11 @@ export default class hyMapStyle {
         let scale = 1;
         img.onload = function() {
 
-            scale = img.width / img.height;
-            ctx.scale(width / img.width, width / img.width / scale);
-            ctx.drawImage(img, 0, 0, this.width, this.height);
+            const imgWidth = img.width;
+            const imgHeight = img.height;
+            scale = imgWidth / imgHeight;
+            ctx.scale(width / imgWidth, width / imgWidth * scale);
+            ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
 
         };
         img.src = src;
