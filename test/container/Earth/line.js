@@ -23,23 +23,25 @@ class line extends Component {
             series: []
         };
 
-        fetch('../test/data/gdll.json').then(response => response.json()).then(function(values) {
-
-            options.series.push({
-                data: values,
-                type: 'line',
-                symbolStyle: {
-                    'normal': {
-                        strokeColor: 'red',
-                        strokeWidth: 3
-                    },
-                    'emphasis': {
-                        strokeColor: 'green',
-                        strokeWidth: 3
-                    }
-                },
-                label: 'mc'
-            });
+        fetch('../test/data/traffic_lines.json').then(response => response.json()).then(function(values) {
+            // options.series.push({
+            //     data: data,
+            //     type: 'line',
+            //     symbolSize: '',
+            //     symbolStyle: {
+            //         'normal': {
+            //             strokeColor: 'red',
+            //             strokeWidth: 3
+            //         },
+            //         'emphasis': {
+            //             strokeColor: 'green',
+            //             strokeWidth: 3
+            //         }
+            //     },
+            //     label: 'mc'
+            // });
+            console.log(values)
+            options.series = values;
 
             obj.setOption(options);
 

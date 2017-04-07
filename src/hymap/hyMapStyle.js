@@ -306,14 +306,18 @@ export default class hyMapStyle {
             const value = feature.get('value');
             const scale = Math.floor(value / geoScaleNum);
             const icon = rStyle[0].getImage();
-            if (icon instanceof ol.style.Icon) {
+            if (icon) {
 
-                // console.log((scale + symbolSize[0]) / symbolSize[0] * icon.getScale(), icon.getImageSize())
-                icon.setScale((scale + symbolSize[0]) / symbolSize[0]);
+                if (icon instanceof ol.style.Icon) {
 
-            } else {
+                    // console.log((scale + symbolSize[0]) / symbolSize[0] * icon.getScale(), icon.getImageSize())
+                    icon.setScale((scale + symbolSize[0]) / symbolSize[0]);
 
-                icon.setRadius(scale + symbolSize[0]);
+                } else {
+
+                    icon.setRadius(scale + symbolSize[0]);
+
+                }
 
             }
 
