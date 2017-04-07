@@ -35,7 +35,7 @@
         "prepublish": "webpack --config lib.config.js",
         "start": "webpack-dev-server --hot . --history-api-fallback --content-base"
     },
-    "version": "0.1.3",
+    "version": "0.1.4",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/FunctionRun/FEscaffold.git"
