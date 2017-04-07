@@ -10,7 +10,7 @@ class line extends Component {
         let obj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
-            map: '中国|山东省', //当前地图显示哪个地图
+            map: '', //当前地图显示哪个地图
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 7, //当前地图缩放比例
@@ -30,10 +30,12 @@ class line extends Component {
                 type: 'line',
                 symbolStyle: {
                     'normal': {
-                        strokeColor: 'red'
+                        strokeColor: 'red',
+                        strokeWidth: 3
                     },
                     'emphasis': {
-
+                        strokeColor: 'green',
+                        strokeWidth: 3
                     }
                 },
                 label: 'mc'
