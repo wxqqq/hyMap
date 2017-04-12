@@ -1,16 +1,22 @@
+[TOC]
 # hy-map
 海云map类
 
-##### 项目开始之前确保安装node以及npm 包管理工具: https://nodejs.org/en/download/
-
-#### 全局安装webpack: http://webpack.github.io/docs/tutorials/getting-started/
-
+## 部署
+1.确保安装node以及npm 包管理工具: https://nodejs.org/en/download/
+2.全局安装webpack: http://webpack.github.io/docs/tutorials/getting-started/
+```
 npm install webpack -g
-
-###
+```
+3.执行安装
+```
 npm install hy-map
-npm run dev
-npm run start
+```
+4.运行
+```
+npm run dev //开发模式
+npm run start //执行模式
+```
 
 ## teGis 属性和方法
 
@@ -272,20 +278,19 @@ instance.addSerie(serie)
 
 ------
 ##地图命名规范
-```
+
 一、地理底图命名规则：
-1、矢量切片命名： 行政区名+“_”+vector+”_”+样式+”gp”  例如：shandongsheng_ vector _dark_gp
-2、卫星影像切片命名： 行政区名+“_”+satellite+”_”+”gp”  例如：shandongsheng_satellite_gp
-
-```
-
-
-
-#路网分析服务
+1.矢量切片命名： 行政区名+“_”+vector+”_”+样式+”gp”  例如：shandongsheng_ vector _dark_gp
+2.卫星影像切片命名： 行政区名+“_”+satellite+”_”+”gp”  例如：shandongsheng_satellite_gp
 
 
 
 
+##路网分析服务
+
+
+
+##比例尺对应关系
 0 1000KM
 1 5000km
 2 2500KM（图上2cm对应2500KM）
@@ -307,3 +312,19 @@ instance.addSerie(serie)
 18 50m
 19 20m
 20 10m
+
+
+
+##version
+###v0.1.4
+增加周边查询方法：输入中心点和半径查询图上所有元素。
+增加文本动画。文本的值发生变化会触发动画。放大显示该文本一段事件后回复初始化的大小。
+修复roam设置为false不生效的问题。roam现在支持的参数为 true|'true'|false|'false'|'drag'|'scale'
+***
+###v0.1.3 
+增加线的样式配置.
+修复icon高度显示不正确的问题。
+***
+###v0.1.1
+初次上传
+

@@ -122,7 +122,7 @@ export default class hyLayer extends hytooltip {
      * [setTheme description]
      * @param {String} theme [description]
      */
-    setTheme(theme = 'white') {
+    setTheme(theme) {
 
         if (typeof theme == 'object') {
 
@@ -130,7 +130,6 @@ export default class hyLayer extends hytooltip {
 
                 new ol.source.XYZ({
                     url: 'https://b.tiles.mapbox.com/v4/' + theme.mapId + '/{z}/{x}/{y}.png?access_token=' + theme.key
-                        // url: 'https://api.mapbox.com/v4/' + theme.mapId + '/{z}/{x}/{y}.png?access_token=' + theme.key
                         // url: 'https://api.mapbox.com/v4/' + theme.mapId + '/{z}/{x}/{y}.png?access_token=' + theme.key
                 })
 

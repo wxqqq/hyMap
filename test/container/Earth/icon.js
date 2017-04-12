@@ -44,11 +44,11 @@ class icon extends Component {
                 // minZoom: 6, //数据显示最小级别
                 data: values,
                 type: 'point',
-                symbol: 'icon:test/data/jingli-1.png',
+                // symbol: 'icon:test/data/jingli-1.png',
                 symbolSize: [25, 25],
                 symbolStyle: {
                     'normal': {
-                        symbolSize: [70, 15],
+                        symbolSize: [15, 15],
                         fillColor: 'rgb(140,0,140)',
                         strokeWitdh: 1,
                         strokeColor: 'rbg(140,0,140)'
@@ -60,7 +60,7 @@ class icon extends Component {
                 },
                 label: {
                     'normal': {
-                        show: false,
+                        show: true,
                         textStyle: {
                             color: '#fff',
                             fontStyle: 'normal',
@@ -200,6 +200,28 @@ class icon extends Component {
             obj.geoGoBack();
 
         });
+        document.getElementById('areaQuery').addEventListener('click', () => {
+
+            const features = obj.getFeaturesByCircle([117.075, 35.214], 100000);
+            console.log(features);
+
+            for (let key in features) {
+
+                const feaArray = features[key];
+                feaArray.forEach(feature => {
+
+                    obj.dispatchAction({
+                        type: 'click',
+                        id: feature.get('id')
+                    });
+
+                });
+
+            }
+
+        });
+
+
 
     }
 
@@ -213,7 +235,8 @@ class icon extends Component {
             <input id='add' type='button' value='增加数据'/>
             <input id='showlayer' type='button' value='显示数据' />
             <input id='hidelayer' type='button' value='隐藏数据'/>
-             <input id='return' type='button' value='返回'/>
+            <input id='return' type='button' value='返回'/>
+            <input id='areaQuery' type='button' value='周边范围查询'/>
             <div id = 'map' /> 
             </div>);
 

@@ -5,6 +5,7 @@ import events from '../events/events';
 import hylayers from './hylayers';
 import animation from '../animation/animation';
 import serieModel from '../model/serieModel';
+import hyMapQuery from '../query/hyMapQuery';
 
 const ol = require('../../public/lib/ol');
 
@@ -25,10 +26,6 @@ export default class hyMap extends hylayers {
         this._overlay = null;
         this._event = [];
         this._showLogo = true;
-        this._layersArray = new ol.Collection();
-        this._layerGroup = new ol.layer.Group({
-            layers: this._layersArray
-        });
         this._addLayerGroupArray = {};
         this._markerLayer = [];
 
@@ -90,7 +87,10 @@ export default class hyMap extends hylayers {
         this.setGeo(this._geo); //设置geo配置
         this.setView(this._geo);
         this.setTooltip(opt_options.tooltip);
-        this.addSeries(this._geo.series, this._layersArray); //设置series
+        this.addLayer({
+            id: new Date().getTime(),
+            series: this._geo.series
+        }); //设置series
 
 
     }
@@ -141,7 +141,6 @@ export default class hyMap extends hylayers {
 
         this._createMap();
         this._createBasicGroup();
-        this._createGroupLayer();
         this.setDom(dom);
 
         this._createOverlay();
@@ -228,14 +227,14 @@ export default class hyMap extends hylayers {
         let minZoom = scaleLimit[0];
         let maxZoom = scaleLimit[1];
         //限制缩放
-        if (roam === 'false' || roam == 'pan') {
+        if (roam === 'false' || roam === false || roam == 'drag') {
 
             minZoom = zoom;
             maxZoom = zoom;
 
         }
         //限制平移
-        if (roam === 'false' || roam == 'scale') {
+        if (roam === 'false' || roam === false || roam == 'scale') {
 
             this.map.on('pointerdrag', this._panFunction);
 
@@ -272,16 +271,6 @@ export default class hyMap extends hylayers {
 
     }
 
-    /**
-     * 创建图层组
-     * @return {[type]} [description]
-     */
-    _createGroupLayer() {
-
-        this.map.addLayer(this._layerGroup);
-
-    }
-
     _createLayer(id) {
 
         let layersArray = new ol.Collection();
@@ -297,7 +286,7 @@ export default class hyMap extends hylayers {
 
     addLayer(layer) {
 
-        const id = layer.id;
+        const id = layer.id || new Date().getTime();
         const layerGroup = this._createLayer(id);
         this.addSeries(layer.series, layerGroup.getLayers());
 
@@ -393,7 +382,7 @@ export default class hyMap extends hylayers {
 
             const featuresObj = this.getFeatures(data, serie.type);
             const array = featuresObj.features;
-            const geoScaleNum = this._geoSymbolScale(serie.symbolSize, featuresObj.min, featuresObj.max)
+            const geoScaleNum = this._geoSymbolScale(serie.symbolSize, featuresObj.min, featuresObj.max);
             const source = new ol.source.Vector();
             source.on('addfeature', function(evt) {
 
@@ -714,17 +703,22 @@ export default class hyMap extends hylayers {
 
         });
 
-        this._layersArray.forEach(obj => {
+        for (let group in this._addLayerGroupArray) {
 
-            const key = obj.get('id');
-            if (key == id) {
+            this._addLayerGroupArray(group).forEach(obj => {
 
-                this._layersArray.remove(obj);
-                return;
+                const key = obj.get('id');
+                if (key == id) {
 
-            }
+                    group.remove(obj);
+                    return;
 
-        });
+                }
+
+            });
+
+        }
+
 
     }
 
@@ -759,7 +753,13 @@ export default class hyMap extends hylayers {
 
     clearSeries() {
 
-        this._layersArray.clear();
+        for (let group in this._addLayerGroupArray) {
+
+            this.map.removeLayer(group);
+
+        }
+
+        this._addLayerGroupArray = {};
         this._removeMarkerOverlay();
 
     }
@@ -997,6 +997,18 @@ export default class hyMap extends hylayers {
     nullFunction() {
 
     }
+
+    getFeaturesByCircle(geoCoord, radius) {
+
+        const geom = new ol.geom.Circle(this.transform([Number(geoCoord[0]), Number(geoCoord[1])]),
+            radius);
+        return hyMapQuery.areaQuery({
+            geom: geom,
+            layers: this._addLayerGroupArray
+        });
+
+    }
+
 
     getProjectionByZoom(zoom) {
 
