@@ -1,5 +1,6 @@
-const ol = require('../../public/lib/ol');
+'use strict';
 
+const ol = require('ol');
 export default class hyMapQuery {
     constructor() {
 

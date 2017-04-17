@@ -1,4 +1,4 @@
-import hymapOption from '../options/hymapOption';
+import hymapOption from '../model/mapModel';
 import baseUtil from '../util/baseUtil';
 import colorUtil from '../util/colorUtil';
 import events from '../events/events';
@@ -7,7 +7,7 @@ import animation from '../animation/animation';
 import serieModel from '../model/serieModel';
 import hyMapQuery from '../query/hyMapQuery';
 
-const ol = require('../../public/lib/ol');
+const ol = require('ol');
 
 require('../../css/ol.css');
 require('../../css/popup.css');
@@ -292,6 +292,68 @@ export default class hyMap extends hylayers {
 
     }
 
+    updateLayer(options) {
+
+        const id = options.id || null;
+        const layerGroup = this._addLayerGroupArray[id];
+
+        if (!layerGroup) {
+
+            console.info('未找到对应数据。');
+            return;
+
+        }
+
+        const layers = layerGroup.getLayers();
+        layers.forEach((layer, index) => {
+
+            const serie = options.series[index]; //新的数据
+
+            const data = serie.data;
+            const source = layer.getSource();
+            const result = [];
+            if (data.length == source.getFeatures().length) {
+                data.map((value, index) => {
+
+                    let feature = source.getFeatureById('serie|' + value.geoCoord + '|' + index);
+                    if (feature) {
+
+                        feature.setProperties(value);
+
+                    } else {
+
+                        result.push(value);
+
+                    }
+
+                });
+                if (result.length > 0) {
+
+                    const featuresObj = this.getFeatures(result, serie.type);
+
+                    //获取feature数组
+                    const array = featuresObj.features;
+                    layer.getSource().addFeatures(array);
+
+                }
+
+            } else {
+
+                const featuresObj = this.getFeatures(result, serie.type);
+
+                //获取feature数组
+                const array = featuresObj.features;
+                layer.getSource().addFeatures(array);
+
+            }
+
+
+
+        });
+
+
+    }
+
     removeLayer(id) {
 
 
@@ -359,42 +421,60 @@ export default class hyMap extends hylayers {
 
         if (serie.type == 'chart') {
 
-            data.forEach(obj => {
-
-                let rootDiv = document.createElement('div');
-                rootDiv.id = obj.id;
-                rootDiv.appendChild(obj.container);
-                document.body.appendChild(rootDiv);
-                const marker = new ol.Overlay({
-                    position: this.transform([Number(obj.geoCoord[0]), Number(obj.geoCoord[1])]),
-                    positioning: 'center-center',
-                    element: rootDiv,
-                    stopEvent: false,
-                    id: serie.id
-                });
-
-                this._markerLayer.push(marker);
-                this.map.addOverlay(marker);
-
-            });
+            this.addMarkers(serie);
 
         } else {
 
-            const featuresObj = this.getFeatures(data, serie.type);
+            //获取feature对象
+            const featuresObj = this.getFeatures(data, serie.type, serie.id);
+            //获取feature数组
             const array = featuresObj.features;
-            const geoScaleNum = this._geoSymbolScale(serie.symbolSize, featuresObj.min, featuresObj.max);
+            //获取比例缩放的像素最小值，最大值
+            const geoScaleNum = this._scaleSize(serie.symbolSize, featuresObj.min, featuresObj.max);
+            const textScaleNum = this._scaleSize(serie.labelSize, featuresObj.min, featuresObj.max);
             const source = new ol.source.Vector();
-            source.on('addfeature', function(evt) {
+            source.set('labelColumn', serie.labelColumn);
+            source.set('data', serie.data);
+            source.on('addfeature', (evt) => {
 
                 evt.feature.source = evt.target;
+                if (serie.labelAnimate && (serie.labelAnimate.enable == true || serie.labelAnimate.enable === 'true')) {
 
+                    evt.feature.period = serie.labelAnimate.period;
+                    evt.feature.on('propertychange', (evt) => {
+
+                        let fea = evt.target;
+                        console.log(evt);
+
+                        if (evt.key == 'value') {
+
+                            if (!fea.textListenerKey) {
+
+                                fea._intervaldate = new Date().getTime();
+                                this.textScale(evt, evt.target);
+                                fea.textListenerKey = this.map.on('postcompose', (evt) => {
+
+                                    this.textScale(evt, fea);
+
+                                });
+
+                            }
+
+                        }
+
+
+                    });
+                }
             });
+
+
             source.addFeatures(array);
             let vector = null;
             const style = this._createFeatureStyle(serie);
 
             if (serie.type == 'heatmap') {
 
+                //创建热力图
                 vector = new ol.layer.Heatmap({
                     id: serie.id || '',
                     source: source,
@@ -413,6 +493,7 @@ export default class hyMap extends hylayers {
 
             } else {
 
+                //创建聚合图层
                 if (serie.cluster && (serie.cluster.enable == true || serie.cluster.enable === 'true')) {
 
                     let clusterSource = new ol.source.Cluster({
@@ -441,8 +522,6 @@ export default class hyMap extends hylayers {
 
                 } else {
 
-                    this.openAnimate(array, serie.animation); //涟漪动画
-
                     vector = new ol.layer.Vector({
                         id: serie.id || new Date().getTime(),
                         source: source,
@@ -452,9 +531,13 @@ export default class hyMap extends hylayers {
                         fstyle: style,
                         fScaleNum: geoScaleNum,
                         fSymbol: serie.symbolSize,
+                        ftextScaleNum: textScaleNum,
+                        fText: serie.labelSize,
                         minResolution: this.getProjectionByZoom(serie.maxZoom),
                         maxResolution: this.getProjectionByZoom(serie.minZoom)
                     });
+
+                    this.startAnimate(array, serie.animation); //执行动画
 
                 }
 
@@ -467,21 +550,48 @@ export default class hyMap extends hylayers {
 
     }
 
+    addMarkers(serie) {
+
+        const data = serie.data;
+        data.forEach(obj => {
+
+            let rootDiv = document.createElement('div');
+            rootDiv.id = obj.id;
+            rootDiv.appendChild(obj.container);
+            document.body.appendChild(rootDiv);
+            const marker = new ol.Overlay({
+                position: this.transform([Number(obj.geoCoord[0]), Number(obj.geoCoord[1])]),
+                positioning: 'center-center',
+                element: rootDiv,
+                stopEvent: false,
+                id: serie.id
+            });
+
+            this._markerLayer.push(marker);
+            this.map.addOverlay(marker);
+
+        });
+
+    }
+
     getFeatures(data, type) {
 
         let features = [];
         let valueArray = [];
-        data.forEach((obj) => {
+        data.map((obj, index) => {
 
             let feature = new ol.Feature({
-                geometry: this._createGeometry(type, obj.geoCoord),
-                dataIndex: new Date().getTime()
+                geometry: this._createGeometry(type, obj.geoCoord)
+                    // dataIndex: new Date().getTime()
 
             });
             feature.setProperties(obj);
-            feature.setId(obj.id);
+
+            feature.setId('serie|' + obj.geoCoord + '|' + index);
             // const featurestyle = this._createGeoStyle(serie.itemStyle, serie.label);
             // feature.set('style', featurestyle);
+            // 
+
             features.push(feature);
             valueArray.push(obj.value);
 
@@ -496,23 +606,32 @@ export default class hyMap extends hylayers {
         };
 
     }
-    openAnimate(array, animation) {
 
-        if (animation && animation.enable) {
+    /**
+     * 执行动画
+     * @author WXQ
+     * @date   2017-04-13
+     * @param  {[type]}   array     [description]
+     * @param  {[type]}   options [description]
+     * @return {[type]}             [description]
+     */
+    startAnimate(array, options) {
 
+        if (options && options.enable) {
+
+            const animationThreshold = options.animationThreshold || 1000;
             if (array.length > animationThreshold) {
 
                 return;
 
             }
-            const animationThreshold = animation.animationThreshold ? animation.animationThreshold : 1000;
 
-            animation._intervaldate = new Date().getTime();
-            if (animation.effectType == 'ripple') {
+            options._intervaldate = new Date().getTime();
+            if (options.effectType == 'ripple') {
 
                 this.map.on('postcompose', (evt) => {
 
-                    this.animationRipple(evt, array, animation);
+                    this.animationRipple(evt, array, options);
 
                 });
 
@@ -520,7 +639,7 @@ export default class hyMap extends hylayers {
 
                 this.map.on('postcompose', (evt) => {
 
-                    this.animateFlights(evt, array, animation);
+                    this.animateFlights(evt, array, options);
 
                 });
 
@@ -529,39 +648,76 @@ export default class hyMap extends hylayers {
         }
 
     }
-    animateFlights(event, array, animation) {
 
-        const duration = animation.period * 1000;
-        let elapsed = event.frameState.time - animation._intervaldate;
+    /**
+     * [animateFlights description]
+     * @author WXQ
+     * @date   2017-04-13
+     * @param  {[type]}   event     [description]
+     * @param  {[type]}   array     [description]
+     * @param  {[type]}   options [description]
+     * @return {[type]}             [description]
+     */
+    animateFlights(event, array, options) {
+
+        const duration = options.period * 1000;
+        let elapsed = event.frameState.time - options._intervaldate;
         if (elapsed > duration) {
 
-            animation._intervaldate = new Date().getTime();
-            elapsed = event.frameState.time - animation._intervaldate;
+            options._intervaldate = event.frameState.time;
+            elapsed = 0;
 
         }
         let elapsedRatio = elapsed / duration;
 
         for (let i = 0; i < array.length; i++) {
 
-            let feature = array[i];
-            let style = feature.getStyle();
-            if (!style) {
-
-                style = typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()(feature) : feature.source.vector.getStyle();
-
-                feature.setStyle(style);
-
-            }
-
-            const image = style[0].getImage();
-            image.setScale(ol.easing.upAndDown(elapsedRatio) + 1);
-            image.setOpacity(ol.easing.upAndDown(elapsedRatio) + 0.6);
-            feature.set('scale', elapsedRatio);
-
-
+            this.animateScale(array[i], elapsedRatio);
 
         }
-        this.map.render();
+
+    }
+
+    animateScale(feature, elapsedRatio) {
+
+        let style = this.getFeatureStyle(feature);
+        let image = style[0].getImage();
+        image.setScale(ol.easing.upAndDown(elapsedRatio) + 1);
+        image.setOpacity(ol.easing.upAndDown(elapsedRatio) + 0.6);
+        feature.setStyle(style);
+
+    }
+
+    animateText(feature, elapsedRatio) {
+
+        let old_style = this.getFeatureStyle(feature);
+        let style = [old_style[0].clone(), old_style[1].clone()];
+        let text = style[1].getText();
+        text.setScale(ol.easing.upAndDown(elapsedRatio) + 1);
+        feature.setStyle(style);
+
+    }
+
+    textScale(event, feature) {
+
+        const duration = feature.period * 1000 || 700;
+        let time = event.frameState ? event.frameState.time : new Date().getTime();
+        let elapsed = time - feature._intervaldate;
+
+        if (elapsed > duration) {
+
+            feature.setStyle();
+            this.map.un('postcompose', feature.textListenerKey.listener);
+            feature.textListenerKey = undefined;
+            return;
+
+        } else {
+
+            let elapsedRatio = elapsed / duration;
+            this.animateText(feature, elapsedRatio);
+
+        }
+
 
     }
 
@@ -571,16 +727,16 @@ export default class hyMap extends hylayers {
      * @param  {[type]} array [description]
      * @return {[type]}       [description]
      */
-    animationRipple(event, array, animation) {
+    animationRipple(event, array, options) {
 
-        const duration = animation.period * 1000;
+        const duration = options.period * 1000;
         let vectorContext = event.vectorContext;
-        let elapsed = event.frameState.time - animation._intervaldate;
+        let elapsed = event.frameState.time - options._intervaldate;
         //当时间超过周期2倍时，修改start为当前-周期。保证循环播放能够顺序进行。
         if (elapsed > duration * 2) {
 
-            animation._intervaldate = new Date().getTime() - duration;
-            elapsed = event.frameState.time - animation._intervaldate;
+            options._intervaldate = new Date().getTime() - duration;
+            elapsed = event.frameState.time - options._intervaldate;
 
         }
         //获取涟漪生产的间隔。
@@ -591,20 +747,14 @@ export default class hyMap extends hylayers {
         for (let i = 0; i < array.length; i++) {
 
             let feature = array[i];
-            let style = feature.getStyle();
-            if (!style) {
-
-                style = typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()(feature) : feature.source.vector.getStyle();
-
-
-            }
+            let style = this.getFeatureStyle(feature);
 
             const styleObj = style[0]; //0位置为图标。1为文本
             const icon = styleObj.getImage();
             const radius = (icon instanceof ol.style.Icon) ? icon.getImageSize()[0] / 2 : icon.getRadius();
             const color = (icon instanceof ol.style.Icon) ? undefined : icon.getFill().getColor();
             const flashGeom1 = feature.clone();
-            const style1 = this._createAnimationStyle(elapsedRatio, radius, animation.scale, animation.brushType, color);
+            const style1 = this._createAnimationStyle(elapsedRatio, radius, options.scale, options.brushType, color);
             vectorContext.drawFeature(flashGeom1, style1);
             //根据间隔进行多个圈的绘制。模拟多次扩展效果
             for (let n = 0; n < step; n++) {
@@ -614,7 +764,7 @@ export default class hyMap extends hylayers {
                 const elapseRatio1 = elapsed1 / duration;
                 if (elapsed1 > 0) {
 
-                    const style = this._createAnimationStyle(elapseRatio1, radius, animation.scale, animation.brushType, color);
+                    const style = this._createAnimationStyle(elapseRatio1, radius, options.scale, options.brushType, color);
                     vectorContext.drawFeature(flashGeom, style);
 
                 }
@@ -626,6 +776,8 @@ export default class hyMap extends hylayers {
         this.map.render();
 
     }
+
+
 
     /**
      * 涟漪动画样式设置
@@ -849,7 +1001,16 @@ export default class hyMap extends hylayers {
             const layers = group.getLayers();
             layers.forEach(function(element) {
 
-                feature = element.getSource().getFeatureById && element.getSource().getFeatureById(id);
+                if (element.getSource() instanceof ol.source.Vector) {
+
+                    feature = element.getSource().forEachFeature((feature) => {
+
+                        feature.get('id') == id;
+                        return feature;
+
+                    });
+
+                }
 
             });
 
@@ -858,6 +1019,8 @@ export default class hyMap extends hylayers {
 
 
     }
+
+
 
     getFeaturesByProperty(key, value) {
 
@@ -877,7 +1040,8 @@ export default class hyMap extends hylayers {
                         const pixel = this.getPixelFromCoords(feature.getGeometry().getCoordinates());
                         array.push({
                             pixel: pixel,
-                            properties: feature.getProperties()
+                            // properties: feature.getProperties()
+                            properties: feature
                         });
 
                     }
@@ -1008,7 +1172,6 @@ export default class hyMap extends hylayers {
         });
 
     }
-
 
     getProjectionByZoom(zoom) {
 

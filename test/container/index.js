@@ -19,6 +19,8 @@ import chart from './Earth/chart';
 import mapmethod from './Earth/mapmethod';
 import heatmap from './Earth/heatmap';
 import ripple from './Earth/ripple';
+import labelAnimate from './Earth/labelAnimate';
+
 export {
     App,
     circle,
@@ -26,6 +28,7 @@ export {
     icon,
     line,
     chart,
+    labelAnimate,
     mapmethod,
     heatmap,
     ripple

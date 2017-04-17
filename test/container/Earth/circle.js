@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-07 12:41:32
+ * @Last Modified time: 2017-04-14 10:31:02
  * @Email: zhangyujie3344521@163.com
  * @File Path: H:\work\hyMap\test\container\Earth\circle.js
  * @File Name: circle.js
@@ -20,6 +20,7 @@ class circle extends Component {
 
         let obj = map.init(document.getElementById('map'));
         let options = {
+            serverUrl: 'http://192.168.0.50:8080/geoserver', //服务器地址
             show: true, //地图的显示状态 true为显示 false 为不显示
             map: '', //'中国|山东省', //当前地图显示哪个地图
             roam: 'true', //地图是否开启缩放、平移功能

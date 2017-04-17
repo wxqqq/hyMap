@@ -4,7 +4,7 @@
  * @Last modified by: Angelsamle
  * @Last modified time: Thu Aug 25 15:08:19 2016
  * @Email: deyuhua@gmail.com
- * @File Path: /home/deyuhua/workspace/tueasy/tueasy5.0/Visual3D/test/components/Nav/Nav.js
+ * @File Path: H:\work\hyMap\test\components\Nav\Nav.js
  * @File Name: Nav.js
  * @Descript:
  */
@@ -27,6 +27,7 @@ class Nav extends React.Component {
                 <Link to = 'chart' > chart </Link>
                 <Link to = 'rect' > rect </Link>
                 <Link to = 'icon' > icon </Link>
+                <Link to = 'labelAnimate' > labelAnimate </Link>
                 <Link to = 'line' > line </Link>
                 <Link to = 'mapmethod' > method </Link>
                 <Link to = 'heatmap' > heatmap </Link>

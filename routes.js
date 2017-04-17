@@ -4,7 +4,7 @@
  * @Last modified by:   deyuhua
  * @Last modified time: 2016-06-30T14:58:24+08:00
  * @Email: zhangyujie3344521@163.com
- * @File Path: /Users/zhangyujie/node/www/tueasy5.0/Visual/routes.js
+ * @File Path: H:\work\hyMap\routes.js
  * @File Name: routes.js
  * @Descript:
  */
@@ -22,6 +22,7 @@ import {
     icon,
     line,
     chart,
+    labelAnimate,
     mapmethod,
     heatmap,
     ripple
@@ -35,6 +36,7 @@ const route = (
         <Route path = 'chart' component = {chart} />
         <Route path = 'circle' component = {circle} />
         <Route path = 'icon' component = {icon} />
+        <Route path = 'labelAnimate' component = {labelAnimate} />
         <Route path = 'line' component = {line} />
         <Route path = 'rect' component = {rect} />
         <Route path = 'mapmethod' component = {mapmethod} />

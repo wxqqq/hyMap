@@ -1,14 +1,14 @@
-import styleModel from '../model/styleModel';
-import labelStyle from '../model/labelStyle';
+import symbolModel from '../model/symbolModel';
+import labelModel from '../model/labelModel';
 import baseUtil from '../util/baseUtil';
 
-const ol = require('../../public/lib/ol');
+const ol = require('ol');
 
 export default class hyMapStyle {
     constructor() {
 
-        this._style = styleModel;
-        this._labesStyle = labelStyle;
+        this._baseIconStyle = symbolModel;
+        this._baseLabelStyle = labelModel;
         this._regionsObj = {};
 
     }
@@ -30,6 +30,11 @@ export default class hyMapStyle {
     } = {}) {
 
         const font = fontStyle + ' ' + fontWeight + ' ' + fontSize + ' ' + fontFamily;
+        if (rotation) {
+
+            rotation = Number(rotation) / 360 * Math.PI * 2;
+
+        }
         return new ol.style.Text({
             font: font,
             offsetX: offsetX,
@@ -89,7 +94,7 @@ export default class hyMapStyle {
 
     }
 
-    _createCircleStyle(radius = 3, fill, stroke) {
+    _createCircleStyle(radius = 1, fill, stroke) {
 
         const icon = new ol.style.Circle({
             radius: baseUtil.isArray(radius) ? radius[0] : radius,
@@ -100,7 +105,7 @@ export default class hyMapStyle {
 
     }
 
-    _createRectStyle(radius = 10, fill, stroke) {
+    _createRectStyle(radius = 1, fill, stroke) {
 
         const icon = new ol.style.RegularShape({
             radius: baseUtil.isArray(radius) ? radius[0] : radius,
@@ -145,6 +150,125 @@ export default class hyMapStyle {
         return icon;
 
     }
+
+    _createImageStyle(symbol, styleModel) {
+
+        let image = undefined;
+
+        const stroke = this._createStroke(styleModel.strokeWidth, styleModel.strokeColor);
+        const fill = this._createFill(styleModel.fillColor);
+        if (symbol == 'circle') {
+
+            image = this._createCircleStyle(styleModel.symbolSize, fill, stroke);
+
+        } else if (symbol == 'rect') {
+
+            image = this._createRectStyle(styleModel.symbolSize, fill, stroke);
+
+        } else if (symbol.indexOf('icon:') === 0) {
+
+            const src = symbol.split(':')[1];
+            image = this._createIconStyle(src, styleModel.symbolSize);
+
+        }
+        return image;
+
+    }
+
+
+    /**
+     * [_createRegionsStyle description]
+     * @return {[type]} [description]
+     */
+    _createRegionsStyle(regions = []) {
+
+        let regionObj = {};
+        regions && regions.forEach(region => {
+
+            const style = this._createGeoStyle(region.itemStyle, region.label);
+            regionObj[region.name] = style;
+
+        });
+        return regionObj;
+
+    }
+
+    /**
+     * 创建feature的样式
+     * @param  {[type]} serie [description]
+     * @return {[type]}       [description]
+     */
+    _createFeatureStyle(serie) {
+
+        let icon = serie.symbolStyle;
+        icon.normal.symbol = icon.normal.symbol || serie.symbol;
+        icon.normal.symbolSize = icon.normal.symbolSize || serie.symbolSize;
+        icon.emphasis.symbol = icon.emphasis.symbol || serie.symbol;
+        icon.emphasis.symbolSize = icon.emphasis.symbolSize || serie.symbolSize;
+        icon.emphasis = Object.assign({}, icon.normal, icon.emphasis);
+
+        let label = serie.label;
+        if (label) {
+            console.log(label)
+            label.normal.labelSize = label.normal.labelSize || serie.labelSize;
+            label.emphasis.labelSize = label.emphasis.labelSize || serie.labelSize;
+            label.emphasis = baseUtil.merge({}, label.normal, label.emphasis, true);
+            console.log(label);
+        }
+
+        const style = this._createGeoStyle(icon, label);
+        return style;
+
+    }
+
+    /**
+     * 创建样式数组对象
+     * @param  {[type]} itemStyle      [description]
+     * @param  {Object} options.normal [description]
+     * @param  {Object} emphasis       [description]
+     * @return {[type]}                [description]
+     */
+    _createGeoStyle(IconStyle, labelStyle) {
+
+
+        const style = this._createItemStyle(IconStyle, this._baseIconStyle);
+        const label = this._createItemStyle(labelStyle, this._baseLabelStyle);
+
+        return {
+            normal: this._createDataStyle(style.normal, label.normal),
+            emphasis: this._createDataStyle(style.emphasis, label.emphasis)
+        };
+
+    }
+
+    /**
+     * [_createItemStyle description]
+     * @param  {[type]} symbolStyle [description]
+     * @return {[type]}             [description]
+     */
+    _createItemStyle(symbolStyle, style) {
+
+        let styleModel = Object.assign({}, style);
+
+        const normal = Object.assign({}, styleModel.normal, symbolStyle && symbolStyle.normal || {});
+        const emphasis = Object.assign({}, normal, symbolStyle && symbolStyle.emphasis || {});
+        return {
+            normal,
+            emphasis
+        };
+
+    }
+    _createDataStyle(style, label = {}) {
+
+        const stroke = this._createStroke(style.strokeWidth, style.strokeColor);
+        const fill = this._createFill(style.fillColor);
+        const text = this._createTextStyle(label && label.textStyle || {});
+        text.show = label && label.show || false;
+        const image = this._createImageStyle(style.symbol, style);
+        return this._createStyle(stroke, fill, text, image);
+
+    }
+
     _createStyle(stroke, fill, text, image) {
 
         return [new ol.style.Style({
@@ -177,115 +301,6 @@ export default class hyMapStyle {
 
     }
 
-    /**
-     * [_createRegionsStyle description]
-     * @return {[type]} [description]
-     */
-    _createRegionsStyle(regions = []) {
-
-        let regionObj = {};
-        regions && regions.forEach(region => {
-
-            const style = this._createGeoStyle(region.itemStyle, region.label);
-            regionObj[region.name] = style;
-
-        });
-        return regionObj;
-
-    }
-
-    /**
-     * [_createItemStyle description]
-     * @param  {[type]} symbolStyle [description]
-     * @return {[type]}             [description]
-     */
-    _createItemStyle(symbolStyle) {
-
-        let styleModel = Object.assign({}, this._style);
-        const normal = Object.assign({}, styleModel.normal, symbolStyle && symbolStyle.normal || {});
-        const emphasis = Object.assign({}, styleModel.emphasis, symbolStyle && symbolStyle.emphasis || {});
-        return {
-            normal,
-            emphasis
-        };
-
-    }
-
-    /**
-     * 创建样式数组对象
-     * @param  {[type]} itemStyle      [description]
-     * @param  {Object} options.normal [description]
-     * @param  {Object} emphasis       [description]
-     * @return {[type]}                [description]
-     */
-    _createGeoStyle(itemStyle, label = {}) {
-
-
-        const style = this._createItemStyle(itemStyle);
-        return {
-            normal: this._createDataStyle(style.normal, label.normal),
-            emphasis: this._createDataStyle(style.emphasis, label.emphasis)
-        };
-
-    }
-
-    _createDataStyle(style, label = {}) {
-
-        let text = undefined;
-        text = this._createTextStyle(label && label.textStyle || {});
-        text.show = label && label.show || false;
-
-        const stroke = this._createStroke(style.strokeWidth, style.strokeColor);
-        const image = this._createImageStyle(style.symbol, style);
-        const fill = this._createFill(style.fillColor);
-        return this._createStyle(stroke, fill, text, image);
-
-    }
-
-    _createImageStyle(symbol, styleModel) {
-
-        let image = undefined;
-
-        const stroke = this._createStroke(styleModel.strokeWidth, styleModel.strokeColor);
-        const fill = this._createFill(styleModel.fillColor);
-        if (symbol == 'circle') {
-
-            image = this._createCircleStyle(styleModel.symbolSize, fill, stroke);
-
-        } else if (symbol == 'rect') {
-
-            image = this._createRectStyle(styleModel.symbolSize, fill, stroke);
-
-        } else if (symbol.indexOf('icon:') === 0) {
-
-            const src = symbol.split(':')[1];
-            image = this._createIconStyle(src, styleModel.symbolSize);
-
-        }
-        return image;
-
-    }
-
-    /**
-     * 创建feature的样式
-     * @param  {[type]} serie [description]
-     * @return {[type]}       [description]
-     */
-    _createFeatureStyle(serie) {
-
-        const symbolStyle = serie.symbolStyle;
-
-        symbolStyle.normal.symbol = symbolStyle.normal.symbol || serie.symbol;
-        symbolStyle.normal.symbolSize = symbolStyle.normal.symbolSize || serie.symbolSize;
-
-        symbolStyle.emphasis.symbol = symbolStyle.emphasis.symbol || serie.symbol;
-        symbolStyle.emphasis.symbolSize = symbolStyle.emphasis.symbolSize || serie.symbolSize;
-
-        symbolStyle.emphasis = Object.assign({}, symbolStyle.normal, symbolStyle.emphasis);
-        const style = this._createGeoStyle(symbolStyle, serie.label);
-        return style;
-
-    }
 
     /**
      * style回调方法
@@ -330,14 +345,45 @@ export default class hyMapStyle {
         }
 
         //判断是否需要进行文本标签显示
+
         const text = rStyle[1].getText();
-        text && text.show && text.setText(feature.get('name'));
+        if (text && text.show) {
+
+            const textSize = feature.source.vector.get('fText');
+            const column = feature.source.get('labelColumn') || 'value';
+            text.setText(feature.get(column).toString());
+            if (textSize && textSize[0] != textSize[1]) {
+
+                const font = text.getFont().split(' ');
+                const textScaleNum = feature.source.vector.get('ftextScaleNum');
+                const value = feature.get('value');
+                const scale = Math.floor(value / textScaleNum);
+                const newFont = scale + textSize[0] - 1;
+                font[2] = newFont + 'px';
+                text.setFont(font.join(' '));
+
+            }
+
+
+        }
+
         return rStyle;
 
     }
 
+    getFeatureStyle(feature) {
 
-    _geoSymbolScale(symbolSize, min, max) {
+        let style = feature.getStyle && feature.getStyle();
+        if (!style) {
+
+            style = typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()(feature) : feature.source.vector.getStyle();
+
+        }
+        return style;
+
+    }
+
+    _scaleSize(symbolSize = [], min, max) {
 
         let a = symbolSize[1] - symbolSize[0] + 1;
         return max / a;

@@ -1,3 +1,13 @@
+/*
+ * @Author: wxq
+ * @Date:   2017-01-16 17:02:11
+ * @Last Modified by:   wxq
+ * @Last Modified time: 2017-04-14 14:16:54
+ * @Email: 304861063@qq.com
+ * @File Path: H:\work\hyMap\test\container\Earth\icon.js
+ * @File Name: icon.js
+ * @Descript: 
+ */
 'use strict';
 import React, {
     Component
@@ -44,7 +54,7 @@ class icon extends Component {
                 // minZoom: 6, //数据显示最小级别
                 data: values,
                 type: 'point',
-                // symbol: 'icon:test/data/jingli-1.png',
+                symbol: 'icon:test/data/jingli-1.png',
                 symbolSize: [25, 25],
                 symbolStyle: {
                     'normal': {
@@ -58,6 +68,8 @@ class icon extends Component {
                         symbolSize: [30, 45]
                     }
                 },
+                labelColumn: 'value',
+                labelSize: [15, 20],
                 label: {
                     'normal': {
                         show: true,
@@ -68,6 +80,13 @@ class icon extends Component {
                             fontFamily: 'sans-serif',
                             fontSize: '16px'
                         }
+                    },
+                    'emphasis': {
+                        show: true,
+                        textStyle: {
+                            fontSize: '16px'
+                        }
+
                     }
                 },
                 showPopup: false //显示气泡框
@@ -152,17 +171,17 @@ class icon extends Component {
 
             //获取value=4468的feature
             //
-            console.log(obj.map.getLayers());
-            const feature = obj.getFeaturesByProperty('value', 4468);
+            const feature = obj.getFeaturesByProperty('name', '潍坊');
             console.log(feature);
-            const xy = feature[0].properties.geoCoord;
+            // const xy = feature[0].properties.geoCoord;
             //对feature触发click
-            obj.dispatchAction({
-                type: 'click',
-                id: feature[0].properties.id
-            });
+            // obj.dispatchAction({
+            //     type: 'click',
+            //     id: feature[0].properties.id
+            // });
+            //  console.log(obj.getPixelFromCoords(xy));
+            feature[0].properties.set('value', feature[0].properties.get('value') + 1);
 
-            console.log(obj.getPixelFromCoords(xy));
 
         });
 

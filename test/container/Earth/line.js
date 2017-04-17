@@ -38,7 +38,6 @@ class line extends Component {
             //             strokeWidth: 3
             //         }
             //     },
-            //     label: 'mc'
             // });
             console.log(values)
             options.series = values;

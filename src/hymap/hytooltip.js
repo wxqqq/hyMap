@@ -1,6 +1,7 @@
 import hyMapStyle from './hyMapStyle';
 import baseUtil from '../util/baseUtil';
-const ol = require('../../public/lib/ol');
+
+const ol = require('ol');
 
 export default class hytooltip extends hyMapStyle {
     constructor(options) {
@@ -70,7 +71,6 @@ export default class hytooltip extends hyMapStyle {
             this._overlay.setOffset(offset());
 
         }
-
 
     }
 

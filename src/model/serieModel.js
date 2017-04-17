@@ -32,6 +32,7 @@ export default {
         },
         'emphasis': {}
     },
+    labelSize: [16, 16],
     label: {
         'normal': {
             show: false,

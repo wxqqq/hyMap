@@ -1,7 +1,7 @@
 import hytooltip from '../hymap/hytooltip';
 import hyMapQuery from '../query/hyMapQuery';
 
-const ol = require('../../public/lib/ol');
+const ol = require('ol');
 export default class hyLayer extends hytooltip {
     constructor(options) {
 
@@ -37,6 +37,7 @@ export default class hyLayer extends hytooltip {
     createGeoLayer() {
 
         let geoVectorSource = new ol.source.Vector();
+        geoVectorSource.set('labelColumn', 'name');
         geoVectorSource.on('addfeature', evt => {
 
             evt.feature.source = evt.target;

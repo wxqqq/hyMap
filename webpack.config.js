@@ -2,7 +2,7 @@
  * @Author: FunctionRun
  * @Date:   2017-01-10 10:15:18
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-05 16:25:37
+ * @Last Modified time: 2017-04-14 14:14:09
  * @Email: zhangyujie3344521@163.com
  * @File Path: H:\work\hyMap\webpack.config.js
  * @File Name: webpack.config.js
@@ -29,7 +29,10 @@ let webpackConfig = {
     ],
     resolve: {
         root: '',
-        extensions: ['', '.js', '.json', '.css', '.styl', '.sass', '.scss']
+        extensions: ['', '.js', '.json', '.css', '.styl', '.sass', '.scss'],
+        alias: {
+            ol: '../../public/lib/ol-debug'
+        }
 
     },
     output: {
@@ -53,7 +56,6 @@ let webpackConfig = {
             loader: 'babel-loader',
             include: [
                 // 只去解析运行目录下的 src
-                path.join(process.cwd(), './main.js'),
                 path.join(process.cwd(), './src'),
                 path.join(process.cwd(), './test'),
                 path.join(process.cwd(), './index.js'),
@@ -67,13 +69,15 @@ let webpackConfig = {
         }, {
             test: /\.(png|jpg)$/,
             loader: 'url-loader?limit=25000'
-        }]
+        }],
+        noParse: [
+            path.join(process.cwd(), './public'),
+        ]
     },
     babel: {
         presets: ['es2015', 'react', 'stage-3'],
         plugins: ['transform-object-rest-spread', 'transform-class-properties']
     },
-
     plugins: [
         new webpack.DllReferencePlugin({
             context: __dirname,

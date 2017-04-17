@@ -316,6 +316,14 @@ instance.addSerie(serie)
 
 
 ##version
+###v0.1.5
+serie增加显示字段名称，   labelColumn: 'value', //显示的字段名称
+serie增加文本 labelAnimate: {
+                    enable: 'true', //是否开启动画
+                    period: 1 //动画时间 单位 秒
+
+                },
+serie增加文本大小设置 labelSize: [12, 40], //单位 pt
 ###v0.1.4
 增加周边查询方法：输入中心点和半径查询图上所有元素。
 增加文本动画。文本的值发生变化会触发动画。放大显示该文本一段事件后回复初始化的大小。

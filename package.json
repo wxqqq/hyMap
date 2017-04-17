@@ -33,6 +33,7 @@
     "scripts": {
         "dev": "cross-env NODE_ENV=DEVELOPMENT webpack-dev-server  --devtool --progress --colors --hot --content-base",
         "prepublish": "webpack --config lib.config.js",
+        "build:dll": "webpack --config webpack.dll.js",
         "start": "webpack-dev-server --hot . --history-api-fallback --content-base"
     },
     "version": "0.1.4",

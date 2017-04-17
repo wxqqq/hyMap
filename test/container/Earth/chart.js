@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-05 16:26:55
+ * @Last Modified time: 2017-04-14 14:17:03
  * @Email: zhangyujie3344521@163.com
  * @File Path: H:\work\hyMap\test\container\Earth\chart.js
  * @File Name: chart.js
@@ -13,8 +13,7 @@
 import React, {
     Component
 } from 'react';
-import map from '../../../dist/index';
-// import map from '../../../dist/index.js';
+import map from '../../../src/index';
 
 class chart extends Component {
     componentDidMount() {

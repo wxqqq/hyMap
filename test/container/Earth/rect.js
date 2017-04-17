@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-12 18:51:09
+ * @Last Modified time: 2017-04-14 18:47:09
  * @Email: zhangyujie3344521@163.com
  * @File Path: H:\work\hyMap\test\container\Earth\rect.js
  * @File Name: rect.js
@@ -59,7 +59,6 @@ class rect extends Component {
                         fillColor: 'white'
                     }
                 },
-                label: 'mc',
                 showPopup: false
 
             });

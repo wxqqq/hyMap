@@ -1,12 +1,12 @@
 /*
- * @Author: 1
- * @Date:   2017-01-10 10:15:25
- * @Last Modified by:   hydata
- * @Last Modified time: 2017-01-12 10:12:21
- * @Email: zhangyujie3344521@163.com
- * @File Path: /Users/zhangyujie/GitHub/FEscaffold/index.js
- * @File Name: index.js
- * @Descript:
+ * @Author: wxq
+ * @Date:   2017-03-16 13:33:33
+ * @Last Modified by:   wxq
+ * @Last Modified time: 2017-04-14 14:16:51
+ * @Email: 304861063@qq.com
+ * @File Path: H:\work\hyMap\test\container\Earth\heatmap.js
+ * @File Name: heatmap.js
+ * @Descript: 
  */
 
 'use strict';
