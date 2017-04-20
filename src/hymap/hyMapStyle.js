@@ -209,11 +209,11 @@ export default class hyMapStyle {
 
         let label = serie.label;
         if (label) {
-            console.log(label)
+
             label.normal.labelSize = label.normal.labelSize || serie.labelSize;
             label.emphasis.labelSize = label.emphasis.labelSize || serie.labelSize;
             label.emphasis = baseUtil.merge({}, label.normal, label.emphasis, true);
-            console.log(label);
+
         }
 
         const style = this._createGeoStyle(icon, label);
@@ -311,8 +311,7 @@ export default class hyMapStyle {
      */
     _geoStyleFn(feature, resolution, type = 'normal') {
 
-        const vectorStyle = feature.source.vector.get('fstyle');
-        const style = feature.get('style') || vectorStyle;
+        const style = feature.get('style') || feature.source.vector.get('fstyle');
         const symbolSize = feature.source.vector.get('fSymbol');
         const rStyle = style[type];
         // console.log(symbolSize, rStyle[0].getImage().getRadius())

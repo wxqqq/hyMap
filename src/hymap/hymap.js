@@ -1,8 +1,10 @@
 import hymapOption from '../model/mapModel';
+import hyFeature from './hyFeature';
 import baseUtil from '../util/baseUtil';
 import colorUtil from '../util/colorUtil';
 import events from '../events/events';
-import hylayers from './hylayers';
+import hyLayer from './hyLayer';
+import hyGeo from './hyGeo';
 import animation from '../animation/animation';
 import serieModel from '../model/serieModel';
 import hyMapQuery from '../query/hyMapQuery';
@@ -15,7 +17,7 @@ require('../../css/popup.css');
 /**
  * 
  */
-export default class hyMap extends hylayers {
+export default class hyMap extends hyGeo {
     constructor(dom, options) {
 
         super(options);
@@ -41,6 +43,9 @@ export default class hyMap extends hylayers {
         this.duration = 4000;
         animation._intervaldate = new Date().getTime();
         this.spliceElapsed = 0;
+
+
+        this.trackOverlayArray = [];
 
 
 
@@ -75,11 +80,11 @@ export default class hyMap extends hylayers {
         //
         if (this._geo.show === true) {
 
-            this.show();
+            this.showBaseMap();
 
         } else {
 
-            this.hide();
+            this.hideBaseMap();
 
         }
         this.clearSeries();
@@ -143,8 +148,9 @@ export default class hyMap extends hylayers {
         this._createBasicGroup();
         this.setDom(dom);
 
-        this._createOverlay();
+        this._overlay = this._createOverlay();
         this._createIntercation();
+        this._createtrackLayer();
 
     }
 
@@ -207,7 +213,7 @@ export default class hyMap extends hylayers {
         logoElement.href = 'http://www.hydata.cc/';
         logoElement.target = '_blank';
         logoElement.className = 'ol-hy-logo';
-        logoElement.innerHTML = '&copy; 2017 Haiyun data';
+        logoElement.innerHTML = '&copy; 2017 HYDATA';
         return logoElement;
 
     }
@@ -262,6 +268,20 @@ export default class hyMap extends hylayers {
 
         }, this);
 
+        this.view.on('change:resolution', (evt) => {
+
+            if (this.map.getView().getZoom() > 8) {
+
+                this.hideGeo();
+
+            } else {
+
+                this.showGeo();
+
+            }
+
+        });
+
     }
 
     _createIntercation() {
@@ -289,13 +309,17 @@ export default class hyMap extends hylayers {
         const id = layer.id || new Date().getTime();
         const layerGroup = this._createLayer(id);
         this.addSeries(layer.series, layerGroup.getLayers());
+        return {
+            id,
+            layerGroup
+        };
 
     }
 
     updateLayer(options) {
 
         const id = options.id || null;
-        const layerGroup = this._addLayerGroupArray[id];
+        const layerGroup = this._addLayerGroupArray[id]; //获取对应的layergroup
 
         if (!layerGroup) {
 
@@ -312,34 +336,24 @@ export default class hyMap extends hylayers {
             const data = serie.data;
             const source = layer.getSource();
             const result = [];
-            if (data.length == source.getFeatures().length) {
-                data.map((value, index) => {
 
-                    let feature = source.getFeatureById('serie|' + value.geoCoord + '|' + index);
-                    if (feature) {
+            data.map((value, index) => {
 
-                        feature.setProperties(value);
+                let feature = source.getFeatureById('serie|' + value.geoCoord);
+                if (feature) {
 
-                    } else {
+                    feature.setProperties(value);
 
-                        result.push(value);
+                } else {
 
-                    }
-
-                });
-                if (result.length > 0) {
-
-                    const featuresObj = this.getFeatures(result, serie.type);
-
-                    //获取feature数组
-                    const array = featuresObj.features;
-                    layer.getSource().addFeatures(array);
+                    result.push(value);
 
                 }
 
-            } else {
+            });
+            if (result.length > 0) {
 
-                const featuresObj = this.getFeatures(result, serie.type);
+                const featuresObj = hyFeature.getFeatures(result, serie.type);
 
                 //获取feature数组
                 const array = featuresObj.features;
@@ -426,7 +440,7 @@ export default class hyMap extends hylayers {
         } else {
 
             //获取feature对象
-            const featuresObj = this.getFeatures(data, serie.type, serie.id);
+            const featuresObj = hyFeature.getFeatures(data, serie.type, serie.id);
             //获取feature数组
             const array = featuresObj.features;
             //获取比例缩放的像素最小值，最大值
@@ -444,14 +458,12 @@ export default class hyMap extends hylayers {
                     evt.feature.on('propertychange', (evt) => {
 
                         let fea = evt.target;
-                        console.log(evt);
 
                         if (evt.key == 'value') {
 
                             if (!fea.textListenerKey) {
 
                                 fea._intervaldate = new Date().getTime();
-                                this.textScale(evt, evt.target);
                                 fea.textListenerKey = this.map.on('postcompose', (evt) => {
 
                                     this.textScale(evt, fea);
@@ -469,6 +481,7 @@ export default class hyMap extends hylayers {
 
 
             source.addFeatures(array);
+
             let vector = null;
             const style = this._createFeatureStyle(serie);
 
@@ -546,6 +559,8 @@ export default class hyMap extends hylayers {
             source.vector = vector;
             layersArray.push(vector);
 
+
+
         }
 
     }
@@ -560,7 +575,7 @@ export default class hyMap extends hylayers {
             rootDiv.appendChild(obj.container);
             document.body.appendChild(rootDiv);
             const marker = new ol.Overlay({
-                position: this.transform([Number(obj.geoCoord[0]), Number(obj.geoCoord[1])]),
+                position: this.transform(obj.geoCoord),
                 positioning: 'center-center',
                 element: rootDiv,
                 stopEvent: false,
@@ -574,38 +589,7 @@ export default class hyMap extends hylayers {
 
     }
 
-    getFeatures(data, type) {
 
-        let features = [];
-        let valueArray = [];
-        data.map((obj, index) => {
-
-            let feature = new ol.Feature({
-                geometry: this._createGeometry(type, obj.geoCoord)
-                    // dataIndex: new Date().getTime()
-
-            });
-            feature.setProperties(obj);
-
-            feature.setId('serie|' + obj.geoCoord + '|' + index);
-            // const featurestyle = this._createGeoStyle(serie.itemStyle, serie.label);
-            // feature.set('style', featurestyle);
-            // 
-
-            features.push(feature);
-            valueArray.push(obj.value);
-
-
-        });
-        const max = Math.max(...valueArray);
-        const min = Math.min(...valueArray);
-        return {
-            features,
-            max,
-            min
-        };
-
-    }
 
     /**
      * 执行动画
@@ -917,62 +901,6 @@ export default class hyMap extends hylayers {
     }
 
 
-    /**
-     * 创建空间对象
-     * @param  {[type]} type [description]
-     * @param  {[type]} obj  [description]
-     * @return {[type]}      [description]
-     */
-    _createGeometry(type, geoCoord) {
-
-        let geometry = null;
-        let coords = [];
-        if (baseUtil.isString(geoCoord)) {
-
-            geoCoord = this.deleteEndSign(geoCoord, ';');
-            const str = geoCoord.split(';');
-            str.forEach((obj) => {
-
-                const coord = obj.split(',');
-                const coordinate = this.transform([Number(coord[0]), Number(coord[1])]);
-                coords.push(coordinate);
-
-            });
-
-        } else {
-
-            coords = geoCoord;
-
-        }
-
-        if (type == 'line') {
-
-            geometry = new ol.geom.LineString(coords);
-
-        } else
-        if (type == 'polygon') {
-
-            geometry = new ol.geom.Polygon(coords);
-
-        } else {
-
-            if (coords.length == 1) {
-
-                coords = coords[0];
-
-            } else {
-
-                coords = this.transform([Number(coords[0]), Number(coords[1])]);
-
-            }
-            geometry = new ol.geom.Point(coords);
-
-        }
-
-        return geometry;
-
-    }
-
 
     /**
      * [dispatchAction description]
@@ -998,21 +926,23 @@ export default class hyMap extends hylayers {
         let feature = null;
         layersGroup.forEach((group) => {
 
-            const layers = group.getLayers();
-            layers.forEach(function(element) {
+            if (group instanceof ol.layer.Group) {
+                const layers = group.getLayers();
+                layers.forEach(function(element) {
 
-                if (element.getSource() instanceof ol.source.Vector) {
+                    if (element.getSource() instanceof ol.source.Vector) {
 
-                    feature = element.getSource().forEachFeature((feature) => {
+                        feature = element.getSource().forEachFeature((feature) => {
 
-                        feature.get('id') == id;
-                        return feature;
+                            feature.get('id') == id;
+                            return feature;
 
-                    });
+                        });
 
-                }
+                    }
 
-            });
+                });
+            }
 
         });
         return feature;
@@ -1031,47 +961,31 @@ export default class hyMap extends hylayers {
             const layers = group.getLayers();
             layers.forEach((element) => {
 
-                const features = element.getSource().getFeatures && element.getSource().getFeatures();
+                if (element.getSource() instanceof ol.source.Vector) {
 
-                features && features.forEach((feature) => {
+                    const features = element.getSource().getFeatures && element.getSource().getFeatures();
 
-                    if (feature.get(key) && feature.get(key) == value) {
+                    features && features.forEach((feature) => {
 
-                        const pixel = this.getPixelFromCoords(feature.getGeometry().getCoordinates());
-                        array.push({
-                            pixel: pixel,
-                            // properties: feature.getProperties()
-                            properties: feature
-                        });
+                        if (feature.get(key) && feature.get(key) == value) {
 
-                    }
+                            const pixel = this.getPixelFromCoords(feature.getGeometry().getCoordinates());
+                            array.push({
+                                pixel: pixel,
+                                // properties: feature.getProperties()
+                                properties: feature
+                            });
 
-                });
+                        }
+
+                    });
+
+                }
 
             });
 
         });
         return array;
-
-    }
-
-
-    /**
-     * 根据坐标获取经纬度
-     * @author WXQ
-     * @date   2017-03-24
-     * @param  {[type]}   coords [description]
-     * @return {[type]}          [description]
-     */
-    getPixelFromCoords(coords) {
-
-        if (!coords) {
-
-            return;
-
-        }
-        const newcoords = ol.proj.fromLonLat(coords);
-        return this.map.getPixelFromCoordinate(newcoords);
 
     }
 
@@ -1129,16 +1043,27 @@ export default class hyMap extends hylayers {
      * [flyto description]
      * @return {[type]} [description]
      */
-    flyto({
-        geoCoord,
+    flyto(geoCoord, {
         animateDuration = 2000,
         zoom = 5,
-        animateEasing = ''
-    }, callback) {
+        animateEasing = '',
+        callback = undefined
+    } = {}) {
 
-        let geometry = new ol.geom.Point(ol.proj.fromLonLat(geoCoord, this.map.getView().getProjection()));
-        let animate = new animation(this.map, geometry, zoom, animateDuration);
-        zoom === 5 ? animate.centerAndZoom() : animate.flyTo();
+        if (geoCoord instanceof ol.geom.Geometry) {
+
+            this.view.fit(geoCoord.getExtent(), {
+                duration: animateDuration
+
+            });
+
+        } else {
+
+            let geometry = new ol.geom.Point(this.transform(geoCoord, this.map.getView().getProjection()));
+            let animate = new animation(this.map, geometry, zoom, animateDuration);
+            zoom === 5 ? animate.centerAndZoom() : animate.flyTo();
+
+        }
         if (callback && typeof callback == 'function') {
 
             callback();
@@ -1162,17 +1087,237 @@ export default class hyMap extends hylayers {
 
     }
 
-    getFeaturesByCircle(geoCoord, radius) {
+    /**
+     * [areaQuery description]
+     * @author WXQ
+     * @date   2017-04-12
+     * @param  {[type]}   options {geom,layers}
+     * @return {[type]}           [description]
+     */
+    areaQuery(options) {
 
-        const geom = new ol.geom.Circle(this.transform([Number(geoCoord[0]), Number(geoCoord[1])]),
-            radius);
-        return hyMapQuery.areaQuery({
-            geom: geom,
+        const geom = options.geom;
+
+        let result = {};
+        const layers = options.layers;
+
+        for (let key in layers) {
+
+            const group = layers[key];
+
+
+            const childLayers = group.getLayers();
+            let array = [];
+            result[group.get('id')] = array;
+            childLayers.forEach((layer) => {
+
+
+                layer.getSource().forEachFeature((feature) => {
+
+                    const coord = feature.getGeometry().getCoordinates();
+                    if (geom.intersectsCoordinate(coord)) {
+
+                        array.push(feature);
+                        this.clickSelect.getFeatures().push(feature);
+
+                    }
+
+                });
+
+
+            });
+
+        }
+
+        return result;
+
+    }
+    spatialQuery(geoCoord, radius) {
+
+        this.clearTrackInfo();
+        const coords = this.transform(geoCoord);
+        const geometry = new ol.geom.Circle(coords, radius);
+
+        const geom_temp = [coords[0] + radius, coords[1]];
+        const piex_center = this.map.getPixelFromCoordinate(coords);
+
+        const piex_radius = this.map.getPixelFromCoordinate(geom_temp)[0] - piex_center[0];
+        const data = this.areaQuery({
+            geom: geometry,
             layers: this._addLayerGroupArray
+        });
+
+        let result = {
+            geometry,
+            center: coords,
+            piex_center,
+            piex_radius,
+            data
+        };
+
+
+        return result;
+
+    }
+
+    drawTrack(start, end, {
+        callback = undefined,
+        tooltipFun = undefined
+    } = {}) {
+
+        //起始点一致，不进行查询
+        if (start.toString() == end.toString()) {
+
+            return;
+
+        }
+
+        let url = 'http://localhost:3000/routing';
+        const viewparams = ['x1:' + start[0], 'y1:' + start[1], 'x2:' + end[0], 'y2:' + end[1]];
+        url = 'http://192.168.0.50:8080/geoserver/hygis/wfs?sversion=1.0.0&request=GetFeature&outputFormat=application%2Fjson';
+        url += '&typeName=' + 'routing_sd' + '&viewparams=' + viewparams.join(';');
+
+        // let formData = new FormData();
+        // formData.append("start", start);
+        // formData.append("end", new ol.format.WKT().writeGeometry(end.getGeometry()));
+
+        // let data = JSON.stringify({
+        // start: start,
+        // end: new ol.format.WKT().writeGeometry(end.getGeometry().clone().transform('EPSG:3857', "EPSG:4326"))
+        // });
+        fetch(url, {
+            // mode: "cors",
+            // headers: {
+            // "Content-Type": "application/x-www-form-urlencoded",
+            // 'Content-Type': 'application/json'
+            // },
+            // method: 'POST',
+            // body: data
+
+        }).then((response) => {
+
+            return response.json();
+
+        }).then((data) => {
+
+            var features = new ol.format.GeoJSON().readFeatures(data, {
+                featureProjection: 'EPSG:3857'
+            });
+            if (baseUtil.isFunction(callback)) {
+
+                callback(features[0]);
+
+            }
+
+            this.trackLayer.getSource().addFeatures(features);
+
+
+            if (tooltipFun) {
+
+                const geometry = features[0].getGeometry().clone();
+                const length = geometry.getLength();
+
+                const time = Math.ceil(length / 1000 * 60 / 60);
+
+                let str = baseUtil.isFunction(tooltipFun) ? tooltipFun({
+                    length,
+                    time
+                }) : tooltipFun;
+
+                if (str) {
+
+                    this._createTrackOverLay(start, str);
+
+                }
+
+
+            }
+
+        }).catch(function(e) {
+
+            console.log(e);
+
         });
 
     }
 
+    _createTrackOverLay(coordinate, str = '') {
+
+
+        let overlay = this._createOverlay();
+        let div = overlay.getElement();
+        div.innerHTML = str;
+        overlay.setPosition(this.transform(coordinate));
+        this.trackOverlayArray.push(overlay);
+
+    }
+
+    _createtrackLayer() {
+
+        let group = this.addLayer({
+            series: [{
+                symbolStyle: {
+                    'normal': {
+                        strokeColor: '#2dbc60',
+                        strokeWidth: 3
+                    },
+                    'emphasis': {
+                        strokeColor: 'green',
+                        strokeWidth: 4
+                    }
+                }
+            }]
+
+        });
+        this.trackLayer = group.layerGroup.getLayers().getArray()[0];
+
+    }
+
+    /**
+     * [clearTrackInfo description]
+     * @author WXQ
+     * @date   2017-04-20
+     * @return {[type]}   [description]
+     */
+    clearTrackInfo() {
+
+        //清空轨迹线
+        this.trackLayer.getSource().clear();
+        //清空轨迹tooltip
+        this.trackOverlayArray.forEach((overlay) => {
+
+            this.map.removeOverlay(overlay);
+
+        });
+
+    }
+
+    /**
+     * 根据坐标获取经纬度
+     * @author WXQ
+     * @date   2017-03-24
+     * @param  {[type]}   coords [description]
+     * @return {[type]}          [description]
+     */
+    getPixelFromCoords(coords) {
+
+        if (!coords) {
+
+            return;
+
+        }
+        const newcoords = this.transform(coords);
+        return this.map.getPixelFromCoordinate(newcoords);
+
+    }
+
+    /**
+     * [getProjectionByZoom description]
+     * @author WXQ
+     * @date   2017-04-18
+     * @param  {[type]}   zoom [description]
+     * @return {[type]}        [description]
+     */
     getProjectionByZoom(zoom) {
 
         if (zoom) {
@@ -1184,11 +1329,20 @@ export default class hyMap extends hylayers {
 
     }
 
+    /**
+     * [transform description]
+     * @author WXQ
+     * @date   2017-04-18
+     * @param  {[type]}   coords     [description]
+     * @param  {[type]}   projection [description]
+     * @return {[type]}              [description]
+     */
     transform(coords, projection) {
 
-        return ol.proj.fromLonLat(coords, projection);
+        return ol.proj.fromLonLat([Number(coords[0]), Number(coords[1])], projection);
 
     }
 }
 
 Object.assign(hyMap.prototype, events);
+Object.assign(hyMap.prototype, hyLayer);

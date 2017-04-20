@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-14 10:39:57
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-17 15:20:25
+ * @Last Modified time: 2017-04-18 09:49:14
  * @Email: 304861063@qq.com
  * @File Path: H:\work\hyMap\test\container\Earth\labelAnimate.js
  * @File Name: labelAnimate.js
@@ -55,7 +55,7 @@ class labelAnimate extends Component {
                 data: values,
                 type: 'point',
                 // symbol: 'icon:test/data/jingli-1.png',
-                // symbolSize: [0, 0],
+                symbolSize: [0, 0],
                 // symbolStyle: {
                 //     'normal': {
                 //         // symbolSize: [15, 15],
@@ -74,7 +74,8 @@ class labelAnimate extends Component {
                     period: 1 //动画时间 单位 秒
 
                 },
-                labelSize: [12, 40], //单位 像素
+
+                labelSize: [12, 40], //单位 pt
                 /*******************新增属性*************************** */
                 label: {
                     'normal': {
@@ -88,7 +89,7 @@ class labelAnimate extends Component {
                             // fontStyle: 'normal',
                             // fontWeight: 'bold',
                             // fontFamily: 'sans-serif',
-                            fontSize: '30'
+                            fontSize: '30pt'
                         }
                     },
                     'emphasis': {

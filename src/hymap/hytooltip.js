@@ -24,6 +24,12 @@ export default class hytooltip extends hyMapStyle {
 
     }
 
+    _createIntercation() {
+
+        this._createHoverInteraction();
+        this._createSelectInteraction();
+
+    }
     setTooltip(options) {
 
         const opt = options || {};
@@ -136,17 +142,19 @@ export default class hytooltip extends hyMapStyle {
      */
     _createOverlay(element) {
 
-        element = this._createPopup();
-        this._overlay = new ol.Overlay({
+        element = element || this._createPopup();
+        let _overlay = new ol.Overlay({
             id: 'hy-overly-popup',
             element: element,
+            positioning: 'bottom-center',
+            offset: [0, -20],
             autoPan: true,
             autoPanAnimation: {
                 duration: 250
             }
         });
-        this.map.addOverlay(this._overlay);
-        return this._overlay;
+        this.map.addOverlay(_overlay);
+        return _overlay;
 
     }
 
@@ -195,13 +203,17 @@ export default class hytooltip extends hyMapStyle {
         this.hoverSelect = new ol.interaction.Select({
             style: (feature) => {
 
-                if (feature.source.vector instanceof ol.layer.Heatmap) {
+                if (feature.source) {
 
-                    return this._geoStyleFn(feature, '', 'emphasis');
+                    if (feature.source.vector instanceof ol.layer.Heatmap) {
+
+                        return this._geoStyleFn(feature, '', 'emphasis');
+
+                    }
+
+                    return typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()(feature, '', 'emphasis') : feature.source.vector.getStyle();
 
                 }
-
-                return typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()(feature, '', 'emphasis') : feature.source.vector.getStyle();
 
             },
 

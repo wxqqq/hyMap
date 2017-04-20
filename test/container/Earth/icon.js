@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-14 14:16:54
+ * @Last Modified time: 2017-04-20 15:15:02
  * @Email: 304861063@qq.com
  * @File Path: H:\work\hyMap\test\container\Earth\icon.js
  * @File Name: icon.js
@@ -17,7 +17,7 @@ import map from '../../../src/index';
 class icon extends Component {
     componentDidMount() {
 
-        let obj = map.init(document.getElementById('map'));
+        let mapObj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
             map: '', //mapName  格式：undefined|(string|string|string) 为空不加载地图边界信息，否则按传入参数最后一个为当前级别进行数据加载。
@@ -25,7 +25,7 @@ class icon extends Component {
             drillDown: true, //是否开启区域点击下钻功能。
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
-            zoom: 7, //当前地图缩放比例
+            zoom: 9, //当前地图缩放比例
             scaleLimit: [3, 20], //滚轮缩放的边界
             itemStyle: '', //地图上每块区域的样式
             selectedMode: '', //地图区域的选中模式
@@ -37,9 +37,9 @@ class icon extends Component {
         const series = [];
         fetch('../test/data/car_2012.json').then(response => response.json()).then(function(values) {
 
-            values.forEach(obj => {
+            values.forEach(mapObj => {
 
-                obj.geoCoord = [obj.lon, obj.lat];
+                mapObj.geoCoord = [mapObj.lon, mapObj.lat];
 
             });
 
@@ -72,7 +72,7 @@ class icon extends Component {
                 labelSize: [15, 20],
                 label: {
                     'normal': {
-                        show: true,
+                        show: false,
                         textStyle: {
                             color: '#fff',
                             fontStyle: 'normal',
@@ -91,11 +91,11 @@ class icon extends Component {
                 },
                 showPopup: false //显示气泡框
             });
-            obj.setOption(options);
+            mapObj.setOption(options);
 
 
-            obj.setTooltip({
-                show: false,
+            mapObj.setTooltip({
+                // show: true,
                 trigger: ['item'], // item、map  ['item', 'geo']
                 triggeron: 'click', //'click', // click, mouseover, mousemove, dblclick , ['click'],
                 enterable: true, //true 鼠标是否可进入浮出泡泡框中
@@ -121,28 +121,64 @@ class icon extends Component {
             });
 
         });
+        fetch('../test/data/station.json').then(response => response.json()).then(function(values) {
+            values.forEach(mapObj => {
 
-        obj.on('geoSelect', function(data) {
+                mapObj.geoCoord = [mapObj.lon, mapObj.lat];
+
+            });
+            let series = [];
+            series.push({
+                data: values, //{x,y,value}
+                type: 'point', // point|line|polygon|chart|..
+                symbol: 'circle', //circle|react|icon
+                symbolSize: '', //[min,max]
+                symbolStyle: {
+                    'normal': {
+                        symbolSize: 5,
+                        strokeWidth: 1,
+                        strokeColor: 'black',
+                        fillColor: 'orange'
+                    },
+                    'emphasis': {
+                        symbolSize: 7,
+                        strokeWidth: 1,
+                        strokeColor: '#fff',
+                        fillColor: 'blue'
+                    }
+                },
+                showPopup: false
+
+            });
+
+            mapObj.addLayer({
+                id: 5,
+                series: series
+            });
+
+
+        });
+        mapObj.on('geoSelect', function(data) {
 
             console.log('getdata:', data);
 
         });
 
-        obj.on('geoUnSelect', function(data) {
+        mapObj.on('geoUnSelect', function(data) {
 
             console.log('getundata:', data);
 
 
         });
-        obj.on('click', function(data) {
+        mapObj.on('click', function(data) {
 
             console.log('getdata:', data);
 
         });
 
-        obj.on('unClick', function(data) {
+        mapObj.on('unClick', function(data) {
 
-            console.log('getundata:', data);
+            // console.log('getundata:', data);
 
 
         });
@@ -150,7 +186,7 @@ class icon extends Component {
         //选中
         document.getElementById('select').addEventListener('click', () => {
 
-            obj.dispatchAction({
+            mapObj.dispatchAction({
                 type: 'click',
                 id: 1
             });
@@ -159,7 +195,7 @@ class icon extends Component {
         //取消选中
         document.getElementById('unselect').addEventListener('click', () => {
 
-            obj.dispatchAction({
+            mapObj.dispatchAction({
                 type: 'unClick',
                 id: 1
             });
@@ -171,15 +207,15 @@ class icon extends Component {
 
             //获取value=4468的feature
             //
-            const feature = obj.getFeaturesByProperty('name', '潍坊');
+            const feature = mapObj.getFeaturesByProperty('name', '潍坊');
             console.log(feature);
             // const xy = feature[0].properties.geoCoord;
             //对feature触发click
-            // obj.dispatchAction({
+            // mapObj.dispatchAction({
             //     type: 'click',
             //     id: feature[0].properties.id
             // });
-            //  console.log(obj.getPixelFromCoords(xy));
+            //  console.log(mapObj.getPixelFromCoords(xy));
             feature[0].properties.set('value', feature[0].properties.get('value') + 1);
 
 
@@ -188,16 +224,16 @@ class icon extends Component {
 
         document.getElementById('remove').addEventListener('click', () => {
 
-            obj.removeLayer(5);
-            // obj.removeSeries(); //清空所有
-            // obj.removeSeries('id');//清空单个
-            // obj.removeSeries(['id','id1']);//清空多个
+            mapObj.removeLayer(5);
+            // mapObj.removeSeries(); //清空所有
+            // mapObj.removeSeries('id');//清空单个
+            // mapObj.removeSeries(['id','id1']);//清空多个
 
         });
 
         document.getElementById('add').addEventListener('click', () => {
 
-            obj.addLayer({
+            mapObj.addLayer({
                 id: 5,
                 series: series
             });
@@ -206,37 +242,49 @@ class icon extends Component {
 
         document.getElementById('showlayer').addEventListener('click', () => {
 
-            obj.showLayer(5);
+            mapObj.showLayer(5);
 
         });
         document.getElementById('hidelayer').addEventListener('click', () => {
 
-            obj.hideLayer(5);
+            mapObj.hideLayer(5);
 
         });
         document.getElementById('return').addEventListener('click', () => {
 
-            obj.geoGoBack();
+            mapObj.geoGoBack();
 
         });
         document.getElementById('areaQuery').addEventListener('click', () => {
 
-            const features = obj.getFeaturesByCircle([117.075, 35.214], 100000);
+            mapObj.clearTrackInfo(); //该方法进行对查询到的所有轨迹和tooltip进行移除操作。
+            //获取周边查询的结果 参数：1.中心点坐标 经纬度 2.半径 单位为米
+            const features = mapObj.spatialQuery([116.98612837827636, 36.6650505841216], 20000);
             console.log(features);
+            //进行屏幕移动动画。
+            mapObj.flyto(features.geometry);
 
-            for (let key in features) {
+            //执行遍历。进行轨迹查询.
+            for (let key in features.data) {
 
-                const feaArray = features[key];
+                const feaArray = features.data[key];
                 feaArray.forEach(feature => {
 
-                    obj.dispatchAction({
-                        type: 'click',
-                        id: feature.get('id')
+                    mapObj.drawTrack(feature.get('geoCoord'), [116.98612837827636, 36.6650505841216], {
+                        tooltipFun: function(data) {
+
+                            const length = (data.length / 1000).toFixed(1);
+                            let str = '距离警情地:' + length + '公里' + '<br/>';
+                            str += '预计到达时间：' + data.time + '分钟';
+                            return str;
+
+                        }
                     });
 
                 });
 
             }
+
 
         });
 

@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-12 18:37:38
+ * @Last Modified time: 2017-04-18 12:28:55
  * @Email: zhangyujie3344521@163.com
  * @File Path: H:\work\hyMap\test\container\Earth\mapmethod.js
  * @File Name: mapmethod.js
@@ -51,13 +51,13 @@ class mapmethod extends Component {
             },
             itemStyle: {
                 'normal': {
-                    strokeWidth: 1, //边框宽度
-                    strokeColor: '#111', //边框颜色
-                    fillColor: '#323c48'
+                    strokeWidth: 2, //边框宽度
+                    strokeColor: 'green', //边框颜色
+                    fillColor: 'rgba(255,255,255,0.2)'
                 },
                 'emphasis': {
                     strokeWidth: 1, //边框宽度
-                    fillColor: '#2a333d'
+                    fillColor: 'rgba(255,255,255,0.5)'
                 }
             }, //地图上每块区域的样式
             regions: [{
@@ -66,12 +66,12 @@ class mapmethod extends Component {
                     'normal': {
                         strokeWidth: 1, //边框宽度
                         strokeColor: 'blue', //边框颜色
-                        fillColor: 'pink'
+                        fillColor: '#2a333d'
                     },
                     'emphasis': {
                         strokeWidth: 1, //边框宽度
                         strokeColor: '#B5FF91', //边框颜色
-                        fillColor: 'red'
+                        fillColor: 'blue'
                     }
                 },
                 label: {
@@ -112,6 +112,18 @@ class mapmethod extends Component {
         document.getElementById('show').addEventListener('click', () => {
 
             obj.show();
+
+        });
+
+        document.getElementById('hidebase').addEventListener('click', () => {
+
+            obj.hideBaseMap();
+
+        });
+        //选中
+        document.getElementById('showbase').addEventListener('click', () => {
+
+            obj.showBaseMap();
 
         });
 
@@ -203,6 +215,8 @@ class mapmethod extends Component {
         return (<div>
                     <input id='hide' type='button' value='隐藏地图'/>
                     <input id='show' type='button' value='显示地图' />
+                    <input id='hidebase' type='button' value='隐藏底图'/>
+                    <input id='showbase' type='button' value='显示底图' />
                     <input id='hidegeo' type='button' value='隐藏边界'/>
                     <input id='showgeo' type='button' value='显示边界' />
                     <input id='fly' type='button' value='飞到济南'/>

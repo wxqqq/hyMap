@@ -58,52 +58,10 @@ export default class hyMapQuery {
 
         }).catch(function(e) {
 
+            console.info(e);
             options.callback({});
 
         });
-
-    }
-
-    /**
-     * [areaQuery description]
-     * @author WXQ
-     * @date   2017-04-12
-     * @param  {[type]}   options {geom,layers}
-     * @return {[type]}           [description]
-     */
-    static areaQuery(options) {
-
-        const geom = options.geom;
-        let result = {};
-        const layers = options.layers;
-
-        for (let key in layers) {
-
-            const group = layers[key];
-
-
-            const childLayers = group.getLayers();
-            let series = [];
-            result[group.get('id')] = series;
-            childLayers.forEach(function(layer) {
-
-
-                layer.getSource().getFeatures().forEach(function(feature) {
-
-                    const coord = feature.getGeometry().getCoordinates();
-                    if (geom.intersectsCoordinate(coord)) {
-
-                        series.push(feature);
-
-                    }
-
-                });
-
-            });
-
-        }
-
-        return result;
 
     }
 }

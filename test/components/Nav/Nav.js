@@ -23,13 +23,14 @@ class Nav extends React.Component {
 
         return (
             <div className = 'Nav'>
+                <Link to = 'mapmethod' > 方法 </Link>
                 <Link to = 'circle' > circle </Link>
                 <Link to = 'chart' > chart </Link>
                 <Link to = 'rect' > rect </Link>
                 <Link to = 'icon' > icon </Link>
                 <Link to = 'labelAnimate' > labelAnimate </Link>
                 <Link to = 'line' > line </Link>
-                <Link to = 'mapmethod' > method </Link>
+              
                 <Link to = 'heatmap' > heatmap </Link>
                 <Link to = 'ripple' > ripple </Link>
             </div>

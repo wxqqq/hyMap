@@ -1,8 +1,20 @@
+/*
+ * @Author: wxq
+ * @Date:   2017-04-18 10:04:23
+ * @Last Modified by:   wxq
+ * @Last Modified time: 2017-04-20 12:53:53
+ * @Email: 304861063@qq.com
+ * @File Path: H:\work\hyMap\src\hymap\hygeo.js
+ * @File Name: hygeo.js
+ * @Descript: 
+ */
+'use strict';
 import hytooltip from '../hymap/hytooltip';
 import hyMapQuery from '../query/hyMapQuery';
 
 const ol = require('ol');
-export default class hyLayer extends hytooltip {
+
+export default class hyGeo extends hytooltip {
     constructor(options) {
 
         super(options);
@@ -116,6 +128,18 @@ export default class hyLayer extends hytooltip {
     hideGeo() {
 
         this.geoVector.setVisible(false);
+
+    }
+
+    showBaseMap() {
+
+        this.baseLayer.setVisible(true);
+
+    }
+
+    hideBaseMap() {
+
+        this.baseLayer.setVisible(false);
 
     }
 
