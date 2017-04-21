@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-14 10:39:57
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-18 09:49:14
+ * @Last Modified time: 2017-04-21 10:53:59
  * @Email: 304861063@qq.com
  * @File Path: H:\work\hyMap\test\container\Earth\labelAnimate.js
  * @File Name: labelAnimate.js
@@ -164,22 +164,34 @@ class labelAnimate extends Component {
         document.getElementById('filter').addEventListener('click', () => {
 
             value++;
-            series[0].data[0].value++;
-            series[0].data[1].value++;
+
+            // series[0].data[0].value++;
+            // series[0].data[1].value++;
+            series[0].data = [{
+                "name": "潍坊",
+                "id": 1,
+                "lat": 36.69190,
+                "geoCoord": [119.17692, 36.69190],
+                "car": 4301821,
+                "driver": 3484586,
+                "value": value++
+            }]
+
             obj.updateLayer({
                 id: 113,
                 series
             });
 
-            window.setTimeout(function() {
 
-                value++;
-                series[0].data[2].value++;
-                obj.updateLayer({
-                    id: 113,
-                    series
-                });
-            }, 100);
+            // window.setTimeout(function() {
+
+            //     value++;
+            //     series[0].data[2].value++;
+            //     obj.updateLayer({
+            //         id: 113,
+            //         series
+            //     });
+            // }, 100);
 
         });
 

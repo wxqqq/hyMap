@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-20 15:15:02
+ * @Last Modified time: 2017-04-21 11:53:09
  * @Email: 304861063@qq.com
  * @File Path: H:\work\hyMap\test\container\Earth\icon.js
  * @File Name: icon.js
@@ -255,6 +255,9 @@ class icon extends Component {
             mapObj.geoGoBack();
 
         });
+        document.getElementById('hasLayer').addEventListener('click', () => {
+            alert(mapObj.hasLayer(51))
+        });
         document.getElementById('areaQuery').addEventListener('click', () => {
 
             mapObj.clearTrackInfo(); //该方法进行对查询到的所有轨迹和tooltip进行移除操作。
@@ -297,13 +300,14 @@ class icon extends Component {
         return (<div>
             <input id='select' type='button' value='选中'/>
             <input id='unselect' type='button' value='取消选中' />
-              <input id='filter' type='button' value='筛选' />
+            <input id='filter' type='button' value='筛选' />
             <input id='remove' type='button' value='移除数据' />
             <input id='add' type='button' value='增加数据'/>
             <input id='showlayer' type='button' value='显示数据' />
             <input id='hidelayer' type='button' value='隐藏数据'/>
             <input id='return' type='button' value='返回'/>
             <input id='areaQuery' type='button' value='周边范围查询'/>
+            <input id='hasLayer' type='button' value='存在图层'/>
             <div id = 'map' /> 
             </div>);
 

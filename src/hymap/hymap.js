@@ -381,6 +381,14 @@ export default class hyMap extends hyGeo {
 
     }
 
+    hasLayer(id) {
+
+        const group = this._addLayerGroupArray[id];
+        if (group) {
+            return true;
+        }
+        return false;
+    }
     showLayer(id) {
 
         const group = this._addLayerGroupArray[id];

@@ -2,10 +2,10 @@
  * @Author: wxq
  * @Date:   2017-01-10 10:15:18
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-03-28 16:57:27
+ * @Last Modified time: 2017-04-21 10:38:46
  * @Email: zhangyujie3344521@163.com
- * @File Path: /Users/zhangyujie/GitHub/FEscaffold/webpack.lib.js
- * @File Name: webpack.lib.js
+ * @File Path: H:\work\hyMap\lib.config.js
+ * @File Name: lib.config.js
  * @Descript:
  */
 
@@ -22,8 +22,10 @@ module.exports = {
         path: './dist',
         filename: 'index.js'
     },
-    externals: {
-        "ol": "window.ol"
+    resolve: {
+        alias: {
+            ol: '../../public/lib/ol'
+        }
     },
     devtool: false,
     module: {

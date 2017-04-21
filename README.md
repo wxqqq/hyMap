@@ -316,6 +316,12 @@ instance.addSerie(serie)
 
 
 ##version
+###v0.1.8
+增加haslayer(id)方法 判断layer是否存在。
+###v0.1.7
+修复打包bug。
+###v0.1.6
+增加轨迹查询 drawTrack(geocoord,radius,{tooltipfun});
 ###v0.1.5
 serie增加显示字段名称，   labelColumn: 'value', //显示的字段名称
 serie增加文本 labelAnimate: {
