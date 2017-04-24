@@ -1168,9 +1168,10 @@ export default class hyMap extends hyGeo {
 
                 layer.getSource().forEachFeature((feature) => {
 
-                    const coord = feature.getGeometry().getCoordinates();
-                    if (geom.intersectsCoordinate(coord)) {
+                    const coords = feature.getGeometry().getCoordinates();
+                    if (geom.intersectsCoordinate(coords)) {
 
+                        feature.set('pixel', this.map.getPixelFromCoordinate(coords));
                         array.push(feature);
                         this.clickSelect.getFeatures().push(feature);
 
