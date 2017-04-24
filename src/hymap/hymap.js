@@ -47,8 +47,6 @@ export default class hyMap extends hyGeo {
 
         this.trackOverlayArray = [];
 
-
-
     }
 
 
@@ -93,7 +91,6 @@ export default class hyMap extends hyGeo {
         this.setView(this._geo);
         this.setTooltip(opt_options.tooltip);
         this.addLayer({
-            id: new Date().getTime(),
             series: this._geo.series
         }); //设置series
 
@@ -320,6 +317,7 @@ export default class hyMap extends hyGeo {
 
         const id = options.id || null;
         const layerGroup = this._addLayerGroupArray[id]; //获取对应的layergroup
+        const series = options.series;
 
         if (!layerGroup) {
 
@@ -329,41 +327,90 @@ export default class hyMap extends hyGeo {
         }
 
         const layers = layerGroup.getLayers();
+        const serLength = series.length;
+        const layLength = layers.getLength();
         layers.forEach((layer, index) => {
 
-            const serie = options.series[index]; //新的数据
+            const serie = series[index]; //新的数据
+            //找到新数据的条目进行数据处理，未找到的情况下删除已存在的layer
+            if (serie) {
 
-            const data = serie.data;
-            const source = layer.getSource();
-            const result = [];
+                const data = serie.data;
+                const source = layer.getSource();
+                let addData = [];
+                let updateData = new Map();
 
-            data.map((value, index) => {
+                let strMap = new Map();
+                for (let k of Object.keys(data)) {
 
-                let feature = source.getFeatureById('serie|' + value.geoCoord);
-                if (feature) {
+                    strMap.set('serie|' + data[k].geoCoord, data[k]);
 
-                    feature.setProperties(value);
+                }
+                //删除未找到的数据
+                source.forEachFeature(function(feature) {
 
-                } else {
+                    const geoCoord = feature.getId();
+                    if (strMap.has(geoCoord)) {
 
-                    result.push(value);
+                        const value = strMap.get(geoCoord);
+                        feature.setProperties(value);
+                        updateData.set('serie|' + value.geoCoord, value);
+
+                    } else {
+
+                        source.removeFeature(feature);
+                    }
+
+                });
+                //找到的数据进行更新，未找到的准备新增。
+
+                data.map((value, index) => {
+
+                    if (updateData.has(value.geoCoord)) {
+
+
+                    } else {
+
+                        addData.push(value);
+
+                    }
+
+                });
+
+                //增加数据.
+                if (addData.length > 0) {
+
+                    const featuresObj = hyFeature.getFeatures(addData, serie.type);
+
+                    //获取feature数组
+                    const array = featuresObj.features;
+                    layer.getSource().addFeatures(array);
 
                 }
 
-            });
-            if (result.length > 0) {
+            }
 
-                const featuresObj = hyFeature.getFeatures(result, serie.type);
+        });
 
-                //获取feature数组
-                const array = featuresObj.features;
-                layer.getSource().addFeatures(array);
+        //如果新数据的长度比旧数据长，增加layer
+        if (serLength > layLength) {
+
+            for (let i = layLength; i < serLength; i++) {
+
+                this.addSerie(series[i], layers);
 
             }
 
+        }
+        if (serLength < layLength) {
 
+            for (let i = serLength; i < layLength; i++) {
 
-        });
+                layers.removeAt(series.length);
+
+            }
+
+        }
 
 
     }
@@ -389,6 +436,7 @@ export default class hyMap extends hyGeo {
         }
         return false;
     }
+
     showLayer(id) {
 
         const group = this._addLayerGroupArray[id];
@@ -422,9 +470,7 @@ export default class hyMap extends hyGeo {
 
         series.forEach((serie) => {
 
-            let newserie = baseUtil.clone(serieModel);
-            baseUtil.merge(newserie, serie, true);
-            this.addSerie(newserie, layersArray);
+            this.addSerie(serie, layersArray);
 
         });
 
@@ -435,10 +481,12 @@ export default class hyMap extends hyGeo {
      * @author WXQ
      * @date   2017-03-22
      * @param  {object}   serie       数据
-     * @param  {ol.layer.Group}   layersArray 数据的父容器
+     * @param  {ol.collection}   layersArray 数据的父容器
      */
     addSerie(serie, layersArray) {
-
+        let newserie = baseUtil.clone(serieModel);
+        baseUtil.merge(newserie, serie, true);
+        serie = newserie;
         const data = serie.data;
 
         if (serie.type == 'chart') {
@@ -566,8 +614,6 @@ export default class hyMap extends hyGeo {
 
             source.vector = vector;
             layersArray.push(vector);
-
-
 
         }
 

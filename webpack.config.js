@@ -2,7 +2,7 @@
  * @Author: FunctionRun
  * @Date:   2017-01-10 10:15:18
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-21 10:36:43
+ * @Last Modified time: 2017-04-24 18:23:41
  * @Email: zhangyujie3344521@163.com
  * @File Path: H:\work\hyMap\webpack.config.js
  * @File Name: webpack.config.js
@@ -46,7 +46,7 @@ let webpackConfig = {
         port: hostConfig.port,
         historyApiFallback: true
     },
-    devtool: 'inline-source-map',
+    devtool: 'cheap-module-eval-source-map',
     module: {
         loaders: [{
             test: /\.css$/,
@@ -71,7 +71,7 @@ let webpackConfig = {
             loader: 'url-loader?limit=25000'
         }],
         noParse: [
-            path.join(process.cwd(), './public'),
+            path.join(process.cwd(), './public')
         ]
     },
     babel: {

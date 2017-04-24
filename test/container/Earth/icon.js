@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-21 11:53:09
+ * @Last Modified time: 2017-04-21 19:12:41
  * @Email: 304861063@qq.com
  * @File Path: H:\work\hyMap\test\container\Earth\icon.js
  * @File Name: icon.js
@@ -95,7 +95,7 @@ class icon extends Component {
 
 
             mapObj.setTooltip({
-                // show: true,
+                show: true,
                 trigger: ['item'], // item、map  ['item', 'geo']
                 triggeron: 'click', //'click', // click, mouseover, mousemove, dblclick , ['click'],
                 enterable: true, //true 鼠标是否可进入浮出泡泡框中
@@ -109,6 +109,7 @@ class icon extends Component {
                 },
                 formatter: function(param) { //div内的内容
 
+                    console.log(param);
                     return param.dataIndex + ': ' + param.value;
 
                 },
@@ -155,7 +156,6 @@ class icon extends Component {
                 id: 5,
                 series: series
             });
-
 
         });
         mapObj.on('geoSelect', function(data) {
@@ -256,7 +256,7 @@ class icon extends Component {
 
         });
         document.getElementById('hasLayer').addEventListener('click', () => {
-            alert(mapObj.hasLayer(51))
+            alert(mapObj.hasLayer(5))
         });
         document.getElementById('areaQuery').addEventListener('click', () => {
 

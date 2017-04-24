@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-18 12:22:35
+ * @Last Modified time: 2017-04-21 16:39:53
  * @Email: zhangyujie3344521@163.com
  * @File Path: H:\work\hyMap\test\container\Earth\circle.js
  * @File Name: circle.js
@@ -21,7 +21,7 @@ class circle extends Component {
         let obj = map.init(document.getElementById('map'));
         let options = {
             serverUrl: 'http://192.168.0.50:8080/geoserver', //服务器地址
-            show: false, //地图的显示状态 true为显示 false 为不显示
+            show: true, //地图的显示状态 true为显示 false 为不显示
             map: '', //'中国|山东省', //当前地图显示哪个地图
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
@@ -53,7 +53,6 @@ class circle extends Component {
                 symbolSize: 10, //[min,max]
                 symbolStyle: {
                     'normal': {
-
                         strokeWidth: 0,
                         strokeColor: 'red',
                         fillColor: 'orange'

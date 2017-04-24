@@ -316,6 +316,8 @@ instance.addSerie(serie)
 
 
 ##version
+###v0.1.9
+修复updatelayer的错误。
 ###v0.1.8
 增加haslayer(id)方法 判断layer是否存在。
 ###v0.1.7
