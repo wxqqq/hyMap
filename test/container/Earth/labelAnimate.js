@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-14 10:39:57
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-24 17:35:35
+ * @Last Modified time: 2017-04-27 19:37:03
  * @Email: 304861063@qq.com
  * @File Path: H:\work\hyMap\test\container\Earth\labelAnimate.js
  * @File Name: labelAnimate.js
@@ -195,7 +195,7 @@ class labelAnimate extends Component {
                     "driver": 3484586,
                     "value": value++
                 }],
-                type: 'point',
+                type: 'heatmap',
                 // symbol: 'icon:test/data/jingli-1.png',
                 symbolSize: [0, 0],
                 // symbolStyle: {
@@ -223,7 +223,7 @@ class labelAnimate extends Component {
                     'normal': {
                         show: true,
                         textStyle: {
-                            color: 'red',
+                            color: 'blue',
                             textAlign: 'center', //文字对齐方式：'left', 'right', 'center', 'end' or 'start'
                             offsetX: 0, //x轴偏移
                             offsetY: 15, //y轴偏移
@@ -242,7 +242,8 @@ class labelAnimate extends Component {
                 },
                 showPopup: false //显示气泡框
 
-            }]
+            }];
+
             obj.updateLayer({
                 id: 113,
                 series
@@ -266,6 +267,7 @@ class labelAnimate extends Component {
 
             series[0].data[0].value++;
             series[0].data[0].geoCoord = [119.17692, 37.69190];
+
             // series[0].data[1].value++;
             const s1 = {
                 id: 31,
@@ -286,19 +288,19 @@ class labelAnimate extends Component {
                     "value": value++
                 }],
                 type: 'point',
-                // symbol: 'icon:test/data/jingli-1.png',
+                symbol: 'icon:test/data/jingli-1.png',
                 symbolSize: [0, 0],
-                // symbolStyle: {
-                //     'normal': {
-                //         // symbolSize: [15, 15],
-                //         fillColor: 'rgb(140,0,140)',
-                //         strokeWitdh: 1,
-                //         strokeColor: 'rbg(140,0,140)'
-                //     },
-                //     'emphasis': {
-                //         strokeWitdh: 2
-                //     }
-                // },
+                symbolStyle: {
+                    'normal': {
+                        symbolSize: [15, 15],
+                        fillColor: 'rgb(140,0,140)',
+                        strokeWitdh: 1,
+                        strokeColor: 'rbg(140,0,140)'
+                    },
+                    'emphasis': {
+                        strokeWitdh: 2
+                    }
+                },
                 /******************新增属性**************************** */
                 labelColumn: 'value', //显示的字段名称
                 labelAnimate: {

@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-01-10 10:15:18
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-21 10:38:46
+ * @Last Modified time: 2017-04-27 18:52:33
  * @Email: zhangyujie3344521@163.com
  * @File Path: H:\work\hyMap\lib.config.js
  * @File Name: lib.config.js
@@ -11,6 +11,7 @@
 
 'use strict';
 const webpack = require('webpack');
+const path = require('path');
 
 module.exports = {
     entry: [
@@ -24,7 +25,7 @@ module.exports = {
     },
     resolve: {
         alias: {
-            ol: '../../public/lib/ol'
+            ol: path.join(__dirname, '/public/lib/ol')
         }
     },
     devtool: false,

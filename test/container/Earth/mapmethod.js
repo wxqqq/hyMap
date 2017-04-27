@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-18 12:28:55
+ * @Last Modified time: 2017-04-27 19:59:57
  * @Email: zhangyujie3344521@163.com
  * @File Path: H:\work\hyMap\test\container\Earth\mapmethod.js
  * @File Name: mapmethod.js
@@ -18,7 +18,7 @@ import map from '../../../src/index';
 class mapmethod extends Component {
     componentDidMount() {
 
-        let obj = map.init(document.getElementById('map'));
+        let mapObj = map.init(document.getElementById('map'));
         let options = {
             serverUrl: 'http://192.168.0.50:8080/geoserver',
             show: true, //地图的显示状态 true为显示 false 为不显示
@@ -95,71 +95,71 @@ class mapmethod extends Component {
                 }
             }], //  name: '',特殊区域的样式
             selectedMode: '', //地图区域的选中模式 single mulit
-            theme: { // string('dark'，'blue'，'white')|objectr{mapId,key} 对应maobox中的mapid和access_token
+            theme: { // string('dark'，'blue'，'white')|mapObjectr{mapId,key} 对应maobox中的mapid和access_token
                 mapId: 'zhangyujie.a80cdc83',
                 key: 'sk.eyJ1Ijoiemhhbmd5dWppZSIsImEiOiJkTEp6WDZrIn0.nY5bsQlZegBbb2uGgJ5jEA'
             }, //地图风格
             series: []
         };
-        obj.setOption(options);
+        mapObj.setOption(options);
 
         document.getElementById('hide').addEventListener('click', () => {
 
-            obj.hide();
+            mapObj.hide();
 
         });
         //选中
         document.getElementById('show').addEventListener('click', () => {
 
-            obj.show();
+            mapObj.show();
 
         });
 
         document.getElementById('hidebase').addEventListener('click', () => {
 
-            obj.hideBaseMap();
+            mapObj.hideBaseMap();
 
         });
         //选中
         document.getElementById('showbase').addEventListener('click', () => {
 
-            obj.showBaseMap();
+            mapObj.showBaseMap();
 
         });
 
         document.getElementById('hidegeo').addEventListener('click', () => {
 
-            obj.hideGeo();
+            mapObj.hideGeo();
 
         });
         //选中
         document.getElementById('showgeo').addEventListener('click', () => {
 
-            obj.showGeo();
+            mapObj.showGeo();
 
         });
         //重庆
         document.getElementById('fly').addEventListener('click', () => {
 
-            obj.flyto({
-                geoCoord: [116.98514, 36.66443],
-                zoom: 10
-            });
+            mapObj.flyto(
+                [116.98514, 36.66443], {
+                    zoom: 10
+                });
 
         });
         //选中
         document.getElementById('flychina').addEventListener('click', () => {
 
-            obj.flyto({
-                geoCoord: [117, 36.20],
-                zoom: 5
-            });
+            mapObj.flyto(
+                [117, 36.20], {
+                    zoom: 5
+                });
 
         });
         //选中
         document.getElementById('changecq').addEventListener('click', () => {
 
-            obj.setGeo({
+            mapObj.setGeo({
                 map: '中国|重庆市',
                 center: [107.98613, 29.653439],
                 zoom: 8,
@@ -177,7 +177,7 @@ class mapmethod extends Component {
         //选中
         document.getElementById('changesd').addEventListener('click', () => {
 
-            obj.setGeo({
+            mapObj.setGeo({
                 map: '中国|山东省',
                 center: [117, 36.20],
                 zoom: 7
@@ -189,19 +189,23 @@ class mapmethod extends Component {
 
             element.addEventListener('click', () => {
 
-                obj.setTheme(element.id);
+                mapObj.setTheme(element.id);
 
             });
 
         });
+        document.getElementById('return').addEventListener('click', () => {
 
-        obj.on('geoSelect', function(data) {
+            mapObj.geoGoBack();
+
+        });
+        mapObj.on('geoSelect', function(data) {
 
             console.log('getdata:', data);
 
         });
 
-        obj.on('geoUnSelect', function(data) {
+        mapObj.on('geoUnSelect', function(data) {
 
             console.log('getundata:', data);
 
@@ -223,6 +227,7 @@ class mapmethod extends Component {
                     <input id='flychina' type='button' value='返回全国' />
                     <input id='changecq' type='button' value='修改区域（重庆）'/>
                     <input id='changesd' type='button' value='修改区域（山东）'/>
+                    <input id='return' type='button' value='返回'/>
                     <div>
                     <input className='theme' id='dark' type='button' value='黑色-dark'/>
                     <input className='theme' id='white' type='button' value='白色-white'/>

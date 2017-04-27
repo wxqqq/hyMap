@@ -2,7 +2,7 @@
  * @Author: FunctionRun
  * @Date:   2017-01-10 10:15:18
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-24 18:23:41
+ * @Last Modified time: 2017-04-27 16:32:14
  * @Email: zhangyujie3344521@163.com
  * @File Path: H:\work\hyMap\webpack.config.js
  * @File Name: webpack.config.js
@@ -31,7 +31,7 @@ let webpackConfig = {
         root: '',
         extensions: ['', '.js', '.json', '.css', '.styl', '.sass', '.scss'],
         alias: {
-            ol: '../../public/lib/ol-debug'
+            ol: path.join(__dirname, '/public/lib/ol-debug')
         }
 
     },

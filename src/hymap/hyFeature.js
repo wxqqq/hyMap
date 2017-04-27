@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-18 09:51:02
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-20 12:49:58
+ * @Last Modified time: 2017-04-27 16:13:46
  * @Email: 304861063@qq.com
  * @File Path: H:\work\hyMap\src\hymap\hyFeature.js
  * @File Name: hyFeature.js
@@ -10,6 +10,7 @@
  */
 'use strict';
 import baseUtil from '../util/baseUtil';
+import mapTool from '../util/mapToolUtil';
 
 const ol = require('ol');
 
@@ -73,7 +74,7 @@ export default class hyFeature {
         let coords = [];
         if (baseUtil.isString(geoCoord)) {
 
-            geoCoord = this.deleteEndSign(geoCoord, ';');
+            geoCoord = mapTool.deleteEndSign(geoCoord, ';');
             const str = geoCoord.split(';');
             str.forEach((obj) => {
 
@@ -122,9 +123,5 @@ export default class hyFeature {
         return ol.proj.fromLonLat(coords, projection);
 
     }
-    static deleteEndSign(str, sign) {
 
-        return (str.substring(str.length - 1) == sign) ? str.substring(0, str.length - 1) : str;
-
-    }
 }

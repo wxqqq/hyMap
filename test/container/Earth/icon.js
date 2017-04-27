@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-21 19:12:41
+ * @Last Modified time: 2017-04-26 14:22:57
  * @Email: 304861063@qq.com
  * @File Path: H:\work\hyMap\test\container\Earth\icon.js
  * @File Name: icon.js
@@ -110,9 +110,31 @@ class icon extends Component {
                 formatter: function(param) { //div内的内容
 
                     console.log(param);
-                    return param.dataIndex + ': ' + param.value;
+                    let str = '<a id=1>sss</a>' +
+                        param.dataIndex + ': ' + param.value;
+                    return str;
 
                 },
+                on: [{
+                    type: 'click',
+                    function(event) {
+                        console.log(event);
+
+                    }
+                }, {
+                    type: 'mouseover',
+                    function(event) {
+                        console.log(event);
+
+                    }
+                }, {
+                    type: 'mouseout',
+                    function(event) {
+
+                        console.log(event);
+
+                    }
+                }],
                 position: function() { //相对于当前事件点的位置
 
                     return [0, 0];
@@ -182,6 +204,12 @@ class icon extends Component {
 
 
         });
+        mapObj.on('tooltipClick', function(event) {
+
+            console.log('tooltip', event);
+            console.log(event.target);
+        });
+
 
         //选中
         document.getElementById('select').addEventListener('click', () => {
@@ -250,13 +278,11 @@ class icon extends Component {
             mapObj.hideLayer(5);
 
         });
-        document.getElementById('return').addEventListener('click', () => {
 
-            mapObj.geoGoBack();
-
-        });
         document.getElementById('hasLayer').addEventListener('click', () => {
-            alert(mapObj.hasLayer(5))
+
+            alert(mapObj.hasLayer(5));
+
         });
         document.getElementById('areaQuery').addEventListener('click', () => {
 

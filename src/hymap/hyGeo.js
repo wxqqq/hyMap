@@ -2,15 +2,16 @@
  * @Author: wxq
  * @Date:   2017-04-18 10:04:23
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-20 12:53:53
+ * @Last Modified time: 2017-04-27 16:13:38
  * @Email: 304861063@qq.com
- * @File Path: H:\work\hyMap\src\hymap\hygeo.js
- * @File Name: hygeo.js
+ * @File Path: H:\work\hyMap\src\hymap\hyGeo.js
+ * @File Name: hyGeo.js
  * @Descript: 
  */
 'use strict';
 import hytooltip from '../hymap/hytooltip';
 import hyMapQuery from '../query/hyMapQuery';
+import mapTool from '../util/mapToolUtil';
 
 const ol = require('ol');
 
@@ -88,7 +89,7 @@ export default class hyGeo extends hytooltip {
         if (mapName) {
 
             //去除最后一个特殊符号，避免数组取值不正确
-            mapName = this.deleteEndSign(mapName, '|');
+            mapName = mapTool.deleteEndSign(mapName, '|');
 
             this.mapNameArray = mapName.split('|');
             this.geoLevel = this.mapNameArray.length - 1;
@@ -309,9 +310,5 @@ export default class hyGeo extends hytooltip {
 
     }
 
-    deleteEndSign(str, sign) {
 
-        return (str.substring(str.length - 1) == sign) ? str.substring(0, str.length - 1) : str;
-
-    }
 }

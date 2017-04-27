@@ -291,6 +291,7 @@ instance.addSerie(serie)
 
 
 ##比例尺对应关系
+
 0 1000KM
 1 5000km
 2 2500KM（图上2cm对应2500KM）
@@ -313,9 +314,9 @@ instance.addSerie(serie)
 19 20m
 20 10m
 
-
-
 ##version
+##v0.1.10
+修复updatelayer时样式不生效。
 ###v0.1.9
 修复updatelayer的错误。
 ###v0.1.8

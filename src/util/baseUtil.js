@@ -1,10 +1,10 @@
 /*
  * @Author: zhangyujie
  * @Date:   2016-05-11 14:48:57
- * @Last Modified by:   FunctionRun
- * @Last Modified time: 2016-10-13 11:28:17
+ * @Last Modified by:   wxq
+ * @Last Modified time: 2017-04-27 17:42:31
  * @Email: zhangyujie3344521@163.com
- * @File Path: /Users/zhangyujie/node/www/tueasy5.0/FE/resources/charts/visual/utils/baseUtil.js
+ * @File Path: H:\work\hyMap\src\util\baseUtil.js
  * @File Name: baseUtil.js
  * @Descript: 提供最基本的数据类型判断、、、可以使用underscore lodash 、、、、
  */

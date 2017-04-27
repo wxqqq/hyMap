@@ -4,10 +4,12 @@ import baseUtil from '../util/baseUtil';
 import colorUtil from '../util/colorUtil';
 import events from '../events/events';
 import hyLayer from './hyLayer';
-import hyGeo from './hyGeo';
+import hyGeo from '../components/geo/geo';
+import hymap from '../components/map';
 import animation from '../animation/animation';
 import serieModel from '../model/serieModel';
 import hyMapQuery from '../query/hyMapQuery';
+import mapTool from '../util/mapToolUtil';
 
 const ol = require('ol');
 
@@ -22,7 +24,6 @@ export default class hyMap extends hyGeo {
 
         super(options);
         this._geo = hymapOption;
-
         this.map = null;
         this._show = true;
         this._overlay = null;
@@ -43,7 +44,6 @@ export default class hyMap extends hyGeo {
         this.duration = 4000;
         animation._intervaldate = new Date().getTime();
         this.spliceElapsed = 0;
-
 
         this.trackOverlayArray = [];
 
@@ -141,7 +141,8 @@ export default class hyMap extends hyGeo {
      */
     _init(dom) {
 
-        this._createMap();
+        this.map = new hymap();
+        mapTool.map = this.map;
         this._createBasicGroup();
         this.setDom(dom);
 
@@ -160,58 +161,6 @@ export default class hyMap extends hyGeo {
     getServerUrl() {
 
         return this._serverUrl;
-
-    }
-
-    /**
-     * 创建map
-     * @param  {[type]} dom [description]
-     * @return {[type]}     [description]
-     */
-    _createMap() {
-
-        this.map = new ol.Map({
-            // renderer: 'webgl',
-            // target: ,
-            controls: ol.control.defaults({
-                attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
-                    collapsible: false
-                }),
-                zoom: false
-            }).extend([
-                // new ol.control.FullScreen(),
-                // new ol.control.MousePosition(),//鼠标位置
-                // new ol.control.OverviewMap({
-                //     layers: this._basicLayersArray
-                // }), //鹰眼
-                // new ol.control.ScaleLine()
-                // new ol.control.ZoomSlider(),//地图缩放侧边栏
-                // new ol.control.ZoomToExtent()//一键缩放到全图
-            ]),
-            logo: this.getLogo()
-
-        });
-
-    }
-
-    /**
-     * 增加logo
-     * @return {[type]} [description]
-     */
-    getLogo() {
-
-        if (!this._showLogo) {
-
-            return false;
-
-        }
-
-        let logoElement = document.createElement('a');
-        logoElement.href = 'http://www.hydata.cc/';
-        logoElement.target = '_blank';
-        logoElement.className = 'ol-hy-logo';
-        logoElement.innerHTML = '&copy; 2017 HYDATA';
-        return logoElement;
 
     }
 
@@ -248,7 +197,7 @@ export default class hyMap extends hyGeo {
         }
 
         this.view = new ol.View({
-            center: this.transform(center, projection),
+            center: mapTool.transform(center, projection),
             zoom: zoom,
             enableRotation: false,
             minZoom: minZoom,
@@ -325,66 +274,90 @@ export default class hyMap extends hyGeo {
             return;
 
         }
-
         const layers = layerGroup.getLayers();
         const serLength = series.length;
         const layLength = layers.getLength();
+
         layers.forEach((layer, index) => {
 
-            const serie = series[index]; //新的数据
+            let serie = series[index]; //新的数据
+            let newserie = baseUtil.clone(serieModel);
+            baseUtil.merge(newserie, serie, true);
+            serie = newserie;
             //找到新数据的条目进行数据处理，未找到的情况下删除已存在的layer
             if (serie) {
 
-                const data = serie.data;
-                const source = layer.getSource();
-                let addData = [];
-                let updateData = new Map();
+                const oldSerie = layer.get('serie');
+                if (oldSerie.cluster.enable != serie.cluster.enable ||
+                    oldSerie.animation.enable !== serie.animation.enable ||
+                    (oldSerie.type != serie.type && (oldSerie.type == 'hetamap' || serie.type == 'heatmap'))) {
 
-                let strMap = new Map();
-                for (let k of Object.keys(data)) {
+                    const vector = this.createLayer(serie);
+                    layers.setAt(index, vector)
 
-                    strMap.set('serie|' + data[k].geoCoord, data[k]);
+                } else {
 
-                }
-                //删除未找到的数据
-                source.forEachFeature(function(feature) {
+                    const style = this._createFeatureStyle(serie);
+                    layer.set('fstyle', style);
+                    layer.set('serie', serie);
+                    const data = serie.data;
+                    let source = layer.getSource();
+                    //聚合图层的source为两层，进行判断获取到最底层的source
+                    if (source instanceof ol.layer.AnimatedCluster) {
 
-                    const geoCoord = feature.getId();
-                    if (strMap.has(geoCoord)) {
-
-                        const value = strMap.get(geoCoord);
-                        feature.setProperties(value);
-                        updateData.set('serie|' + value.geoCoord, value);
-
-                    } else {
-
-                        source.removeFeature(feature);
-                    }
-
-                });
-                //找到的数据进行更新，未找到的准备新增。
-
-                data.map((value, index) => {
-
-                    if (updateData.has(value.geoCoord)) {
-
-
-                    } else {
-
-                        addData.push(value);
+                        source = source.getSource();
 
                     }
 
-                });
 
-                //增加数据.
-                if (addData.length > 0) {
+                    let addData = [];
+                    let updateData = new Map();
 
-                    const featuresObj = hyFeature.getFeatures(addData, serie.type);
+                    let strMap = new Map();
+                    for (let k of Object.keys(data)) {
 
-                    //获取feature数组
-                    const array = featuresObj.features;
-                    layer.getSource().addFeatures(array);
+                        strMap.set('serie|' + data[k].geoCoord, data[k]);
+
+                    }
+                    //删除未找到的数据
+                    source.forEachFeature(function(feature) {
+
+                        const geoCoord = feature.getId();
+                        if (strMap.has(geoCoord)) {
+
+                            const value = strMap.get(geoCoord);
+                            feature.setProperties(value);
+                            updateData.set('serie|' + value.geoCoord, value);
+
+                        } else {
+
+                            source.removeFeature(feature);
+
+                        }
+
+                    });
+                    //找到的数据进行更新，未找到的准备新增。
+
+                    data.map((value) => {
+
+                        if (!updateData.has(value.geoCoord)) {
+
+                            addData.push(value);
+
+                        }
+
+                    });
+
+                    //增加数据.
+                    if (addData.length > 0) {
+
+                        const featuresObj = hyFeature.getFeatures(addData, serie.type);
+
+                        //获取feature数组
+                        const array = featuresObj.features;
+                        layer.getSource().addFeatures(array);
+
+                    }
 
                 }
 
@@ -432,7 +405,9 @@ export default class hyMap extends hyGeo {
 
         const group = this._addLayerGroupArray[id];
         if (group) {
+
             return true;
+
         }
         return false;
     }
@@ -483,7 +458,8 @@ export default class hyMap extends hyGeo {
      * @param  {object}   serie       数据
      * @param  {ol.collection}   layersArray 数据的父容器
      */
-    addSerie(serie, layersArray) {
+    createLayer(serie) {
+
         let newserie = baseUtil.clone(serieModel);
         baseUtil.merge(newserie, serie, true);
         serie = newserie;
@@ -492,6 +468,7 @@ export default class hyMap extends hyGeo {
         if (serie.type == 'chart') {
 
             this.addMarkers(serie);
+            return;
 
         } else {
 
@@ -530,9 +507,10 @@ export default class hyMap extends hyGeo {
 
                         }
 
-
                     });
+
                 }
+
             });
 
 
@@ -545,19 +523,13 @@ export default class hyMap extends hyGeo {
 
                 //创建热力图
                 vector = new ol.layer.Heatmap({
-                    id: serie.id || '',
                     source: source,
-                    type: 'item',
                     gradient: serie.heatOption && serie.heatOption.gradient || undefined,
                     blur: serie.heatOption && serie.heatOption.blur || undefined,
                     radius: serie.heatOption && serie.heatOption.radius || undefined,
                     shadow: serie.heatOption && serie.heatOption.shadow || undefined,
-                    showPopup: serie.showPopup,
-                    fstyle: style,
-                    fScaleNum: geoScaleNum,
-                    fSymbol: serie.symbolSize,
-                    minResolution: this.getProjectionByZoom(serie.maxZoom),
-                    maxResolution: this.getProjectionByZoom(serie.minZoom)
+                    maxResolution: mapTool.getProjectionByZoom(serie.maxZoom, this.view),
+                    minResolution: mapTool.getProjectionByZoom(serie.minZoom, this.view)
                 });
 
             } else {
@@ -577,33 +549,20 @@ export default class hyMap extends hyGeo {
                     vector = new ol.layer.AnimatedCluster({
                         source: clusterSource,
                         style: this._geoStyleFn,
-                        type: 'item',
-                        showPopup: serie.showPopup,
-                        id: serie.id || '',
-                        fstyle: style,
-                        fScaleNum: geoScaleNum,
-                        fSymbol: serie.symbolSize,
-                        animationDuration: serie.cluster.animationDuration || 700,
-                        minResolution: this.getProjectionByZoom(serie.maxZoom),
-                        maxResolution: this.getProjectionByZoom(serie.minZoom)
+                        maxResolution: mapTool.getProjectionByZoom(serie.maxZoom, this.view),
+                        minResolution: mapTool.getProjectionByZoom(serie.minZoom, this.view)
                     });
                     clusterSource.vector = vector;
 
                 } else {
 
                     vector = new ol.layer.Vector({
-                        id: serie.id || new Date().getTime(),
                         source: source,
                         style: this._geoStyleFn,
-                        type: 'item',
-                        showPopup: serie.showPopup,
-                        fstyle: style,
-                        fScaleNum: geoScaleNum,
-                        fSymbol: serie.symbolSize,
+                        minResolution: mapTool.getProjectionByZoom(serie.maxZoom, this.view),
+                        maxResolution: mapTool.getProjectionByZoom(serie.minZoom, this.view),
                         ftextScaleNum: textScaleNum,
-                        fText: serie.labelSize,
-                        minResolution: this.getProjectionByZoom(serie.maxZoom),
-                        maxResolution: this.getProjectionByZoom(serie.minZoom)
+                        fText: serie.labelSize
                     });
 
                     this.startAnimate(array, serie.animation); //执行动画
@@ -611,11 +570,27 @@ export default class hyMap extends hyGeo {
                 }
 
             }
+            vector.set('serie', serie);
+
+            vector.set('type', 'item');
+            vector.set('id', serie.id || new Date().getTime());
+            vector.set('showPopup', serie.showPopup);
+            vector.set('fstyle', style);
+            vector.set('fScaleNum', geoScaleNum);
+            vector.set('fSymbol', serie.symbolSize);
 
             source.vector = vector;
-            layersArray.push(vector);
+
+            return vector;
 
         }
+
+    }
+
+    addSerie(serie, layersArray) {
+
+        const vector = this.createLayer(serie);
+        vector && layersArray.push(vector);
 
     }
 
@@ -629,7 +604,7 @@ export default class hyMap extends hyGeo {
             rootDiv.appendChild(obj.container);
             document.body.appendChild(rootDiv);
             const marker = new ol.Overlay({
-                position: this.transform(obj.geoCoord),
+                position: mapTool.transform(obj.geoCoord),
                 positioning: 'center-center',
                 element: rootDiv,
                 stopEvent: false,
@@ -981,6 +956,7 @@ export default class hyMap extends hyGeo {
         layersGroup.forEach((group) => {
 
             if (group instanceof ol.layer.Group) {
+
                 const layers = group.getLayers();
                 layers.forEach(function(element) {
 
@@ -996,6 +972,7 @@ export default class hyMap extends hyGeo {
                     }
 
                 });
+
             }
 
         });
@@ -1023,7 +1000,7 @@ export default class hyMap extends hyGeo {
 
                         if (feature.get(key) && feature.get(key) == value) {
 
-                            const pixel = this.getPixelFromCoords(feature.getGeometry().getCoordinates());
+                            const pixel = mapTool.getPixelFromCoords(feature.getGeometry().getCoordinates());
                             array.push({
                                 pixel: pixel,
                                 // properties: feature.getProperties()
@@ -1113,7 +1090,7 @@ export default class hyMap extends hyGeo {
 
         } else {
 
-            let geometry = new ol.geom.Point(this.transform(geoCoord, this.map.getView().getProjection()));
+            let geometry = new ol.geom.Point(mapTool.transform(geoCoord, this.map.getView().getProjection()));
             let animate = new animation(this.map, geometry, zoom, animateDuration);
             zoom === 5 ? animate.centerAndZoom() : animate.flyTo();
 
@@ -1190,7 +1167,7 @@ export default class hyMap extends hyGeo {
     spatialQuery(geoCoord, radius) {
 
         this.clearTrackInfo();
-        const coords = this.transform(geoCoord);
+        const coords = mapTool.transform(geoCoord);
         const geometry = new ol.geom.Circle(coords, radius);
 
         const geom_temp = [coords[0] + radius, coords[1]];
@@ -1301,8 +1278,9 @@ export default class hyMap extends hyGeo {
 
         let overlay = this._createOverlay();
         let div = overlay.getElement();
+
         div.innerHTML = str;
-        overlay.setPosition(this.transform(coordinate));
+        overlay.setPosition(mapTool.transform(coordinate));
         this.trackOverlayArray.push(overlay);
 
     }
@@ -1342,61 +1320,11 @@ export default class hyMap extends hyGeo {
         this.trackOverlayArray.forEach((overlay) => {
 
             this.map.removeOverlay(overlay);
-
         });
+        this.trackOverlayArray = [];
 
     }
 
-    /**
-     * 根据坐标获取经纬度
-     * @author WXQ
-     * @date   2017-03-24
-     * @param  {[type]}   coords [description]
-     * @return {[type]}          [description]
-     */
-    getPixelFromCoords(coords) {
-
-        if (!coords) {
-
-            return;
-
-        }
-        const newcoords = this.transform(coords);
-        return this.map.getPixelFromCoordinate(newcoords);
-
-    }
-
-    /**
-     * [getProjectionByZoom description]
-     * @author WXQ
-     * @date   2017-04-18
-     * @param  {[type]}   zoom [description]
-     * @return {[type]}        [description]
-     */
-    getProjectionByZoom(zoom) {
-
-        if (zoom) {
-
-            return this.view.constrainResolution(
-                this.view.getMaxResolution(), zoom - this.view.minZoom_, 0);
-
-        }
-
-    }
-
-    /**
-     * [transform description]
-     * @author WXQ
-     * @date   2017-04-18
-     * @param  {[type]}   coords     [description]
-     * @param  {[type]}   projection [description]
-     * @return {[type]}              [description]
-     */
-    transform(coords, projection) {
-
-        return ol.proj.fromLonLat([Number(coords[0]), Number(coords[1])], projection);
-
-    }
 }
 
 Object.assign(hyMap.prototype, events);

@@ -1,5 +1,6 @@
 import hyMapStyle from './hyMapStyle';
 import baseUtil from '../util/baseUtil';
+import events from '../events/events';
 
 const ol = require('ol');
 
@@ -105,6 +106,20 @@ export default class hytooltip extends hyMapStyle {
             return false;
 
         };
+
+
+        container.addEventListener('click', (e) => {
+
+            this.dispatchEvent({
+                evt: e,
+                type: 'tooltipClick',
+                // data: properties,
+                // feature: unSelFeatures
+                select: e.target
+            });
+
+        });
+
         return container;
 
     }
@@ -400,3 +415,4 @@ export default class hytooltip extends hyMapStyle {
 
     }
 }
+Object.assign(hytooltip.prototype, events);
