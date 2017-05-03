@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-27 19:59:57
+ * @Last Modified time: 2017-05-03 15:52:40
  * @Email: zhangyujie3344521@163.com
  * @File Path: H:\work\hyMap\test\container\Earth\mapmethod.js
  * @File Name: mapmethod.js
@@ -20,7 +20,7 @@ class mapmethod extends Component {
 
         let mapObj = map.init(document.getElementById('map'));
         let options = {
-            serverUrl: 'http://192.168.0.50:8080/geoserver',
+            serverUrl: 'http://192.168.1.50:8080/geoserver',
             show: true, //地图的显示状态 true为显示 false 为不显示
             map: '中国|山东省', //当前地图显示哪个地图
             roam: 'true', //地图是否开启缩放、平移功能
