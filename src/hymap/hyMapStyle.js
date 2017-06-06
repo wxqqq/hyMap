@@ -49,27 +49,8 @@ export default class hyMapStyle {
         });
 
     }
-    getMaxPoly(polys) {
 
-        var polyObj = [];
-        //now need to find which one is the greater and so label only this
-        for (var b = 0; b < polys.length; b++) {
 
-            polyObj.push({
-                poly: polys[b],
-                area: polys[b].getArea()
-            });
-
-        }
-        polyObj.sort(function(a, b) {
-
-            return a.area - b.area;
-
-        });
-
-        return polyObj[polyObj.length - 1].poly;
-
-    }
 
     _createFill(color = 'rgba(0,0,0,0)') {
 
@@ -119,34 +100,72 @@ export default class hyMapStyle {
 
     }
 
-    _createIconStyle(src, symbolSize) {
+    _createIconStyle(src, symbolSize, color, anchor = [0.5, 0.5], callback) {
 
+
+        let icon = new ol.style.Icon({
+            anchor: anchor,
+            // img: canvas,
+            // imgSize: [width, width / scale]
+            src: src,
+            // size: [70, 105],
+            color: color,
+            scale: 1
+
+        });
         let canvas = document.createElement('canvas');
-
         let ctx = canvas.getContext('2d');
-        let img = new Image();
         const width = symbolSize[0];
         let scale = 1;
-        img.onload = function() {
+        let img = new Image();
+        img.src = src;
+        if (img.complete) {
 
             const imgWidth = img.width;
             const imgHeight = img.height;
-            scale = imgWidth / imgHeight;
-            ctx.scale(width / imgWidth, width / imgWidth * scale);
-            ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
 
-        };
-        img.src = src;
+            let iconScale = width / imgWidth;
 
+            // icon = new ol.style.Icon({
+            //     anchor: anchor,
+            //     src: src,
+            //     size: [imgWidth, imgHeight],
+            //     color: color,
+            //     scale: iconScale
+            // });
+            icon.relScale = iconScale;
+            icon.setScale(iconScale);
+            callback(icon)
+
+        } else {
+
+            img.onload = function() {
+
+                const imgWidth = img.width;
+                const imgHeight = img.height;
+                scale = imgWidth / imgHeight;
+                ctx.scale(width / imgWidth, width / imgWidth * scale);
+                ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
+
+                let iconScale = width / imgWidth;
+
+                img.onload = null;
+                // new ol.style.Icon({
+                //     anchor: anchor,
+                //     src: src,
+                //     size: [imgWidth, imgHeight],
+                //     color: color,
+                //     scale: iconScale
+                // });
+                icon.relScale = iconScale;
+                icon.setScale(iconScale);
+                callback(icon)
+
+            };
+        }
 
         // canvas.setAttribute('width', width);
         // canvas.setAttribute('height', height);
-        let icon = new ol.style.Icon({
-            anchor: [0.5, 1],
-            img: canvas,
-            imgSize: [width, width / scale]
-        });
-
         return icon;
 
     }
@@ -168,7 +187,9 @@ export default class hyMapStyle {
         } else if (symbol.indexOf('icon:') === 0) {
 
             const src = symbol.split(':')[1];
-            image = this._createIconStyle(src, styleModel.symbolSize);
+            image = this._createIconStyle(src, styleModel.symbolSize, styleModel.color, styleModel.anchor, function(icon) {
+                // console.log(icon)
+            });
 
         }
         return image;
@@ -205,17 +226,15 @@ export default class hyMapStyle {
         icon.normal.symbolSize = icon.normal.symbolSize || serie.symbolSize;
         icon.emphasis.symbol = icon.emphasis.symbol || serie.symbol;
         icon.emphasis.symbolSize = icon.emphasis.symbolSize || serie.symbolSize;
-        icon.emphasis = Object.assign({}, icon.normal, icon.emphasis);
-
+        icon.emphasis = baseUtil.mergeAll([{}, icon.normal, icon.emphasis], true);
         let label = serie.label;
         if (label) {
 
             label.normal.labelSize = label.normal.labelSize || serie.labelSize;
             label.emphasis.labelSize = label.emphasis.labelSize || serie.labelSize;
-            label.emphasis = baseUtil.merge({}, label.normal, label.emphasis, true);
+            label.emphasis = baseUtil.mergeAll([{}, label.normal, label.emphasis], true);
 
         }
-
         const style = this._createGeoStyle(icon, label);
         return style;
 
@@ -233,7 +252,6 @@ export default class hyMapStyle {
 
         const style = this._createItemStyle(IconStyle, this._baseIconStyle);
         const label = this._createItemStyle(labelStyle, this._baseLabelStyle);
-
         return {
             normal: this._createDataStyle(style.normal, label.normal),
             emphasis: this._createDataStyle(style.emphasis, label.emphasis)
@@ -265,42 +283,56 @@ export default class hyMapStyle {
         const text = this._createTextStyle(label && label.textStyle || {});
         text.show = label && label.show || false;
         const image = this._createImageStyle(style.symbol, style);
-        return this._createStyle(stroke, fill, text, image);
+        let styles = [
+            new ol.style.Style({
+                image: image,
+                stroke: stroke,
+                fill: fill
+            }), new ol.style.Style({
+                text: text,
+                geometry: (feature) => {
 
-    }
+                    let retPoint = feature.getGeometry();
+                    let type = retPoint.getType();
+                    if (type === 'MultiPolygon') {
 
-    _createStyle(stroke, fill, text, image) {
+                        retPoint = this.getMaxPoly(retPoint.getPolygons()).getInteriorPoint();
 
-        return [new ol.style.Style({
-            fill: fill,
-            stroke: stroke,
-            image: image
+                    } else if (type === 'Polygon') {
 
-        }), new ol.style.Style({
-            text: text,
-            geometry: (feature) => {
+                        retPoint = retPoint.getInteriorPoint();
 
-                var retPoint;
-                if (feature.getGeometry().getType() === 'MultiPolygon') {
-
-                    retPoint = this.getMaxPoly(feature.getGeometry().getPolygons()).getInteriorPoint();
-
-                } else if (feature.getGeometry().getType() === 'Polygon') {
-
-                    retPoint = feature.getGeometry().getInteriorPoint();
-
-                } else {
-
-                    retPoint = feature.getGeometry();
+                    }
+                    return retPoint;
 
                 }
-                return retPoint;
-
-            }
-        })];
+            })
+        ];
+        return styles;
 
     }
 
+    getMaxPoly(polys) {
+
+        var polyObj = [];
+        //now need to find which one is the greater and so label only this
+        for (var b = 0; b < polys.length; b++) {
+
+            polyObj.push({
+                poly: polys[b],
+                area: polys[b].getArea()
+            });
+
+        }
+        polyObj.sort(function(a, b) {
+
+            return a.area - b.area;
+
+        });
+
+        return polyObj[polyObj.length - 1].poly;
+
+    }
 
     /**
      * style回调方法
@@ -312,22 +344,52 @@ export default class hyMapStyle {
     _geoStyleFn(feature, resolution, type = 'normal') {
 
         const style = feature.get('style') || feature.source.vector.get('fstyle');
-        const symbolSize = feature.source.vector.get('fSymbol');
         const rStyle = style[type];
-        // console.log(symbolSize, rStyle[0].getImage().getRadius())
+        const serie = feature.source.vector.get('serie');
+        const symbolSize = serie && serie.symbolSize;
+        const serieType = serie && serie.type;
+
+        // console.log(serieType);
+        // console.log(symbolSize, rStyle[0].getImage())
         //判断是否对图形大小进行动态设置
         if (symbolSize && symbolSize[0] != symbolSize[1]) {
 
-            const geoScaleNum = feature.source.vector.get('fScaleNum');
-            const value = feature.get('value');
+            let geoScaleNum = this._scaleSize(symbolSize, feature.source.get('minValue'), feature.source.get('maxValue'));
+            let value = feature.get('value') || 0;
+            //对数据进行判断，
+            if (feature.source instanceof ol.source.Cluster) {
+
+                geoScaleNum = this._scaleSize(symbolSize, feature.source.getSource().get('minValue'), feature.source.getSource().get('maxValue'));
+
+                const features = feature.get('features');
+
+                if (features) {
+
+                    features.forEach((feature) => {
+
+                        let fValue = feature.get('value');
+                        if (fValue > value) {
+
+                            value = fValue;
+
+                        }
+
+                    });
+
+                } else {
+
+                    value = feature.get('value');
+
+                }
+
+            }
             const scale = Math.floor(value / geoScaleNum);
             const icon = rStyle[0].getImage();
             if (icon) {
 
                 if (icon instanceof ol.style.Icon) {
 
-                    // console.log((scale + symbolSize[0]) / symbolSize[0] * icon.getScale(), icon.getImageSize())
-                    icon.setScale((scale + symbolSize[0]) / symbolSize[0]);
+                    icon.setScale((symbolSize[0] + scale) / (symbolSize[0] / icon.relScale));
 
                 } else {
 
@@ -338,31 +400,57 @@ export default class hyMapStyle {
             }
 
         }
-        if (type != 'normal') {
-
-
-        }
 
         //判断是否需要进行文本标签显示
-
         const text = rStyle[1].getText();
         if (text && text.show) {
 
-            const textSize = feature.source.vector.get('fText');
-            const column = feature.source.get('labelColumn') || 'value';
-            text.setText(feature.get(column).toString());
+            const textSize = serie && serie.labelSize;
+            const column = serie && serie.labelColumn || 'value';
+            let value = '';
+            let textScaleNum = this._scaleSize(textSize, feature.source.get('minValue'), feature.source.get('maxValue'));
+
+            if (feature.source instanceof ol.source.Cluster) {
+
+                textScaleNum = this._scaleSize(textSize, feature.source.getSource().get('minValue'), feature.source.getSource().get('maxValue'));
+
+                const features = feature.get('features');
+
+                if (features) {
+
+                    features.forEach((feature) => {
+
+                        let fValue = feature.get(column);
+                        if (fValue > value) {
+
+                            value = fValue;
+
+                        }
+
+                    });
+
+                } else {
+
+                    value = feature.get(column);
+
+                }
+
+            } else {
+
+                value = feature.get(column);
+
+            }
+            text.setText(value.toString());
             if (textSize && textSize[0] != textSize[1]) {
 
                 const font = text.getFont().split(' ');
-                const textScaleNum = feature.source.vector.get('ftextScaleNum');
-                const value = feature.get('value');
+                const value = feature.get(column);
                 const scale = Math.floor(value / textScaleNum);
                 const newFont = scale + textSize[0] - 1;
-                font[2] = newFont + 'px';
+                font[2] = newFont + 'pt';
                 text.setFont(font.join(' '));
 
             }
-
 
         }
 

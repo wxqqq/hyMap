@@ -2,34 +2,49 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-05-03 15:52:40
+ * @Last Modified time: 2017-06-05 09:59:20
  * @Email: zhangyujie3344521@163.com
- * @File Path: H:\work\hyMap\test\container\Earth\mapmethod.js
+ * @File Path: F:\work\hyMap\test\container\Earth\mapmethod.js
  * @File Name: mapmethod.js
  * @Descript:
  */
 
 'use strict';
+import 'antd/dist/antd.css';
 import React, {
     Component
 } from 'react';
 import map from '../../../src/index';
-
+import {
+    Switch,
+    Icon,
+    Radio
+} from 'antd';
+const RadioButton = Radio.Button;
+const RadioGroup = Radio.Group;
 class mapmethod extends Component {
+    constructor(props) {
+
+        super(props);
+        this.state = {
+            date: '',
+        };
+
+    }
     componentDidMount() {
 
-        let mapObj = map.init(document.getElementById('map'));
+        this.mapObj = map.init(document.getElementById('map'));
         let options = {
             serverUrl: 'http://192.168.1.50:8080/geoserver',
             show: true, //地图的显示状态 true为显示 false 为不显示
-            map: '中国|山东省', //当前地图显示哪个地图
+            map: '中国', //当前地图显示哪个地图
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 7, //当前地图缩放比例
             scaleLimit: [2, 12], //滚轮缩放的边界
             label: {
                 'normal': {
-                    show: true,
+                    show: false,
                     textStyle: {
                         color: '#fff',
                         fontStyle: 'normal',
@@ -61,7 +76,7 @@ class mapmethod extends Component {
                 }
             }, //地图上每块区域的样式
             regions: [{
-                name: '济南市',
+                name: '山东省',
                 itemStyle: {
                     'normal': {
                         strokeWidth: 1, //边框宽度
@@ -76,7 +91,7 @@ class mapmethod extends Component {
                 },
                 label: {
                     'normal': {
-                        show: true,
+                        show: false,
                         textStyle: {
                             color: 'red'
                         }
@@ -101,47 +116,12 @@ class mapmethod extends Component {
             }, //地图风格
             series: []
         };
-        mapObj.setOption(options);
+        this.mapObj.setOption(options);
 
-        document.getElementById('hide').addEventListener('click', () => {
-
-            mapObj.hide();
-
-        });
-        //选中
-        document.getElementById('show').addEventListener('click', () => {
-
-            mapObj.show();
-
-        });
-
-        document.getElementById('hidebase').addEventListener('click', () => {
-
-            mapObj.hideBaseMap();
-
-        });
-        //选中
-        document.getElementById('showbase').addEventListener('click', () => {
-
-            mapObj.showBaseMap();
-
-        });
-
-        document.getElementById('hidegeo').addEventListener('click', () => {
-
-            mapObj.hideGeo();
-
-        });
-        //选中
-        document.getElementById('showgeo').addEventListener('click', () => {
-
-            mapObj.showGeo();
-
-        });
-        //重庆
+        // 重庆
         document.getElementById('fly').addEventListener('click', () => {
 
-            mapObj.flyto(
+            this.mapObj.flyTo(
                 [116.98514, 36.66443], {
                     zoom: 10
                 });
@@ -150,7 +130,7 @@ class mapmethod extends Component {
         //选中
         document.getElementById('flychina').addEventListener('click', () => {
 
-            mapObj.flyto(
+            this.mapObj.flyTo(
                 [117, 36.20], {
                     zoom: 5
                 });
@@ -159,7 +139,7 @@ class mapmethod extends Component {
         //选中
         document.getElementById('changecq').addEventListener('click', () => {
 
-            mapObj.setGeo({
+            this.mapObj.setGeo({
                 map: '中国|重庆市',
                 center: [107.98613, 29.653439],
                 zoom: 8,
@@ -177,7 +157,7 @@ class mapmethod extends Component {
         //选中
         document.getElementById('changesd').addEventListener('click', () => {
 
-            mapObj.setGeo({
+            this.mapObj.setGeo({
                 map: '中国|山东省',
                 center: [117, 36.20],
                 zoom: 7
@@ -185,27 +165,30 @@ class mapmethod extends Component {
 
         });
 
-        Array.from(document.getElementsByClassName('theme')).forEach(function(element) {
-
-            element.addEventListener('click', () => {
-
-                mapObj.setTheme(element.id);
-
-            });
-
-        });
         document.getElementById('return').addEventListener('click', () => {
 
-            mapObj.geoGoBack();
+            this.mapObj.geoGoBack();
 
         });
-        mapObj.on('geoSelect', function(data) {
+        document.getElementById('distance').addEventListener('click', () => {
+
+            this.mapObj.measure('distance');
+
+        });
+        document.getElementById('area').addEventListener('click', () => {
+
+            this.mapObj.measure('area');
+
+        });
+
+
+        this.mapObj.on('geoSelect', function(data) {
 
             console.log('getdata:', data);
 
         });
 
-        mapObj.on('geoUnSelect', function(data) {
+        this.mapObj.on('geoUnSelect', function(data) {
 
             console.log('getundata:', data);
 
@@ -214,24 +197,80 @@ class mapmethod extends Component {
 
 
     }
+
+    onChange(checked, type) {
+        switch (type) {
+            case 'map':
+
+                if (checked) {
+
+                    this.mapObj.show();
+
+                } else {
+
+                    this.mapObj.hide();
+
+                }
+                break;
+            case 'base':
+
+                if (checked) {
+
+                    this.mapObj.showBaseMap();
+
+                } else {
+
+                    this.mapObj.hideBaseMap();
+
+                }
+                break;
+            case 'geo':
+                if (checked) {
+
+                    this.mapObj.showGeo();
+
+                } else {
+
+                    this.mapObj.hideGeo();
+
+                }
+                break;
+        }
+        console.log(`switch to ${checked}`, type);
+    }
+    onChangeTheme = (e) => {
+        console.log(e)
+        this.mapObj.setTheme(e.target.value);
+    }
     render() {
 
         return (<div>
-                    <input id='hide' type='button' value='隐藏地图'/>
-                    <input id='show' type='button' value='显示地图' />
-                    <input id='hidebase' type='button' value='隐藏底图'/>
-                    <input id='showbase' type='button' value='显示底图' />
-                    <input id='hidegeo' type='button' value='隐藏边界'/>
-                    <input id='showgeo' type='button' value='显示边界' />
+               <div>
+                 主题： <RadioGroup onChange={this.onChangeTheme} defaultValue='dark'>
+                    <RadioButton value='dark'>黑色</RadioButton>
+                    <RadioButton value='white'>白色</RadioButton>
+                    <RadioButton value='blue'>蓝色</RadioButton>
+                  </RadioGroup>   
+                </div>
+                <br/>
+                <div>
+                显示：<label>地图：</label><Switch defaultChecked={true} onChange={(checked)=> this.onChange(checked,'map')} checkedChildren={'开'} unCheckedChildren={'关'} />
+                <label>底图：</label><Switch defaultChecked={true}onChange={(checked)=> this.onChange(checked,'base')} checkedChildren={'开'} unCheckedChildren={'关'} />
+                <label>边界：</label><Switch defaultChecked={true} onChange={(checked)=> this.onChange(checked,'geo')} checkedChildren={'开'} unCheckedChildren={'关'} />
+     
+                </div>
+                <div>
+                动画：
                     <input id='fly' type='button' value='飞到济南'/>
                     <input id='flychina' type='button' value='返回全国' />
                     <input id='changecq' type='button' value='修改区域（重庆）'/>
                     <input id='changesd' type='button' value='修改区域（山东）'/>
                     <input id='return' type='button' value='返回'/>
+                    </div>
                     <div>
-                    <input className='theme' id='dark' type='button' value='黑色-dark'/>
-                    <input className='theme' id='white' type='button' value='白色-white'/>
-                    <input className='theme' id='blue' type='button' value='蓝色-blue'/>
+                    测量：
+                     <input className='theme' id='distance' type='button' value='测距离'/>
+                    <input className='theme' id='area' type='button' value='测面积'/>
                     </div>
                     <div id = 'map' ></div>
             </div>);

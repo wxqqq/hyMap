@@ -28,7 +28,8 @@ export default {
             strokeWidth: 0, //边框宽度
             strokeColor: '#c7a3ed', //边框颜色
             fillColor: 'rgba(0,0,0,0.1)',
-            opacity: 0.6 //透明度
+            opacity: 0.6, //透明度,
+            color: undefined
         },
         'emphasis': {}
     },
@@ -41,7 +42,7 @@ export default {
                 fontStyle: 'normal',
                 fontWeight: 'normal',
                 fontFamily: 'sans-serif',
-                fontSize: 12,
+                fontSize: '12pt',
                 offsetX: 0,
                 offsetY: 0,
                 text: '',
@@ -50,22 +51,7 @@ export default {
                 strokeColor: ''
             }
         },
-        'emphasis': {
-            show: false,
-            textStyle: {
-                color: '#fff',
-                fontStyle: 'normal',
-                fontWeight: 'normal',
-                fontFamily: 'sans-serif',
-                fontSize: 12,
-                offsetX: 0,
-                offsetY: 0,
-                text: '',
-                textAlign: '',
-                strokeWidth: '',
-                strokeColor: ''
-            }
-        }
+        'emphasis': {}
     },
     showPopup: false //显示气泡框
 };

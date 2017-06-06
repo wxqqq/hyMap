@@ -6,7 +6,7 @@ let idBase = new Date() - 0;
 const config = {
     version: '0.0.1',
     dependencies: {
-        'openlayers': '3.21.0'
+        'openlayers': '4.1.0'
     },
     init(DOMNode) {
 
@@ -31,7 +31,8 @@ const config = {
         const key = DOMNode.getAttribute(DOM_ATTRIBUTE_KEY);
         if (!key) {
 
-            throw new Error('该DOM节点上面没有地图实例');
+            console.error('该DOM节点上面没有地图实例');
+            return null;
 
         } else {
 

@@ -2,14 +2,16 @@
  * @Author: wxq
  * @Date:   2017-04-27 14:37:24
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-27 16:13:17
+ * @Last Modified time: 2017-05-08 16:23:21
  * @Email: 304861063@qq.com
  * @File Path: H:\work\hyMap\src\util\mapToolUtil.js
  * @File Name: mapToolUtil.js
  * @Descript: 
  */
 'use strict';
+import baseUtil from './baseUtil';
 const ol = require('ol');
+
 let map = undefined;
 // let view = map.getView();
 /**
@@ -43,7 +45,7 @@ function getProjectionByZoom(zoom, view) {
     if (zoom) {
 
         return view.constrainResolution(
-            view.getMaxResolution(), zoom - view.minZoom_, 0);
+            view.getMaxResolution(), zoom - view.getMinZoom());
 
     }
 
@@ -58,6 +60,14 @@ function getProjectionByZoom(zoom, view) {
  */
 function transform(coords, projection) {
 
+    if (baseUtil.isString(coords)) {
+
+        coords = this.deleteEndSign(coords, ';');
+        const str = coords.split(';');
+
+        coords = (str.length > 0) ? str[0].split(',') : [0, 0];
+
+    }
     return ol.proj.fromLonLat([Number(coords[0]), Number(coords[1])], projection);
 
 }

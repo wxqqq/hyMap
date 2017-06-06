@@ -2,9 +2,9 @@
  * @Author: wxq
  * @Date:   2017-04-14 10:39:57
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-27 19:37:03
+ * @Last Modified time: 2017-05-24 15:49:47
  * @Email: 304861063@qq.com
- * @File Path: H:\work\hyMap\test\container\Earth\labelAnimate.js
+ * @File Path: F:\work\hyMap\test\container\Earth\labelAnimate.js
  * @File Name: labelAnimate.js
  * @Descript: 
  */
@@ -53,20 +53,21 @@ class labelAnimate extends Component {
                 // maxZoom: 10, //数据显示最大级别
                 // minZoom: 6, //数据显示最小级别
                 data: values,
-                type: 'point',
-                // symbol: 'icon:test/data/jingli-1.png',
-                symbolSize: [0, 0],
-                // symbolStyle: {
-                //     'normal': {
-                //         // symbolSize: [15, 15],
-                //         fillColor: 'rgb(140,0,140)',
-                //         strokeWitdh: 1,
-                //         strokeColor: 'rbg(140,0,140)'
-                //     },
-                //     'emphasis': {
-                //         strokeWitdh: 2
-                //     }
-                // },
+                // type: 'point',
+                // symbol: 'icon:test/data/test.png',
+                // symbolSize: [10, 20],
+                symbolStyle: {
+                    'normal': {
+                        // symbolSize: [15, 15],
+                        // fillColor: 'rgb(140,0,140)',
+                        // strokeWitdh: 1,
+                        // strokeColor: 'rbg(140,0,140)'
+                    },
+                    'emphasis': {
+                        // strokeWitdh: 2,
+                        // symbolSize: [20, 30],
+                    }
+                },
                 /******************新增属性**************************** */
                 labelColumn: 'value', //显示的字段名称
                 labelAnimate: {
@@ -75,7 +76,7 @@ class labelAnimate extends Component {
 
                 },
 
-                labelSize: [12, 40], //单位 pt
+                labelSize: [15, 40], //单位 pt
                 /*******************新增属性*************************** */
                 label: {
                     'normal': {
@@ -89,12 +90,14 @@ class labelAnimate extends Component {
                             // fontStyle: 'normal',
                             // fontWeight: 'bold',
                             // fontFamily: 'sans-serif',
-                            fontSize: '30pt'
+                            // fontSize: '30pt'
                         }
                     },
                     'emphasis': {
                         show: true,
-                        textStyle: {}
+                        textStyle: {
+                            color: 'green',
+                        }
 
                     }
                 },
@@ -160,90 +163,129 @@ class labelAnimate extends Component {
         });
 
         let value = 555;
+        let y = 36.69190;
+        let size = 11;
         //筛选
-        document.getElementById('filter').addEventListener('click', () => {
+        document.getElementById('update').addEventListener('click', () => {
 
             value++;
 
-            // series[0].data[0].value++;
-            // series[0].data[1].value++;
-            series[0].data = [{
-                "name": "潍坊",
-                "id": 1,
-                "lat": 36.69190,
-                "geoCoord": [119.17692, 36.69190],
-                "car": 4301821,
-                "driver": 3484586,
-                "value": value
-            }]
-            series = [{
+            // y++;
+            size++;
+            series[0].data[0].value++;
+            series[0].data[1].value++;
+            // series[0].data = [{
+            //     "name": "潍坊",
+            //     "id": 1,
+            //     "lat": 36.69190,
+            //     "geoCoord": [119.17692, y],
+            //     "car": 4301821,
+            //     "driver": 3484586,
+            //     "value": value
+            // }];
 
-                id: 31,
-                cluster: {
-                    enable: false, //是否开启聚合
-                    distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
-                    animationDuration: 700 //聚合动画时间，默认为700毫秒
-                },
-                // maxZoom: 10, //数据显示最大级别
-                // minZoom: 6, //数据显示最小级别
-                data: [{
-                    "name": "潍坊",
-                    "id": 1,
-                    "lat": 37.69190,
-                    "geoCoord": [119.17692, 36.69190],
-                    "car": 4301821,
-                    "driver": 3484586,
-                    "value": value++
-                }],
-                type: 'heatmap',
-                // symbol: 'icon:test/data/jingli-1.png',
-                symbolSize: [0, 0],
-                // symbolStyle: {
-                //     'normal': {
-                //         // symbolSize: [15, 15],
-                //         fillColor: 'rgb(140,0,140)',
-                //         strokeWitdh: 1,
-                //         strokeColor: 'rbg(140,0,140)'
-                //     },
-                //     'emphasis': {
-                //         strokeWitdh: 2
-                //     }
-                // },
-                /******************新增属性**************************** */
-                labelColumn: 'value', //显示的字段名称
-                labelAnimate: {
-                    enable: 'true', //是否开启动画
-                    period: 1 //动画时间 单位 秒
+            // series[0].symbolSize = [size, 30];
+            // series.symbolStyle = {
+            //     'normal': {
+            //         // symbolSize: [15, 15],
+            //         fillColor: 'rgb(140,0,140)',
+            //         strokeWitdh: 1,
+            //         strokeColor: 'rbg(140,0,140)'
+            //     },
+            //     'emphasis': {
+            //         strokeWitdh: 2
+            //     }
+            // };
 
-                },
+            // series[0].label = {
+            //     'normal': {
+            //         show: true,
+            //         textStyle: {
+            //             color: 'blue',
+            //             textAlign: 'center', //文字对齐方式：'left', 'right', 'center', 'end' or 'start'
+            //             offsetX: 0, //x轴偏移
+            //             offsetY: 15, //y轴偏移
+            //             // rotation: 0, //旋转角度 360 顺时针 number
+            //             // fontStyle: 'normal',
+            //             // fontWeight: 'bold',
+            //             // fontFamily: 'sans-serif',
+            //             fontSize: '30pt'
+            //         }
+            //     },
+            //     'emphasis': {
+            //         show: true,
+            //         textStyle: {}
 
-                labelSize: [12, 40], //单位 pt
-                /*******************新增属性*************************** */
-                label: {
-                    'normal': {
-                        show: true,
-                        textStyle: {
-                            color: 'blue',
-                            textAlign: 'center', //文字对齐方式：'left', 'right', 'center', 'end' or 'start'
-                            offsetX: 0, //x轴偏移
-                            offsetY: 15, //y轴偏移
-                            // rotation: 0, //旋转角度 360 顺时针 number
-                            // fontStyle: 'normal',
-                            // fontWeight: 'bold',
-                            // fontFamily: 'sans-serif',
-                            fontSize: '30pt'
-                        }
-                    },
-                    'emphasis': {
-                        show: true,
-                        textStyle: {}
+            //     }
+            // };
 
-                    }
-                },
-                showPopup: false //显示气泡框
+            /*  series = [{
 
-            }];
+                  id: 31,
+                  cluster: {
+                      enable: false, //是否开启聚合
+                      distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
+                      animationDuration: 700 //聚合动画时间，默认为700毫秒
+                  },
+                  // maxZoom: 10, //数据显示最大级别
+                  // minZoom: 6, //数据显示最小级别
+                  data: [{
+                      "name": "潍坊",
+                      "id": 1,
+                      "lat": 37.69190,
+                      "geoCoord": [119.17692, 36.69190],
+                      "car": 4301821,
+                      "driver": 3484586,
+                      "value": value++
+                  }],
+                  type: 'heatmap',
+                  // symbol: 'icon:test/data/jingli-1.png',
+                  symbolSize: [0, 0],
+                  // symbolStyle: {
+                  //     'normal': {
+                  //         // symbolSize: [15, 15],
+                  //         fillColor: 'rgb(140,0,140)',
+                  //         strokeWitdh: 1,
+                  //         strokeColor: 'rbg(140,0,140)'
+                  //     },
+                  //     'emphasis': {
+                  //         strokeWitdh: 2
+                  //     }
+                  // },
+                  *****************新增属性**************************** 
+                  labelColumn: 'value', //显示的字段名称
+                  labelAnimate: {
+                      enable: 'true', //是否开启动画
+                      period: 1 //动画时间 单位 秒
 
+                  },
+
+                  labelSize: [12, 40], //单位 pt
+                  /*******************新增属性*************************** 
+            /*            label: {
+                            'normal': {
+                                show: true,
+                                textStyle: {
+                                    color: 'blue',
+                                    textAlign: 'center', //文字对齐方式：'left', 'right', 'center', 'end' or 'start'
+                                    offsetX: 0, //x轴偏移
+                                    offsetY: 15, //y轴偏移
+                                    // rotation: 0, //旋转角度 360 顺时针 number
+                                    // fontStyle: 'normal',
+                                    // fontWeight: 'bold',
+                                    // fontFamily: 'sans-serif',
+                                    fontSize: '30pt'
+                                }
+                            },
+                            'emphasis': {
+                                show: true,
+                                textStyle: {}
+
+                            }
+                        },
+                        showPopup: false //显示气泡框
+
+                    }];*/
             obj.updateLayer({
                 id: 113,
                 series
@@ -349,7 +391,7 @@ class labelAnimate extends Component {
     render() {
 
         return (<div>
-              <input id='filter' type='button' value='整体更新数据' />
+              <input id='update' type='button' value='整体更新数据' />
                <input id='add' type='button' value='增加' />
             <div id = 'map' /> 
             </div>);

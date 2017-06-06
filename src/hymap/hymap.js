@@ -1,21 +1,18 @@
 import hymapOption from '../model/mapModel';
-import hyFeature from './hyFeature';
+import hyLayerGroup from '../components/hyLayerGroup';
 import baseUtil from '../util/baseUtil';
-import colorUtil from '../util/colorUtil';
 import events from '../events/events';
-import hyLayer from './hyLayer';
 import hyGeo from '../components/geo/geo';
 import hymap from '../components/map';
 import animation from '../animation/animation';
-import serieModel from '../model/serieModel';
-import hyMapQuery from '../query/hyMapQuery';
 import mapTool from '../util/mapToolUtil';
+import gpsLayer from '../components/layer/gpsLayer';
+import hyView from '../components/view';
+import hyMeasure from '../components/hyMeasure';
+import trackLayer from '../components/layer/trackLayer';
+import circleQueryLayer from '../components/layer/circelQueryLayer';
 
 const ol = require('ol');
-
-require('../../css/ol.css');
-require('../../css/popup.css');
-
 /**
  * 
  */
@@ -30,7 +27,7 @@ export default class hyMap extends hyGeo {
         this._event = [];
         this._showLogo = true;
         this._addLayerGroupArray = {};
-        this._markerLayer = [];
+        this._markerLayer = {};
 
         this._panFunction = function(evt) {
 
@@ -46,9 +43,9 @@ export default class hyMap extends hyGeo {
         this.spliceElapsed = 0;
 
         this.trackOverlayArray = [];
+        this.postListenerObj = {};
 
     }
-
 
     /**
      * 初始化hymap对象
@@ -75,17 +72,7 @@ export default class hyMap extends hyGeo {
 
         }
         baseUtil.merge(this._geo, opt_options || {}, true);
-        //
-        if (this._geo.show === true) {
 
-            this.showBaseMap();
-
-        } else {
-
-            this.hideBaseMap();
-
-        }
-        this.clearSeries();
         this.setServerUrl(this._geo.serverUrl);
         this.setGeo(this._geo); //设置geo配置
         this.setView(this._geo);
@@ -118,6 +105,7 @@ export default class hyMap extends hyGeo {
         if (dom) {
 
             this._dom = dom;
+            dom.tabIndex = 0;
             this.map.setTarget(dom);
 
         }
@@ -150,6 +138,10 @@ export default class hyMap extends hyGeo {
         this._createIntercation();
         this._createtrackLayer();
 
+        // this.hymeasure = new hyMeasure({
+        // map: this.map
+        // })
+
     }
 
     setServerUrl(url) {
@@ -168,97 +160,54 @@ export default class hyMap extends hyGeo {
      * 创建view
      * @return {[type]} [description]
      */
-    setView({
-        scaleLimit = [2, 18],
-        roam = true,
-        center = [118.62778784888256, 36.58892145091036],
-        zoom = 3,
-        projection = 'EPSG:3857'
-    }) {
+    setView(geo) {
 
-        let minZoom = scaleLimit[0];
-        let maxZoom = scaleLimit[1];
-        //限制缩放
-        if (roam === 'false' || roam === false || roam == 'drag') {
 
-            minZoom = zoom;
-            maxZoom = zoom;
-
-        }
-        //限制平移
-        if (roam === 'false' || roam === false || roam == 'scale') {
-
-            this.map.on('pointerdrag', this._panFunction);
-
-        } else {
-
-            this.map.un('pointerdrag', this._panFunction);
-
-        }
-
-        this.view = new ol.View({
-            center: mapTool.transform(center, projection),
-            zoom: zoom,
-            enableRotation: false,
-            minZoom: minZoom,
-            maxZoom: maxZoom,
-            projection: projection
-                // extent: []
-
-        });
-
+        this.view = new hyView(geo, this.map);
         this.map.setView(this.view);
-        this.map.on('pointermove', function(evt) {
-
-            evt.map.getTargetElement().style.cursor = evt.map.hasFeatureAtPixel(evt.pixel) ? 'pointer' : '';
-
-        }, this);
 
         this.view.on('change:resolution', (evt) => {
 
             if (this.map.getView().getZoom() > 8) {
 
-                this.hideGeo();
+                // this.hideGeo();
 
             } else {
 
-                this.showGeo();
+                // this.showGeo();
 
             }
 
         });
 
-    }
 
+    }
+    setCenter(coord) {
+
+        this.view.setCenter(mapTool.transform(coord));
+
+    }
     _createIntercation() {
 
         this._createHoverInteraction();
         this._createSelectInteraction();
 
     }
+    measure(type) {
 
-    _createLayer(id) {
-
-        let layersArray = new ol.Collection();
-        let layerGroup = new ol.layer.Group({
-            layers: layersArray,
-            id: id
-        });
-        this._addLayerGroupArray[id] = layerGroup;
-        this.map.addLayer(layerGroup);
-        return layerGroup;
+        this.hymeasure.active(type);
 
     }
 
     addLayer(layer) {
 
-        const id = layer.id || new Date().getTime();
-        const layerGroup = this._createLayer(id);
-        this.addSeries(layer.series, layerGroup.getLayers());
-        return {
-            id,
-            layerGroup
-        };
+        layer.id = layer.id || new Date().getTime();
+        layer.map = this.map;
+        const layerGroup = new hyLayerGroup(layer);
+        this._addLayerGroupArray[layer.id] = layerGroup;
+        this.map.addLayer(layerGroup.layerGroup);
+
+        return layerGroup.layerGroup;
 
     }
 
@@ -266,125 +215,14 @@ export default class hyMap extends hyGeo {
 
         const id = options.id || null;
         const layerGroup = this._addLayerGroupArray[id]; //获取对应的layergroup
-        const series = options.series;
-
         if (!layerGroup) {
 
-            console.info('未找到对应数据。');
+            console.info('未找到对应数据。', id);
             return;
 
         }
-        const layers = layerGroup.getLayers();
-        const serLength = series.length;
-        const layLength = layers.getLength();
-
-        layers.forEach((layer, index) => {
-
-            let serie = series[index]; //新的数据
-            let newserie = baseUtil.clone(serieModel);
-            baseUtil.merge(newserie, serie, true);
-            serie = newserie;
-            //找到新数据的条目进行数据处理，未找到的情况下删除已存在的layer
-            if (serie) {
-
-                const oldSerie = layer.get('serie');
-                if (oldSerie.cluster.enable != serie.cluster.enable ||
-                    oldSerie.animation.enable !== serie.animation.enable ||
-                    (oldSerie.type != serie.type && (oldSerie.type == 'hetamap' || serie.type == 'heatmap'))) {
-
-                    const vector = this.createLayer(serie);
-                    layers.setAt(index, vector)
-
-                } else {
-
-                    const style = this._createFeatureStyle(serie);
-                    layer.set('fstyle', style);
-                    layer.set('serie', serie);
-                    const data = serie.data;
-                    let source = layer.getSource();
-                    //聚合图层的source为两层，进行判断获取到最底层的source
-                    if (source instanceof ol.layer.AnimatedCluster) {
-
-                        source = source.getSource();
-
-                    }
-
-
-                    let addData = [];
-                    let updateData = new Map();
-
-                    let strMap = new Map();
-                    for (let k of Object.keys(data)) {
-
-                        strMap.set('serie|' + data[k].geoCoord, data[k]);
-
-                    }
-                    //删除未找到的数据
-                    source.forEachFeature(function(feature) {
-
-                        const geoCoord = feature.getId();
-                        if (strMap.has(geoCoord)) {
-
-                            const value = strMap.get(geoCoord);
-                            feature.setProperties(value);
-                            updateData.set('serie|' + value.geoCoord, value);
-
-                        } else {
-
-                            source.removeFeature(feature);
-
-                        }
-
-                    });
-                    //找到的数据进行更新，未找到的准备新增。
-
-                    data.map((value) => {
-
-                        if (!updateData.has(value.geoCoord)) {
-
-                            addData.push(value);
-
-                        }
-
-                    });
-
-                    //增加数据.
-                    if (addData.length > 0) {
-
-                        const featuresObj = hyFeature.getFeatures(addData, serie.type);
-
-                        //获取feature数组
-                        const array = featuresObj.features;
-                        layer.getSource().addFeatures(array);
-
-                    }
-
-                }
-
-            }
-
-        });
-
-        //如果新数据的长度比旧数据长，增加layer
-        if (serLength > layLength) {
-
-            for (let i = layLength; i < serLength; i++) {
-
-                this.addSerie(series[i], layers);
-
-            }
-
-        }
-        if (serLength < layLength) {
-
-            for (let i = serLength; i < layLength; i++) {
-
-                layers.removeAt(series.length);
-
-            }
-
-        }
-
+        this.clickSelect.getFeatures().clear();
+        layerGroup.update(options);
 
     }
 
@@ -394,7 +232,7 @@ export default class hyMap extends hyGeo {
         const group = this._addLayerGroupArray[id];
         if (group) {
 
-            this.map.removeLayer(group);
+            this.map.removeLayer(group.layerGroup);
             delete this._addLayerGroupArray[id];
 
         }
@@ -410,6 +248,7 @@ export default class hyMap extends hyGeo {
 
         }
         return false;
+
     }
 
     showLayer(id) {
@@ -436,414 +275,115 @@ export default class hyMap extends hyGeo {
 
     }
 
-    /**
-     * 创建图层数组
-     * @param  {[type]} series [description]
-     * @return {[type]}        [description]
-     */
-    addSeries(series, layersArray) {
-
-        series.forEach((serie) => {
-
-            this.addSerie(serie, layersArray);
-
-        });
-
-    }
-
-    /**
-     * 增加数据
-     * @author WXQ
-     * @date   2017-03-22
-     * @param  {object}   serie       数据
-     * @param  {ol.collection}   layersArray 数据的父容器
-     */
-    createLayer(serie) {
-
-        let newserie = baseUtil.clone(serieModel);
-        baseUtil.merge(newserie, serie, true);
-        serie = newserie;
-        const data = serie.data;
-
-        if (serie.type == 'chart') {
-
-            this.addMarkers(serie);
-            return;
-
-        } else {
-
-            //获取feature对象
-            const featuresObj = hyFeature.getFeatures(data, serie.type, serie.id);
-            //获取feature数组
-            const array = featuresObj.features;
-            //获取比例缩放的像素最小值，最大值
-            const geoScaleNum = this._scaleSize(serie.symbolSize, featuresObj.min, featuresObj.max);
-            const textScaleNum = this._scaleSize(serie.labelSize, featuresObj.min, featuresObj.max);
-            const source = new ol.source.Vector();
-            source.set('labelColumn', serie.labelColumn);
-            source.set('data', serie.data);
-            source.on('addfeature', (evt) => {
-
-                evt.feature.source = evt.target;
-                if (serie.labelAnimate && (serie.labelAnimate.enable == true || serie.labelAnimate.enable === 'true')) {
-
-                    evt.feature.period = serie.labelAnimate.period;
-                    evt.feature.on('propertychange', (evt) => {
-
-                        let fea = evt.target;
-
-                        if (evt.key == 'value') {
-
-                            if (!fea.textListenerKey) {
-
-                                fea._intervaldate = new Date().getTime();
-                                fea.textListenerKey = this.map.on('postcompose', (evt) => {
-
-                                    this.textScale(evt, fea);
-
-                                });
-
-                            }
-
-                        }
-
-                    });
-
-                }
-
-            });
 
 
-            source.addFeatures(array);
+    addMarkers(data) {
 
-            let vector = null;
-            const style = this._createFeatureStyle(serie);
-
-            if (serie.type == 'heatmap') {
-
-                //创建热力图
-                vector = new ol.layer.Heatmap({
-                    source: source,
-                    gradient: serie.heatOption && serie.heatOption.gradient || undefined,
-                    blur: serie.heatOption && serie.heatOption.blur || undefined,
-                    radius: serie.heatOption && serie.heatOption.radius || undefined,
-                    shadow: serie.heatOption && serie.heatOption.shadow || undefined,
-                    maxResolution: mapTool.getProjectionByZoom(serie.maxZoom, this.view),
-                    minResolution: mapTool.getProjectionByZoom(serie.minZoom, this.view)
-                });
-
-            } else {
-
-                //创建聚合图层
-                if (serie.cluster && (serie.cluster.enable == true || serie.cluster.enable === 'true')) {
-
-                    let clusterSource = new ol.source.Cluster({
-                        distance: serie.cluster.distance || 20,
-                        source: source
-                    });
-                    clusterSource.on('addfeature', function(evt) {
-
-                        evt.feature.source = evt.target;
-
-                    });
-                    vector = new ol.layer.AnimatedCluster({
-                        source: clusterSource,
-                        style: this._geoStyleFn,
-                        maxResolution: mapTool.getProjectionByZoom(serie.maxZoom, this.view),
-                        minResolution: mapTool.getProjectionByZoom(serie.minZoom, this.view)
-                    });
-                    clusterSource.vector = vector;
-
-                } else {
-
-                    vector = new ol.layer.Vector({
-                        source: source,
-                        style: this._geoStyleFn,
-                        minResolution: mapTool.getProjectionByZoom(serie.maxZoom, this.view),
-                        maxResolution: mapTool.getProjectionByZoom(serie.minZoom, this.view),
-                        ftextScaleNum: textScaleNum,
-                        fText: serie.labelSize
-                    });
-
-                    this.startAnimate(array, serie.animation); //执行动画
-
-                }
-
-            }
-            vector.set('serie', serie);
-
-            vector.set('type', 'item');
-            vector.set('id', serie.id || new Date().getTime());
-            vector.set('showPopup', serie.showPopup);
-            vector.set('fstyle', style);
-            vector.set('fScaleNum', geoScaleNum);
-            vector.set('fSymbol', serie.symbolSize);
-
-            source.vector = vector;
-
-            return vector;
-
-        }
-
-    }
-
-    addSerie(serie, layersArray) {
-
-        const vector = this.createLayer(serie);
-        vector && layersArray.push(vector);
-
-    }
-
-    addMarkers(serie) {
-
-        const data = serie.data;
         data.forEach(obj => {
 
-            let rootDiv = document.createElement('div');
-            rootDiv.id = obj.id;
-            rootDiv.appendChild(obj.container);
-            document.body.appendChild(rootDiv);
-            const marker = new ol.Overlay({
+            this.addOverlay(obj);
+
+        });
+
+    }
+
+    /**
+     * [addOverlay description]
+     * @author WXQ
+     * @date   2017-06-02
+     * @param  {[type]}    // { id, container, linewidth,geoCoord,showLine,offset,positioning}
+     */
+    addOverlay(obj) {
+
+        let marker = this._markerLayer[obj.id];
+        obj.container.style.position = 'static';
+        obj.container.style.float = 'left';
+        if (marker) {
+
+            marker.setPosition(mapTool.transform(obj.geoCoord));
+            marker.setElement(obj.container);
+
+        } else {
+
+            marker = new ol.Overlay({
                 position: mapTool.transform(obj.geoCoord),
-                positioning: 'center-center',
-                element: rootDiv,
+                positioning: obj.positioning || 'center-center',
+                offset: obj.offset,
+                element: obj.container,
                 stopEvent: false,
-                id: serie.id
+                id: obj.id
             });
 
-            this._markerLayer.push(marker);
+
+
+            this._markerLayer[obj.id] = marker;
+
             this.map.addOverlay(marker);
+            if (obj.showLine) {
 
-        });
-
-    }
-
-
-
-    /**
-     * 执行动画
-     * @author WXQ
-     * @date   2017-04-13
-     * @param  {[type]}   array     [description]
-     * @param  {[type]}   options [description]
-     * @return {[type]}             [description]
-     */
-    startAnimate(array, options) {
-
-        if (options && options.enable) {
-
-            const animationThreshold = options.animationThreshold || 1000;
-            if (array.length > animationThreshold) {
-
-                return;
-
-            }
-
-            options._intervaldate = new Date().getTime();
-            if (options.effectType == 'ripple') {
-
-                this.map.on('postcompose', (evt) => {
-
-                    this.animationRipple(evt, array, options);
-
-                });
-
-            } else {
-
-                this.map.on('postcompose', (evt) => {
-
-                    this.animateFlights(evt, array, options);
-
-                });
+                let lineWidth = obj.lineWidth || 80;
+                let canvas = document.createElement('canvas');
+                let ctx = canvas.getContext('2d');
+                // canvas.style.float = 'right';
+                canvas.width = lineWidth;
+                canvas.height = obj.container.offsetHeight;
+                ctx.strokeStyle = 'white';
+                ctx.moveTo(lineWidth, canvas.height);
+                let tmpX = lineWidth / 2;
+                ctx.lineTo(tmpX, 6);
+                ctx.lineTo(0, 6);
+                ctx.stroke();
+                obj.container.parentNode.appendChild(canvas);
 
             }
 
         }
+        marker.set('geoCoord', obj.geoCoord);
+        return marker;
 
     }
 
-    /**
-     * [animateFlights description]
-     * @author WXQ
-     * @date   2017-04-13
-     * @param  {[type]}   event     [description]
-     * @param  {[type]}   array     [description]
-     * @param  {[type]}   options [description]
-     * @return {[type]}             [description]
-     */
-    animateFlights(event, array, options) {
 
-        const duration = options.period * 1000;
-        let elapsed = event.frameState.time - options._intervaldate;
-        if (elapsed > duration) {
 
-            options._intervaldate = event.frameState.time;
-            elapsed = 0;
+    removeOverlay(marker) {
+
+        if (!(marker instanceof ol.Overlay)) {
+
+            marker = this._markerLayer[marker];
 
         }
-        let elapsedRatio = elapsed / duration;
+        if (marker) {
 
-        for (let i = 0; i < array.length; i++) {
-
-            this.animateScale(array[i], elapsedRatio);
-
-        }
-
-    }
-
-    animateScale(feature, elapsedRatio) {
-
-        let style = this.getFeatureStyle(feature);
-        let image = style[0].getImage();
-        image.setScale(ol.easing.upAndDown(elapsedRatio) + 1);
-        image.setOpacity(ol.easing.upAndDown(elapsedRatio) + 0.6);
-        feature.setStyle(style);
-
-    }
-
-    animateText(feature, elapsedRatio) {
-
-        let old_style = this.getFeatureStyle(feature);
-        let style = [old_style[0].clone(), old_style[1].clone()];
-        let text = style[1].getText();
-        text.setScale(ol.easing.upAndDown(elapsedRatio) + 1);
-        feature.setStyle(style);
-
-    }
-
-    textScale(event, feature) {
-
-        const duration = feature.period * 1000 || 700;
-        let time = event.frameState ? event.frameState.time : new Date().getTime();
-        let elapsed = time - feature._intervaldate;
-
-        if (elapsed > duration) {
-
-            feature.setStyle();
-            this.map.un('postcompose', feature.textListenerKey.listener);
-            feature.textListenerKey = undefined;
-            return;
-
-        } else {
-
-            let elapsedRatio = elapsed / duration;
-            this.animateText(feature, elapsedRatio);
+            this.map.removeOverlay(marker);
+            delete this._markerLayer[marker.getId()];
 
         }
 
 
     }
 
-    /**
-     * 涟漪动画
-     * @param  {[type]} event [description]
-     * @param  {[type]} array [description]
-     * @return {[type]}       [description]
-     */
-    animationRipple(event, array, options) {
+    removeOverlays() {
 
-        const duration = options.period * 1000;
-        let vectorContext = event.vectorContext;
-        let elapsed = event.frameState.time - options._intervaldate;
-        //当时间超过周期2倍时，修改start为当前-周期。保证循环播放能够顺序进行。
-        if (elapsed > duration * 2) {
+        for (let id in this._markerLayer) {
 
-            options._intervaldate = new Date().getTime() - duration;
-            elapsed = event.frameState.time - options._intervaldate;
+            const marker = this._markerLayer[id];
+            this.map.removeOverlay(marker);
 
         }
-        //获取涟漪生产的间隔。
-        const step = Math.ceil((elapsed / duration * 3));
-        let elapsedRatio = elapsed / duration;
-
-
-        for (let i = 0; i < array.length; i++) {
-
-            let feature = array[i];
-            let style = this.getFeatureStyle(feature);
-
-            const styleObj = style[0]; //0位置为图标。1为文本
-            const icon = styleObj.getImage();
-            const radius = (icon instanceof ol.style.Icon) ? icon.getImageSize()[0] / 2 : icon.getRadius();
-            const color = (icon instanceof ol.style.Icon) ? undefined : icon.getFill().getColor();
-            const flashGeom1 = feature.clone();
-            const style1 = this._createAnimationStyle(elapsedRatio, radius, options.scale, options.brushType, color);
-            vectorContext.drawFeature(flashGeom1, style1);
-            //根据间隔进行多个圈的绘制。模拟多次扩展效果
-            for (let n = 0; n < step; n++) {
-
-                let flashGeom = feature.clone();
-                const elapsed1 = elapsed - n * duration / 3;
-                const elapseRatio1 = elapsed1 / duration;
-                if (elapsed1 > 0) {
-
-                    const style = this._createAnimationStyle(elapseRatio1, radius, options.scale, options.brushType, color);
-                    vectorContext.drawFeature(flashGeom, style);
-
-                }
-
-            }
-
-        }
-
-        this.map.render();
 
     }
 
+    showOverlay(id) {
 
+        const marker = this._markerLayer[id];
+        marker && marker.setPosition(mapTool.transform(marker.get('geoCoord')));
 
-    /**
-     * 涟漪动画样式设置
-     * @param  {[type]} elapsedRatio [description]
-     * @param  {[type]} iconradius   [description]
-     * @param  {Number} scale        [description]
-     * @param  {String} type         [description]
-     * @return {[type]}              [description]
-     */
-    _createAnimationStyle(elapsedRatio, iconradius, scale = 2.5, type = 'stroke', color = 'rgba(140,0,140,1)') {
+    }
 
-        let opacity = ol.easing.easeOut(1 - elapsedRatio) - 0.2;
-        const radius = ol.easing.easeOut(elapsedRatio) * (scale - 1) * iconradius + iconradius;
-        let image;
-        if (color.indexOf('rgb') > -1) {
+    hideOverlay(id) {
 
-            if (color.indexOf('rgba') > -1) {
-
-                color = colorUtil.rgbaToRgb(color);
-
-            }
-            color = colorUtil.colorHex(color);
-
-        }
-
-        const colorRgba = colorUtil.hexToRgba(color, opacity);
-
-        if (type == 'stroke') {
-
-            image = new ol.style.Circle({
-                radius: radius,
-                snapToPixel: false,
-                stroke: new ol.style.Stroke({
-                    color: colorRgba,
-                    width: 0.25 + opacity
-                })
-            });
-
-        } else {
-
-            image = new ol.style.Circle({
-                radius: radius,
-                snapToPixel: false,
-                fill: new ol.style.Fill({
-                    color: colorRgba
-
-                })
-            });
-
-        }
-        return new ol.style.Style({
-            image: image
-        });
+        const marker = this._markerLayer[id];
+        marker && marker.setPosition();
 
     }
 
@@ -856,17 +396,12 @@ export default class hyMap extends hyGeo {
      */
     _removeSerie(id) {
 
-        this._markerLayer.forEach(obj => {
+        const marker = this._markerLayer[id];
+        if (marker) {
 
-            const key = obj.get('id');
-            if (key == id) {
+            this.removeOverlay(marker);
 
-                this.map.removeOverlay(obj);
-                return;
-
-            }
-
-        });
+        }
 
         for (let group in this._addLayerGroupArray) {
 
@@ -908,24 +443,22 @@ export default class hyMap extends hyGeo {
 
         } else {
 
-            this.clearSeries();
+            this.removeLayers();
 
         }
-
 
     }
 
 
-    clearSeries() {
+    removeLayers() {
 
         for (let group in this._addLayerGroupArray) {
 
-            this.map.removeLayer(group);
+            this.removeLayer(group);
 
         }
 
         this._addLayerGroupArray = {};
-        this._removeMarkerOverlay();
 
     }
 
@@ -994,7 +527,7 @@ export default class hyMap extends hyGeo {
 
                 if (element.getSource() instanceof ol.source.Vector) {
 
-                    const features = element.getSource().getFeatures && element.getSource().getFeatures();
+                    const features = element.getSource().getFeatures();
 
                     features && features.forEach((feature) => {
 
@@ -1074,47 +607,37 @@ export default class hyMap extends hyGeo {
      * [flyto description]
      * @return {[type]} [description]
      */
-    flyto(geoCoord, {
+    flyTo(geoCoord, {
         animateDuration = 2000,
-        zoom = 5,
+        zoom = undefined,
         animateEasing = '',
         callback = undefined
     } = {}) {
 
-        if (geoCoord instanceof ol.geom.Geometry) {
+        let geometry = geoCoord;
+        if (!(geoCoord instanceof ol.geom.Geometry)) {
 
-            this.view.fit(geoCoord.getExtent(), {
-                duration: animateDuration
+            geometry = new ol.geom.Point(mapTool.transform(geoCoord, this.map.getView().getProjection()));
 
-            });
+        }
+        if (zoom) {
+
+            let animate = new animation(this.map, geometry, zoom, animateDuration);
+            zoom === 5 ? animate.centerAndZoom() : animate.flyTo(callback);
 
         } else {
 
-            let geometry = new ol.geom.Point(mapTool.transform(geoCoord, this.map.getView().getProjection()));
-            let animate = new animation(this.map, geometry, zoom, animateDuration);
-            zoom === 5 ? animate.centerAndZoom() : animate.flyTo();
+            this.view.fit(geometry.getExtent(), {
+                duration: animateDuration
+
+            });
+            if (callback && typeof callback == 'function') {
+
+                callback();
+
+            }
 
         }
-        if (callback && typeof callback == 'function') {
-
-            callback();
-
-        }
-
-    }
-
-    /**
-     * 销毁对象
-     * @return {[type]} [description]
-     */
-    dispose() {
-
-        this.map.dispose();
-        return null;
-
-    }
-
-    nullFunction() {
 
     }
 
@@ -1127,8 +650,8 @@ export default class hyMap extends hyGeo {
      */
     areaQuery(options) {
 
+        this.clickSelect.getFeatures().clear();
         const geom = options.geom;
-
         let result = {};
         const layers = options.layers;
 
@@ -1161,42 +684,125 @@ export default class hyMap extends hyGeo {
 
         }
 
-        return result;
+        return new Promise(function(resolve, resject) {
 
-    }
-    spatialQuery(geoCoord, radius) {
+            resolve(result);
 
-        this.clearTrackInfo();
-        const coords = mapTool.transform(geoCoord);
-        const geometry = new ol.geom.Circle(coords, radius);
-
-        const geom_temp = [coords[0] + radius, coords[1]];
-        const piex_center = this.map.getPixelFromCoordinate(coords);
-
-        const piex_radius = this.map.getPixelFromCoordinate(geom_temp)[0] - piex_center[0];
-        const data = this.areaQuery({
-            geom: geometry,
-            layers: this._addLayerGroupArray
         });
 
-        let result = {
-            geometry,
-            center: coords,
-            piex_center,
-            piex_radius,
-            data
-        };
+    }
 
 
-        return result;
+    /**
+     * 创建视频链接线
+     * @author WXQ
+     * @date   2017-06-02
+     * @param  {[type]}   obj 对象体
+     * @return {[type]}    对象内部id
+     */
+    drawCable(obj) {
+
+        let listererObj = this.map.on('postcompose', (evt) => {
+
+            let ctx = evt.context;
+            let piex = this.map.getPixelFromCoordinate(mapTool.transform(obj.geoCoord));
+            const tmpX = piex[0] > obj.end[0] ? piex[0] - 100 : piex[0] + 100;
+            ctx.strokeStyle = obj.color || 'red';
+            ctx.moveTo(piex[0], piex[1]);
+            ctx.lineTo(tmpX, obj.end[1]);
+            ctx.lineTo(obj.end[0], obj.end[1]);
+            ctx.stroke();
+
+        });
+        let id = obj.id || new Date().getTime();
+        this.postListenerObj[id] = listererObj;
+        return id;
+
+    }
+
+    /**
+     * 更新连接线
+     * @author WXQ
+     * @date   2017-06-02
+     * @param  {[type]}   obj [description]
+     * @return {[type]}       [description]
+     */
+    updateCable(obj) {
+
+        this.removeCable(obj.id);
+        this.drawCable(obj);
+
+    }
+
+    /**
+     * 删除连接线
+     * @author WXQ
+     * @date   2017-06-02
+     * @param  {[type]}   id [description]
+     * @return {[type]}      [description]
+     */
+    removeCable(id) {
+
+        const listererObj = this.postListenerObj[id];
+        this.map.un('postcompose', listererObj.listener);
+        delete this.postListenerObj[id];
+
+    }
+
+    /**
+     * 空间查询
+     * @author WXQ
+     * @date   2017-06-02
+     * @param  {[type]}   geoCoord [description]
+     * @param  {[type]}   radius   [description]
+     * @param  {Function} callback [description]
+     * @return {[type]}            [description]
+     */
+    spatialQuery(geoCoord, radius, callback) {
+
+        this.clearTrackInfo(); //该方法进行对查询到的所有轨迹和tooltip进行移除操作。
+        this.clearSpatial();
+        this.queryCircle.setQueryFun((result) => {
+
+            this.areaQuery({
+                geom: result.geometry,
+                layers: this._addLayerGroupArray
+            }).then((data) => {
+
+                this.clearTrackInfo();
+
+                result.data = data;
+                if (baseUtil.isFunction(callback)) {
+
+                    callback(result);
+
+                }
+
+            });
+
+        });
+        this.queryCircle.load(geoCoord, radius);
+
+    }
+
+    clearSpatial() {
+
+        this.queryCircle.clear();
+        this.clickSelect.getFeatures().clear();
 
     }
 
     drawTrack(start, end, {
         callback = undefined,
-        tooltipFun = undefined
+        tooltipFun = undefined,
+        isCustom = false
     } = {}) {
 
+        if (!start) {
+
+            return;
+
+        }
         //起始点一致，不进行查询
         if (start.toString() == end.toString()) {
 
@@ -1206,7 +812,7 @@ export default class hyMap extends hyGeo {
 
         let url = 'http://localhost:3000/routing';
         const viewparams = ['x1:' + start[0], 'y1:' + start[1], 'x2:' + end[0], 'y2:' + end[1]];
-        url = 'http://192.168.0.50:8080/geoserver/hygis/wfs?sversion=1.0.0&request=GetFeature&outputFormat=application%2Fjson';
+        url = this._serverUrl + '/hygis/wfs?sversion=1.0.0&request=GetFeature&outputFormat=application%2Fjson';
         url += '&typeName=' + 'routing_sd' + '&viewparams=' + viewparams.join(';');
 
         // let formData = new FormData();
@@ -1241,8 +847,8 @@ export default class hyMap extends hyGeo {
 
             }
 
-            this.trackLayer.getSource().addFeatures(features);
 
+            this.trackLayer.getSource().addFeatures(features);
 
             if (tooltipFun) {
 
@@ -1258,10 +864,9 @@ export default class hyMap extends hyGeo {
 
                 if (str) {
 
-                    this._createTrackOverLay(start, str);
+                    this._createTrackOverLay(start, str, isCustom);
 
                 }
-
 
             }
 
@@ -1273,12 +878,17 @@ export default class hyMap extends hyGeo {
 
     }
 
-    _createTrackOverLay(coordinate, str = '') {
+    _createTrackOverLay(coordinate, str, isCustom) {
 
+        let d;
+        if (isCustom) {
 
-        let overlay = this._createOverlay();
+            d = document.createElement('div');
+
+        }
+
+        let overlay = this._createOverlay(d);
         let div = overlay.getElement();
-
         div.innerHTML = str;
         overlay.setPosition(mapTool.transform(coordinate));
         this.trackOverlayArray.push(overlay);
@@ -1287,7 +897,16 @@ export default class hyMap extends hyGeo {
 
     _createtrackLayer() {
 
-        let group = this.addLayer({
+        this.queryCircle = new circleQueryLayer({
+            map: this.map
+        });
+
+        this.queryCircleLayer = this.queryCircle.layer;
+        this.trck = new trackLayer({
+            map: this.map
+        });
+        let group = new hyLayerGroup({
+            map: this.map,
             series: [{
                 symbolStyle: {
                     'normal': {
@@ -1303,6 +922,56 @@ export default class hyMap extends hyGeo {
 
         });
         this.trackLayer = group.layerGroup.getLayers().getArray()[0];
+        this.map.addLayer(group.layerGroup);
+
+        // var polyline = [
+        //     'hldhx@lnau`BCG_EaC??cFjAwDjF??uBlKMd@}@z@??aC^yk@z_@se@b[wFdE??wFfE}N',
+        //     'fIoGxB_I\\gG}@eHoCyTmPqGaBaHOoD\\??yVrGotA|N??o[N_STiwAtEmHGeHcAkiA}^',
+        //     'aMyBiHOkFNoI`CcVvM??gG^gF_@iJwC??eCcA]OoL}DwFyCaCgCcCwDcGwHsSoX??wI_E',
+        //     'kUFmq@hBiOqBgTwS??iYse@gYq\\cp@ce@{vA}s@csJqaE}{@iRaqE{lBeRoIwd@_T{]_',
+        //     'Ngn@{PmhEwaA{SeF_u@kQuyAw]wQeEgtAsZ}LiCarAkVwI}D??_}RcjEinPspDwSqCgs@',
+        //     'sPua@_OkXaMeT_Nwk@ob@gV}TiYs[uTwXoNmT{Uyb@wNg]{Nqa@oDgNeJu_@_G}YsFw]k',
+        //     'DuZyDmm@i_@uyIJe~@jCg|@nGiv@zUi_BfNqaAvIow@dEed@dCcf@r@qz@Egs@{Acu@mC',
+        //     'um@yIey@gGig@cK_m@aSku@qRil@we@{mAeTej@}Tkz@cLgr@aHko@qOmcEaJw~C{w@ka',
+        //     'i@qBchBq@kmBS{kDnBscBnFu_Dbc@_~QHeU`IuyDrC_}@bByp@fCyoA?qMbD}{AIkeAgB',
+        //     'k_A_A{UsDke@gFej@qH{o@qGgb@qH{`@mMgm@uQus@kL{_@yOmd@ymBgwE}x@ouBwtA__',
+        //     'DuhEgaKuWct@gp@cnBii@mlBa_@}|Asj@qrCg^eaC}L{dAaJ_aAiOyjByH{nAuYu`GsAw',
+        //     'Xyn@ywMyOyqD{_@cfIcDe}@y@aeBJmwA`CkiAbFkhBlTgdDdPyiB`W}xDnSa}DbJyhCrX',
+        //     'itAhT}x@bE}Z_@qW_Kwv@qKaaAiBgXvIm}A~JovAxCqW~WanB`XewBbK{_A`K}fBvAmi@',
+        //     'xBycBeCauBoF}}@qJioAww@gjHaPopA_NurAyJku@uGmi@cDs[eRaiBkQstAsQkcByNma',
+        //     'CsK_uBcJgbEw@gkB_@ypEqDoqSm@eZcDwjBoGw`BoMegBaU_`Ce_@_uBqb@ytBwkFqiT_',
+        //     'fAqfEwe@mfCka@_eC_UmlB}MmaBeWkkDeHwqAoX}~DcBsZmLcxBqOwqE_DkyAuJmrJ\\o',
+        //     '~CfIewG|YibQxBssB?es@qGciA}RorAoVajA_nAodD{[y`AgPqp@mKwr@ms@umEaW{dAm',
+        //     'b@umAw|@ojBwzDaaJsmBwbEgdCsrFqhAihDquAi`Fux@}_Dui@_eB_u@guCuyAuiHukA_',
+        //     'lKszAu|OmaA{wKm}@clHs_A_rEahCssKo\\sgBsSglAqk@yvDcS_wAyTwpBmPc|BwZknF',
+        //     'oFscB_GsaDiZmyMyLgtHgQonHqT{hKaPg}Dqq@m~Hym@c`EuiBudIabB{hF{pWifx@snA',
+        //     'w`GkFyVqf@y~BkoAi}Lel@wtc@}`@oaXi_C}pZsi@eqGsSuqJ|Lqeb@e]kgPcaAu}SkDw',
+        //     'zGhn@gjYh\\qlNZovJieBqja@ed@siO{[ol\\kCmjMe\\isHorCmec@uLebB}EqiBaCg}',
+        //     '@m@qwHrT_vFps@kkI`uAszIrpHuzYxx@e{Crw@kpDhN{wBtQarDy@knFgP_yCu\\wyCwy',
+        //     'A{kHo~@omEoYmoDaEcPiuAosDagD}rO{{AsyEihCayFilLaiUqm@_bAumFo}DgqA_uByi',
+        //     '@swC~AkzDlhA}xEvcBa}Cxk@ql@`rAo|@~bBq{@``Bye@djDww@z_C_cAtn@ye@nfC_eC',
+        //     '|gGahH~s@w}@``Fi~FpnAooC|u@wlEaEedRlYkrPvKerBfYs}Arg@m}AtrCkzElw@gjBb',
+        //     'h@woBhR{gCwGkgCc[wtCuOapAcFoh@uBy[yBgr@c@iq@o@wvEv@sp@`FajBfCaq@fIipA',
+        //     'dy@ewJlUc`ExGuaBdEmbBpBssArAuqBBg}@s@g{AkB{bBif@_bYmC}r@kDgm@sPq_BuJ_',
+        //     's@{X_{AsK_d@eM{d@wVgx@oWcu@??aDmOkNia@wFoSmDyMyCkPiBePwAob@XcQ|@oNdCo',
+        //     'SfFwXhEmOnLi\\lbAulB`X_d@|k@au@bc@oc@bqC}{BhwDgcD`l@ed@??bL{G|a@eTje@',
+        //     'oS~]cLr~Bgh@|b@}Jv}EieAlv@sPluD{z@nzA_]`|KchCtd@sPvb@wSb{@ko@f`RooQ~e',
+        //     '[upZbuIolI|gFafFzu@iq@nMmJ|OeJn^{Qjh@yQhc@uJ~j@iGdd@kAp~BkBxO{@|QsAfY',
+        //     'gEtYiGd]}Jpd@wRhVoNzNeK`j@ce@vgK}cJnSoSzQkVvUm^rSgc@`Uql@xIq\\vIgg@~k',
+        //     'Dyq[nIir@jNoq@xNwc@fYik@tk@su@neB}uBhqEesFjoGeyHtCoD|D}Ed|@ctAbIuOzqB',
+        //     '_}D~NgY`\\um@v[gm@v{Cw`G`w@o{AdjAwzBh{C}`Gpp@ypAxn@}mAfz@{bBbNia@??jI',
+        //     'ab@`CuOlC}YnAcV`@_^m@aeB}@yk@YuTuBg^uCkZiGk\\yGeY}Lu_@oOsZiTe[uWi[sl@',
+        //     'mo@soAauAsrBgzBqgAglAyd@ig@asAcyAklA}qAwHkGi{@s~@goAmsAyDeEirB_{B}IsJ',
+        //     'uEeFymAssAkdAmhAyTcVkFeEoKiH}l@kp@wg@sj@ku@ey@uh@kj@}EsFmG}Jk^_r@_f@m',
+        //     '~@ym@yjA??a@cFd@kBrCgDbAUnAcBhAyAdk@et@??kF}D??OL'
+        // ].join('');
+        // this.initTrackData(polyline);
+
+    }
+
+    initTrackData(polyline) {
+
+        this.trck.initTrackData(polyline);
 
     }
 
@@ -1320,12 +989,46 @@ export default class hyMap extends hyGeo {
         this.trackOverlayArray.forEach((overlay) => {
 
             this.map.removeOverlay(overlay);
+
         });
         this.trackOverlayArray = [];
 
     }
 
+    initgpslayer() {
+
+        this.gpslayer = new gpsLayer({
+            map: this.map
+        });
+        // console.log(this.gpslayer);
+
+    }
+
+    updateGps(data) {
+
+        this.gpslayer.update(data);
+
+    }
+    createDraw(value) {
+
+        this.queryCircle.createDraw(value);
+
+    }
+
+    /**
+     * 销毁对象
+     * @return {[type]} [description]
+     */
+    dispose() {
+
+        this._dom.innerHTML = '';
+        this.removeLayers();
+        this.removeOverlays();
+        this.map.setTarget(null);
+        return null;
+
+    }
+
 }
 
-Object.assign(hyMap.prototype, events);
-Object.assign(hyMap.prototype, hyLayer);
+Object.assign(events);

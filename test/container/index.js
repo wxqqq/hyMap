@@ -20,6 +20,8 @@ import mapmethod from './Earth/mapmethod';
 import heatmap from './Earth/heatmap';
 import ripple from './Earth/ripple';
 import labelAnimate from './Earth/labelAnimate';
+import gps from './Earth/gps';
+import featureanimat from './Earth/featureanimat';
 
 export {
     App,
@@ -31,5 +33,7 @@ export {
     labelAnimate,
     mapmethod,
     heatmap,
-    ripple
+    ripple,
+    gps,
+    featureanimat
 };

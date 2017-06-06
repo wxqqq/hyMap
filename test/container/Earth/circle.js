@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-05-03 15:51:45
+ * @Last Modified time: 2017-05-09 16:35:31
  * @Email: zhangyujie3344521@163.com
  * @File Path: H:\work\hyMap\test\container\Earth\circle.js
  * @File Name: circle.js
@@ -17,7 +17,6 @@ import map from '../../../src/index';
 
 class circle extends Component {
     componentDidMount() {
-
         let obj = map.init(document.getElementById('map'));
         let options = {
             serverUrl: 'http://192.168.1.50:8080/geoserver', //服务器地址
@@ -98,7 +97,7 @@ class circle extends Component {
     }
     render() {
 
-        return (<div id = 'map' > </div>);
+        return (<div id='map'> </div>);
 
     }
 }

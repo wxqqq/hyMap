@@ -3,7 +3,7 @@ import baseUtil from '../util/baseUtil';
 import events from '../events/events';
 
 const ol = require('ol');
-
+require('../../css/popup.css');
 export default class hytooltip extends hyMapStyle {
     constructor(options) {
 
@@ -206,6 +206,15 @@ export default class hytooltip extends hyMapStyle {
 
                 return typeof feature.source.vector.getStyle() === 'function' ? feature.source.vector.getStyle()(feature, '', 'emphasis') : feature.source.vector.getStyle();
 
+            },
+            layers: function(layer) {
+
+                if (layer.get('type')) {
+
+                    return true;
+
+                }
+
             }
         });
         this.map.addInteraction(this.clickSelect);
@@ -243,6 +252,15 @@ export default class hytooltip extends hyMapStyle {
 
                 return evt.type === 'pointermove' && !flag;
 
+            },
+            layers: function(layer) {
+
+                if (layer.get('type')) {
+
+                    return true;
+
+                }
+
             }
         });
         this.map.addInteraction(this.hoverSelect);
@@ -255,25 +273,31 @@ export default class hytooltip extends hyMapStyle {
 
         const selFeatures = evt.selected;
         const unSelFeatures = evt.deselected;
-
         // click, mouseover, mousemove, dblclick
         if (unSelFeatures && unSelFeatures.length > 0) {
 
             const unSelFeature = unSelFeatures[0];
             const properties = unSelFeature.getProperties();
             const layer = unSelFeature.source.vector;
+            const layerType = layer.get('type');
             const type = (layer.get('type') && layer.get('type') === 'geo') ? 'geoUnSelect' : 'unClick';
 
             this._hideOverlay();
 
             evt.target.getFeatures().remove(unSelFeature);
-            this.dispatchEvent({
+            let event = {
                 evt: evt.mapBrowserEvent,
                 type: type,
                 data: properties,
                 feature: unSelFeatures
                     // select: evt.target
-            });
+            };
+            if (layerType != 'geo') {
+
+                unSelFeature.source.vector.parent.parent.dispatchEvent(event);
+
+            }
+            this.dispatchEvent(event);
 
         }
         if (selFeatures && selFeatures.length > 0) {
@@ -285,7 +309,7 @@ export default class hytooltip extends hyMapStyle {
             const layerType = layer.get('type');
             let type = 'click';
             let div = null;
-            if (this.tooltipShow && this.tooltipTrigger.indexOf(layerType) > -1 && this.tooltipTriggeron.indexOf('click') > -1) {
+            if (!layer.get('interior') && this.tooltipShow && this.tooltipTrigger.indexOf(layerType) > -1 && this.tooltipTriggeron.indexOf('click') > -1) {
 
                 // && (layer.get('showPopup') || layer.get('showPopup') === 'true')) {
                 // evt.target.addCondition_ = () => (true);
@@ -295,29 +319,38 @@ export default class hytooltip extends hyMapStyle {
                 this._showOverlay(selFeature);
 
             }
+            evt.target.getFeatures().get('length') == 0 && evt.target.getFeatures().push(selFeature);
+            // evt.target.getFeatures().remove(selFeature);
+            let event = {
+                evt: evt.mapBrowserEvent,
+                type: type,
+                data: properties,
+                layerid: selFeature.source.vector.get('layerId'),
+                feature: selFeature,
+                // select: evt.target,
+                element: div
+            };
             if (layerType == 'geo') {
 
-                type = 'geoSelect';
+                event.type = 'geoSelect';
                 if (this.geoDrillDown) {
 
                     this.geoGo(properties);
 
                 }
 
-
                 // evt.target.getFeatures().remove(selFeature)
+
+            } else {
+
+                selFeature.source.vector.parent.parent.dispatchEvent(event);
 
             }
 
-            evt.target.getFeatures().get('length') == 0 && evt.target.getFeatures().push(selFeature);
-            this.dispatchEvent({
-                evt: evt.mapBrowserEvent,
-                type: type,
-                data: properties,
-                feature: selFeature,
-                // select: evt.target,
-                element: div
-            });
+
+            this.dispatchEvent(event);
+            this.hoverSelect.getFeatures().remove(selFeature)
+
 
         }
 
@@ -334,7 +367,6 @@ export default class hytooltip extends hyMapStyle {
             const layer = unSelFeature.source.vector;
             const layerType = layer.get('type');
             const type = (layer.get('type') && layer.get('type') === 'geo') ? 'geoUnHover' : 'unHover';
-
             if (this.tooltipTriggeron.indexOf('mouseover') > -1 && this.tooltipTrigger.indexOf(layerType) > -1) {
 
                 window.clearTimeout(() => this.timer);
@@ -342,7 +374,7 @@ export default class hytooltip extends hyMapStyle {
 
 
             }
-            if (this.tooltipShow && this.tooltipTrigger.indexOf(layerType) > -1 && this.tooltipTriggeron.indexOf('mouseout') > -1) {
+            if (!layer.get('interior') && this.tooltipShow && this.tooltipTrigger.indexOf(layerType) > -1 && this.tooltipTriggeron.indexOf('mouseout') > -1) {
 
                 let div = this._overlay.getElement();
                 const st = this.formatter(properties);
@@ -350,15 +382,22 @@ export default class hytooltip extends hyMapStyle {
                 this._showOverlay(unSelFeature);
 
             }
-
             evt.target.getFeatures().remove(unSelFeature);
-            this.dispatchEvent({
+
+            let event = {
                 evt: evt.mapBrowserEvent,
                 type: type,
                 data: properties,
                 feature: unSelFeatures
                     // select: evt.target
-            });
+            };
+
+            if (layerType != 'geo') {
+
+                unSelFeature.source.vector.parent.parent.dispatchEvent(event);
+
+            }
+            this.dispatchEvent(event);
 
         }
         if (selFeatures && selFeatures.length > 0) {
@@ -370,7 +409,7 @@ export default class hytooltip extends hyMapStyle {
             const layerType = layer.get('type');
             const type = (layer.get('type') && layer.get('type') === 'geo') ? 'geoHover' : 'hover';
             let div = null;
-            if (this.tooltipShow && this.tooltipTrigger.indexOf(layerType) > -1 && this.tooltipTriggeron.indexOf('mouseover') > -1) {
+            if (!layer.get('interior') && this.tooltipShow && this.tooltipTrigger.indexOf(layerType) > -1 && this.tooltipTriggeron.indexOf('mouseover') > -1) {
 
                 // && (layer.get('showPopup') || layer.get('showPopup') === 'true')) {
                 // evt.target.addCondition_ = () => (true);
@@ -382,14 +421,21 @@ export default class hytooltip extends hyMapStyle {
 
             }
             evt.target.getFeatures().get('length') == 0 && evt.target.getFeatures().push(selFeature);
-            this.dispatchEvent({
+            let event = {
                 evt: evt.mapBrowserEvent,
                 type: type,
                 data: properties,
                 feature: selFeature,
                 // select: evt.target,
                 element: div
-            });
+            };
+            if (layerType != 'geo') {
+
+                selFeature.source.vector.parent.parent.dispatchEvent(event);
+
+            }
+            this.dispatchEvent(event);
+
 
         }
 

@@ -30,9 +30,9 @@ class Nav extends React.Component {
                 <Link to = 'icon' > icon </Link>
                 <Link to = 'labelAnimate' > labelAnimate </Link>
                 <Link to = 'line' > line </Link>
-              
                 <Link to = 'heatmap' > heatmap </Link>
                 <Link to = 'ripple' > ripple </Link>
+                <Link to = 'gps' > gps </Link>
             </div>
         );
 

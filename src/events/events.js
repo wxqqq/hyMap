@@ -2,7 +2,6 @@
 
 const event = {
 
-
     pendingRemovals_: {},
     dispatching_: {},
     listeners_: {},
@@ -39,10 +38,17 @@ const event = {
             listeners.push(listener);
 
         }
+        return listener;
 
     },
-    off(type, listener) {
 
+    un(type, listener) {
+
+        if (!type) {
+
+            this.listeners_ = {};
+
+        }
         let listeners = this.listeners_[type];
         if (listeners) {
 
@@ -63,6 +69,11 @@ const event = {
                 }
 
             }
+
+        } else {
+
+            this.listeners_[type] = [];
+            delete this.listeners_[type];
 
         }
 

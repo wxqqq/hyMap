@@ -2,9 +2,9 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-14 14:17:03
+ * @Last Modified time: 2017-06-05 16:57:26
  * @Email: zhangyujie3344521@163.com
- * @File Path: H:\work\hyMap\test\container\Earth\chart.js
+ * @File Path: F:\work\hyMap\test\container\Earth\chart.js
  * @File Name: chart.js
  * @Descript:
  */
@@ -18,6 +18,8 @@ import map from '../../../src/index';
 class chart extends Component {
     componentDidMount() {
 
+        // let obj = map.getInstanceByDom(document.getElementById('map'))
+        // console.log(obj);
         let obj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
@@ -33,49 +35,24 @@ class chart extends Component {
             label: '', //文本标签样式
             series: []
         };
-
+        obj.setOption(options);
         fetch('../test/data/car_2012.json').then(response => response.json()).then(function(values) {
 
             values.forEach(obj => {
 
                 let div = document.createElement('div');
-                div.innerHTML = '<div style="background-color:#ccc">' + obj.name + '</div>';
+                div.style.position = 'absolute';
+                div.id = 'ccc'
+                div.innerHTML = '<div style="background-color:#ccc;">' + obj.name + '</div>';
                 obj.container = div;
                 obj.geoCoord = [obj.lon, obj.lat];
+                obj.showLine = true;
+                // obj.geoCoord = obj.lon + ',' + obj.lat
 
             });
 
-            options.series.push({
-                data: values, //{x,y,value}
-                type: 'chart', // point|line|polygon|chart|..
-                symbol: 'circle', //circle|react|icon
-                symbolSize: '', //[min,max]
-                symbolStyle: {
-                    'normal': {
-                        radius: 5,
-                        strokeWidth: 1,
-                        strokeColor: 'black',
-                        fillColor: 'orange'
-                    },
-                    'hover': {
-                        radius: 10,
-                        strokeWidth: 1,
-                        strokeColor: 'red',
-                        fillColor: 'pink'
-                    },
-                    'emphasis': {
-                        radius: 15,
-                        strokeWidth: 3,
-                        strokeColor: 'blue',
-                        fillColor: 'white'
-                    }
-                },
-                label: 'mc',
-                showPopup: false
 
-            });
-
-            obj.setOption(options);
+            obj.addMarkers(values);
 
         });
 
@@ -96,10 +73,17 @@ class chart extends Component {
 
         });
 
+        window.setTimeout(() => {
+            obj.hideOverlay(4567)
+        }, 2000)
+
+        window.setTimeout(() => {
+            obj.showOverlay(4567)
+        }, 4000)
+
     }
     render() {
-
-        return (<div id = 'map' > </div>);
+        return (<div id='map'> </div>);
 
     }
 }

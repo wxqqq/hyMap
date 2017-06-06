@@ -25,7 +25,9 @@ import {
     labelAnimate,
     mapmethod,
     heatmap,
-    ripple
+    ripple,
+    gps,
+    featureanimat
 
 } from './test/container/index';
 
@@ -42,6 +44,8 @@ const route = (
         <Route path = 'mapmethod' component = {mapmethod} />
         <Route path = 'heatmap' component = {heatmap} />
         <Route path = 'ripple' component = {ripple} />
+        <Route path = 'gps' component = {gps} />
+          <Route path = 'featureanimat' component = {featureanimat} />
     </Route>
 );
 

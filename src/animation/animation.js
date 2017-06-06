@@ -2,9 +2,9 @@
  * @Author: wxq
  * @Date:   2017-02-13 13:45:00
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-03-30 19:25:08
+ * @Last Modified time: 2017-05-26 10:26:32
  * @Email: 304861063@qq.com
- * @File Path: H:\hyMap\src\animation\animation.js
+ * @File Path: F:\work\hyMap\src\animation\animation.js
  * @File Name: animation.js
  * @Descript: 
  */
@@ -21,76 +21,49 @@ export default class animation {
         this._coords = geometry.getCoordinates();
 
     }
-    createBounce(duration, start) {
-
-        start = start || +new Date();
-        var bounce = ol.animation.bounce({
-            duration: duration,
-            resolution: 2 * this._view.getResolution(),
-            start: start
-        });
-        return bounce;
-
-    }
-    createPan(duration, start) {
-
-        start = start || +new Date();
-        var pan = ol.animation.pan({
-            duration: duration,
-            source: (this._view.getCenter()),
-            start: start
-        });
-        return pan;
-
-    }
-    createRotate(duration, start) {
-
-        start = start || +new Date();
-        var rotate = ol.animation.rotate({
-            duration: duration,
-            resolution: 2 * this._view.getResolution(),
-            start: start
-        });
-        return rotate;
-
-    }
-    createZoom(duration, start) {
-
-        start = start || +new Date();
-        var zoom = ol.animation.zoom({
-            duration: duration,
-            resolution: 2 * this._view.getResolution(),
-            start: start
-        });
-        return zoom;
-
-    }
     centerAndZoom() {
 
         this._view.animate({
             zoom: this._zoom,
-            center: this._coords
+            center: this._coords,
+            duration: this.duration
         });
-        // var pan = this.createPan(this.duration);
-        // var zoom = this.createZoom(this.duration);
-        // this.map.beforeRender(pan, zoom);
-        // this._view.fit(this._geometry, {
-        //     maxZoom: this._zoom
-        // });
 
     }
-    flyTo() {
+    flyTo(fun) {
 
-        var bounce = this.createBounce(this.duration);
-        var pan = this.createPan(this.duration);
-        // this._view.animate({
-        //     zoom: this._zoom,
-        //     center: this._coords,
-        //     duration: this.duration
-        // });
-        this.map.beforeRender(pan, bounce);
-        this._view.setZoom(this._zoom);
-        this._view.setCenter(this._coords);
+        var parts = 1;
+        var duration = this.duration;
+        var called = false;
+
+        function callback(complete) {
+            --parts;
+            if (called) {
+                setTimeout(fun, duration / 2);
+                return;
+
+            }
+            if (parts === 0 || !complete) {
+
+                called = true;
+
+            }
+
+        }
+
+        this._view.animate({
+            // zoom: this._zoom,
+            center: this._coords,
+            duration: duration
+        }, callback);
+
+        this._view.animate({
+            zoom: this._view.getZoom() - 1,
+            duration: duration / 2
+        }, {
+            zoom: this._zoom,
+            duration: duration / 2
+        }, callback);
 
     }
 }
