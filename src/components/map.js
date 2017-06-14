@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-27 16:37:00
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-02 17:46:00
+ * @Last Modified time: 2017-06-13 11:33:52
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\map.js
  * @File Name: map.js
@@ -18,6 +18,7 @@ const ol = require('ol');
 
 export default class map {
     constructor() {
+
         const map = this._createMap();
         return map;
     }
@@ -49,10 +50,10 @@ export default class map {
                 // new ol.control.OverviewMap({
                 // layers: this._basicLayersArray
                 // }), //鹰眼
-                // new ol.control.ScaleLine({
-                //     minWidth: 52,
-                //     units: 'zh'
-                // }),
+                new ol.control.ScaleLine({
+                    minWidth: 52,
+                    // units: 'zh'
+                }),
                 // new ol.control.ZoomSlider(),//地图缩放侧边栏
                 // new ol.control.ZoomToExtent()//一键缩放到全图
             ]),

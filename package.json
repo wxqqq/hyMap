@@ -38,7 +38,7 @@
         "build:dll": "webpack --config webpack.dll.js",
         "start": "webpack-dev-server --hot . --history-api-fallback --content-base"
     },
-    "version": "0.1.51",
+    "version": "0.1.58",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/FunctionRun/FEscaffold.git"

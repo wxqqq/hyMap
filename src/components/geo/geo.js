@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-18 10:04:23
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-07 14:23:48
+ * @Last Modified time: 2017-06-14 13:50:16
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\geo\geo.js
  * @File Name: geo.js
@@ -51,6 +51,7 @@ export default class hyGeo extends hytooltip {
                 url: 'http://t0.tianditu.com/DataServer?T=img_w&x={x}&y={y}&l={z}'
             })
         });
+
 
         this.map.addLayer(tian_di_tu_satellite_layer);
 
@@ -115,9 +116,7 @@ export default class hyGeo extends hytooltip {
         this.setGeoStyle(geo);
         this.setGeoSource(geo.map);
         this.setGeoDrillDown(geo.drillDown);
-
         this.setTheme(geo.theme); //设置theme主题
-
 
     }
 
@@ -131,8 +130,17 @@ export default class hyGeo extends hytooltip {
 
             //去除最后一个特殊符号，避免数组取值不正确
             mapName = mapTool.deleteEndSign(mapName, '|');
+            if (mapName === '中国') {
 
-            this.mapNameArray = mapName.split('|');
+                this.mapNameArray = ['中国'];
+
+            } else {
+
+                this.mapNameArray = mapName.split('|');
+
+            }
+
+
             this.geoLevel = this.mapNameArray.length - 1;
             const column = {
                 level: this.geoLevel,
@@ -304,6 +312,4 @@ export default class hyGeo extends hytooltip {
         flag && this.view.fit(this.geoVectorSource.getExtent());
 
     }
-
-
 }

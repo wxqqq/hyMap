@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-06 09:48:37
+ * @Last Modified time: 2017-06-09 13:49:43
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\icon.js
  * @File Name: icon.js
@@ -37,6 +37,7 @@ class icon extends Component {
             label: '', //文本标签样式
             series: []
         };
+        console.log(map)
         const series = [];
         mapObj.setOption(options);
         mapObj.setTooltip({
@@ -114,7 +115,7 @@ class icon extends Component {
                 type: 'point',
                 symbol: 'icon:test/data/jingli-1.png',
                 // symbol: 'circle',
-                symbolSize: [5, 10],
+                symbolSize: [15, 20],
                 symbolStyle: {
                     'normal': {
                         anchor: [0.5, 0.5], //图标偏移位置。
@@ -215,10 +216,40 @@ class icon extends Component {
             let series = [];
             series.push({
                 cluster: {
-                    enable: true, //是否开启聚合
+                    enable: false, //是否开启聚合
                     distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
                     animationDuration: 700 //聚合动画时间，默认为700毫秒
                 },
+                data: values, //{x,y,value}
+                type: 'point', // point|line|polygon|chart|..
+                symbol: 'circle', //circle|react|icon
+                symbolSize: '', //[min,max]
+                symbolStyle: {
+                    'normal': {
+                        symbolSize: [6, 6],
+                        strokeWidth: 1,
+                        strokeColor: 'black',
+                        fillColor: 'orange'
+                    },
+                    'emphasis': {
+                        symbolSize: 7,
+                        strokeWidth: 1,
+                        strokeColor: '#fff',
+                        fillColor: 'blue'
+                    }
+                },
+                // maxZoom: 5,
+                // minZoom: 3,
+                showPopup: false
+
+            });
+            series.push({
+                cluster: {
+                    enable: false, //是否开启聚合
+                    distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
+                    animationDuration: 700 //聚合动画时间，默认为700毫秒
+                },
+                id: 'sdddfds',
                 data: values, //{x,y,value}
                 type: 'point', // point|line|polygon|chart|..
                 symbol: 'circle', //circle|react|icon
@@ -383,41 +414,46 @@ class icon extends Component {
 
             // console.log(features);
             //进行屏幕移动动画。
-            mapObj.flyTo([116.98612837827636, 36.6650505841216], {
+            //
+            //
+            var coo = [116.60062, 35.45594]; /*[116.98612837827636, 36.6650505841216]*/
+            mapObj.flyTo(coo, {
                 zoom: 9,
                 callback: function() {
 
-                    mapObj.spatialQuery([116.98612837827636, 36.6650505841216], 10000, queryCallback);
+                    mapObj.spatialQuery(coo, 10000, queryCallback);
 
                 }
             });
             let queryCallback = function(features) {
 
-                for (let key in features.data) {
+                console.log(features.data);
+                // for (let key in features.data) {
 
-                    const feaArray = features.data[key];
-                    feaArray.forEach(feature => {
+                // const feaArray = features.data[key];
+                // feaArray.forEach(feature => {
 
-                        let coord = feature.get('geoCoord');
-                        if (feature.get('features')) {
+                //     let coord = feature.get('geoCoord');
+                //     if (feature.get('features')) {
 
-                            coord = feature.get('features')[0].get('geoCoord');
+                //         coord = feature.get('features')[0].get('geoCoord');
 
-                        }
-                        mapObj.drawTrack(coord, [116.98612837827636, 36.6650505841216], {
-                            tooltipFun: function(data) {
+                //     }
+                // mapObj.drawTrack(coord, coo, {
+                //     isCustom: false,
+                //     tooltipFun: function(data) {
 
-                                const length = (data.length / 1000).toFixed(1);
-                                let str = '距离警情地:' + length + '公里' + '<br/>';
-                                str += '预计到达时间：' + data.time + '分钟';
-                                return str;
+                //         const length = (data.length / 1000).toFixed(1);
+                //         let str = '距离警情地:' + length + '公里' + '<br/>';
+                //         str += '预计到达时间：' + data.time + '分钟';
+                //         return str;
 
-                            }
-                        });
+                //     }
+                // });
 
-                    });
+                // });
 
-                }
+                // }
 
             }
         });

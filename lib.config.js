@@ -2,9 +2,9 @@
  * @Author: wxq
  * @Date:   2017-01-10 10:15:18
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-27 18:52:33
+ * @Last Modified time: 2017-06-07 14:08:22
  * @Email: zhangyujie3344521@163.com
- * @File Path: H:\work\hyMap\lib.config.js
+ * @File Path: F:\work\hyMap\lib.config.js
  * @File Name: lib.config.js
  * @Descript:
  */
@@ -42,7 +42,13 @@ module.exports = {
             loader: 'json-loader'
         }]
     },
-
+    plugins: [
+        new webpack.optimize.UglifyJsPlugin({
+            compress: {
+                warnings: false
+            }
+        })
+    ],
     babel: {
         presets: ['es2015', 'react', 'stage-3'],
         plugins: ['transform-object-rest-spread', 'transform-class-properties']

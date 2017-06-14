@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-18 09:51:02
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-05-24 18:33:24
+ * @Last Modified time: 2017-06-14 16:23:42
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\hymap\hyFeature.js
  * @File Name: hyFeature.js
@@ -79,7 +79,7 @@ export default class hyFeature {
             str.forEach((obj) => {
 
                 const coord = obj.split(',');
-                const coordinate = mapTool.transform([Number(coord[0]), Number(coord[1])]);
+                const coordinate = mapTool.transform(coord);
                 coords.push(coordinate);
 
             });
@@ -107,13 +107,26 @@ export default class hyFeature {
 
             } else {
 
-                coords = mapTool.transform([Number(coords[0]), Number(coords[1])]);
+                coords = mapTool.transform(coords);
 
             }
             geometry = new ol.geom.Point(coords);
 
         }
 
+        return geometry;
+
+    }
+    static createLine(data) {
+
+        let coords = [];
+        data.forEach((obj) => {
+
+            coords.push(mapTool.transform(obj.geoCoord));
+
+        });
+
+        const geometry = new ol.geom.LineString(coords);
         return geometry;
 
     }

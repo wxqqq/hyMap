@@ -349,8 +349,6 @@ export default class hyMapStyle {
         const symbolSize = serie && serie.symbolSize;
         const serieType = serie && serie.type;
 
-        // console.log(serieType);
-        // console.log(symbolSize, rStyle[0].getImage())
         //判断是否对图形大小进行动态设置
         if (symbolSize && symbolSize[0] != symbolSize[1]) {
 

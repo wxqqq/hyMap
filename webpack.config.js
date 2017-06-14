@@ -2,7 +2,7 @@
  * @Author: FunctionRun
  * @Date:   2017-01-10 10:15:18
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-05-27 14:35:48
+ * @Last Modified time: 2017-06-13 18:00:08
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\webpack.config.js
  * @File Name: webpack.config.js
@@ -18,7 +18,7 @@ const libJson = require('./lib_manifest.json');
 
 // const hotMiddlewareScript = 'webpack-hot-middleware/client?reload=true';
 const hostConfig = {
-    host: '127.0.0.1',
+    host: 'localhost',
     port: '8110'
 };
 const publicPath = '/build/';
@@ -31,7 +31,9 @@ let webpackConfig = {
         root: '',
         extensions: ['', '.js', '.json', '.css', '.styl', '.sass', '.scss'],
         alias: {
-            ol: path.join(__dirname, '/public/lib/ol-debug')
+            ol: path.join(__dirname, '/public/lib/ol-debug'),
+            sockjs_min: path.join(__dirname, 'public/lib/sockjs.min'),
+            stomp: path.join(__dirname, 'public/lib/stomp.min')
         }
 
     },
@@ -44,8 +46,9 @@ let webpackConfig = {
     devServer: {
         host: hostConfig.host,
         port: hostConfig.port,
-        historyApiFallback: true
+        historyApiFallback: true,
     },
+
     devtool: 'cheap-module-eval-source-map',
     module: {
         loaders: [{
