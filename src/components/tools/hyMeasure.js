@@ -2,15 +2,15 @@
  * @Author: wxq
  * @Date:   2017-05-15 10:48:02
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-05-25 14:16:28
+ * @Last Modified time: 2017-06-15 17:54:40
  * @Email: 304861063@qq.com
- * @File Path: F:\work\hyMap\src\components\hyMeasure.js
+ * @File Path: F:\work\hyMap\src\components\tools\hyMeasure.js
  * @File Name: hyMeasure.js
  * @Descript: 
  */
 'use strict';
 
-require('../../css/measure.css');
+require('../../../css/measure.css');
 
 export default class hyMeasure {
     constructor(options) {

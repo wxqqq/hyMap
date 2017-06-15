@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-23 20:14:54
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-14 18:43:05
+ * @Last Modified time: 2017-06-15 16:44:04
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\circelQueryLayer.js
  * @File Name: circelQueryLayer.js
@@ -54,11 +54,11 @@ export default class circelQueryLayer extends baseLayer {
                 symbolStyle: {
                     'normal': {
                         // strokeWidth: 3,
-                        fillColor: 'rgba(14,139,225,0.2)'
+                        fillColor: 'rgba(14,139,225,0.1)'
                     },
                     'emphasis': {
-                        strokeColor: '#2dbc60',
-                        strokeWidth: 2
+                        strokeColor: '#059639',
+                        strokeWidth: 1
                     }
                 }
             }]
@@ -225,20 +225,30 @@ export default class circelQueryLayer extends baseLayer {
     }
     drawRender(evt) {
 
+
+        // ctx.clearRect()
         let ctx = evt.context;
         let obj = this.getCircleInfo(this.coords, this.radius);
         let piex = obj.piex_center;
         let radius = obj.piex_radius;
-        ctx.strokeStyle = 'rgba(255,0,0,0.4)';
-        ctx.lineWidth = 3;
-        // ctx.moveTo(piex[0], piex[1]);
+
+        var grd = ctx.createRadialGradient(piex[0], piex[1], 0, piex[0], piex[1], radius);
+        grd.addColorStop(0.8, 'rgba(160,16,17,0)');
+        grd.addColorStop(1, 'rgba(160,16,17,0.8)');
+        ctx.fillStyle = grd;
+        ctx.beginPath();
+        ctx.arc(piex[0], piex[1], radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.moveTo(piex[0], piex[1]);
         // ctx.globalCompositeOperation = 'lighter';
+        ctx.strokeStyle = 'rgba(255,0,0,0.3)';
         for (let i = 0; i < 3; i++) {
 
             ctx.beginPath();
             ctx.arc(piex[0], piex[1], ((radius - 1) / 3) * (i + 1), 0, Math.PI * 2, false);
             // ctx.strokeStyle = 'hsla(' + (360 - (i * (50 / 4))) + ', ' + 50 + '%, ' + 40 + '%, 0.1)';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 1;
             ctx.stroke();
 
         }
@@ -248,6 +258,15 @@ export default class circelQueryLayer extends baseLayer {
 
     }
 
+    /**
+     * [drawRadar description]
+     * @author WXQ
+     * @date   2017-06-15
+     * @param  {[type]}   iDeg [description]
+     * @param  {[type]}   ctx  [description]
+     * @param  {[type]}   obj  [description]
+     * @return {[type]}        [description]
+     */
     drawRadar(iDeg, ctx, obj) {
 
         ctx.save();
@@ -354,7 +373,6 @@ export default class circelQueryLayer extends baseLayer {
         // var selectedFeatures = this.clickSelect.getFeatures();
         this.draw.on('drawstart', (evt) => {
 
-            console.log(evt);
             this.setClickActive(false);
             // selectedFeatures.clear();
 

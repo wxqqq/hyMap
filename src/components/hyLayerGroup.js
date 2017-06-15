@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-04 17:22:04
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-05-27 14:51:46
+ * @Last Modified time: 2017-06-15 17:49:19
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\hyLayerGroup.js
  * @File Name: hyLayerGroup.js
@@ -11,8 +11,8 @@
 'use strict';
 import baseUtil from '../util/baseUtil';
 import serieModel from '../model/serieModel';
-import hyMapStyle from '../hymap/hyMapStyle';
-import hyFeature from '../hymap/hyFeature';
+import hyMapStyle from './style/hyMapStyle';
+import hyFeature from './feature/hyFeature';
 import events from '../events/events';
 import hyLayer from '../components/layer/hyLayer';
 

@@ -2,15 +2,15 @@
  * @Author: wxq
  * @Date:   2017-04-18 09:51:02
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-14 16:23:42
+ * @Last Modified time: 2017-06-15 17:45:37
  * @Email: 304861063@qq.com
- * @File Path: F:\work\hyMap\src\hymap\hyFeature.js
+ * @File Path: F:\work\hyMap\src\components\feature\hyFeature.js
  * @File Name: hyFeature.js
  * @Descript: 
  */
 'use strict';
-import baseUtil from '../util/baseUtil';
-import mapTool from '../util/mapToolUtil';
+import baseUtil from '../../util/baseUtil';
+import mapTool from '../../util/mapToolUtil';
 
 const ol = require('ol');
 

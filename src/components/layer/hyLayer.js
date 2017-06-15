@@ -2,15 +2,15 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:02:10
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-02 18:48:51
+ * @Last Modified time: 2017-06-15 17:49:42
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\hyLayer.js
  * @File Name: hyLayer.js
  * @Descript: 
  */
 'use strict';
-import hyMapStyle from '../../hymap/hyMapStyle';
-import hyFeature from '../../hymap/hyFeature';
+import hyMapStyle from '../style/hyMapStyle';
+import hyFeature from '../feature/hyFeature';
 import baseUtil from '../../util/baseUtil';
 import colorUtil from '../../util/colorUtil';
 import serieModel from '../../model/serieModel';

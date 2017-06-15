@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-22 13:37:27
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-14 18:47:13
+ * @Last Modified time: 2017-06-15 17:45:51
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\trackLayer.js
  * @File Name: trackLayer.js
@@ -11,7 +11,7 @@
 'use strict';
 import baseLayer from './baselayer';
 
-import hyFeature from '../../hymap/hyFeature';
+import hyFeature from '../feature/hyFeature';
 
 const ol = require('ol');
 

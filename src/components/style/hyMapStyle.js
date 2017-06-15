@@ -1,6 +1,6 @@
-import symbolModel from '../model/symbolModel';
-import labelModel from '../model/labelModel';
-import baseUtil from '../util/baseUtil';
+import symbolModel from '../../model/symbolModel';
+import labelModel from '../../model/labelModel';
+import baseUtil from '../../util/baseUtil';
 
 const ol = require('ol');
 
@@ -13,6 +13,26 @@ export default class hyMapStyle {
 
     }
 
+    /**
+     * [_createTextStyle description]
+     * @author WXQ
+     * @date    2017-06-15
+     * @param   {String}   options.fontStyle    [description]
+     * @param   {String}   options.fontWeight   [description]
+     * @param   {String}   options.fontSize     [description]
+     * @param   {String}   options.fontFamily   [description]
+     * @param   {[type]}   options.offsetX      [description]
+     * @param   {[type]}   options.offsetY      [description]
+     * @param   {[type]}   options.scale        [description]
+     * @param   {[type]}   options.rotation     [description]
+     * @param   {[type]}   options.textAlign    [description]
+     * @param   {[type]}   options.textBaseline [description]
+     * @param   {[type]}   options.color        [description]
+     * @param   {[type]}   options.strokeColor  [description]
+     * @param   {Object}   options.strokeWidth                  } [description]
+     * @return  {[type]}                        [description]
+     * @private
+     */
     _createTextStyle({
         fontStyle = '',
         fontWeight = '',

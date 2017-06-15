@@ -2,24 +2,29 @@ import hymapOption from '../model/mapModel';
 import hyLayerGroup from '../components/hyLayerGroup';
 import baseUtil from '../util/baseUtil';
 import events from '../events/events';
-import hyGeo from '../components/geo/geo';
 import hymap from '../components/map';
 import animation from '../animation/animation';
 import mapTool from '../util/mapToolUtil';
 import gpsLayer from '../components/layer/gpsLayer';
 import hyView from '../components/view';
-import hyMeasure from '../components/hyMeasure';
+import hyMeasure from '../components/tools/hyMeasure';
 import trackLayer from '../components/layer/trackLayer';
 import circleQueryLayer from '../components/layer/circelQueryLayer';
+import baseMap from '../components/layer/baseMap';
+import baseGeo from '../components/layer/baseGeo';
+import hytooltip from '../components/tooltip/hytooltip';
 
 const ol = require('ol');
 /**
  * 
  */
-export default class hyMap extends hyGeo {
+export default class hyMap extends hytooltip {
     constructor(dom, options) {
 
         super(options);
+        this._basicLayersArray = new ol.Collection();
+        this._basicLayerGroup = new ol.layer.Group();
+        this._basicLayerGroup.setLayers(this._basicLayersArray);
         this._geo = hymapOption;
         this.map = null;
         this._show = true;
@@ -128,21 +133,163 @@ export default class hyMap extends hyGeo {
      */
     _init(dom) {
 
-        this.map = new hymap();
-        mapTool.map = this.map;
-        this._createBasicGroup();
-        this.setDom(dom);
+            this.map = new hymap();
+            mapTool.map = this.map;
+            this._createBasicGroup();
+            this.setDom(dom);
 
-        this._overlay = this._createOverlay();
-        this._createIntercation();
-        this._createtrackLayer();
+            this._overlay = this._createOverlay();
+            this._createIntercation();
+            this._createtrackLayer();
 
-        // this.hymeasure = new hyMeasure({
-        // map: this.map
-        // })
+            // this.hymeasure = new hyMeasure({
+            // map: this.map
+            // })
+
+        }
+        /**
+         * 创建基础图层组
+         * @return {[type]} [description]
+         */
+    _createBasicGroup() {
+
+        //底图
+        this.baseLayer = new baseMap({});
+        this._basicLayersArray.push(this.baseLayer.getLayer());
+        this.baseGeoObject = new baseGeo();
+        this._basicLayersArray.push(this.baseGeoObject.getLayer());
+
+        this.map.addLayer(this._basicLayerGroup);
+        // this.map.addLayer(this.baseLayer.getLayer());
+        var tian_di_tu_satellite_layer = new ol.layer.Tile({
+            baseLayer: true,
+            title: '卫星',
+            visible: false,
+            displayInLayerSwitcher: false,
+            source: new ol.source.XYZ({
+                url: 'http://t0.tianditu.com/DataServer?T=img_w&x={x}&y={y}&l={z}'
+            })
+        });
+
+
+        this.map.addLayer(tian_di_tu_satellite_layer);
+
+        // var tian_di_tu_road_layer = new ol.layer.Tile({
+        //     title: "天地图路网",
+        //     source: new ol.source.XYZ({
+        //         url: "http://t0.tianditu.com/DataServer?T=vec_w&x={x}&y={y}&l={z}"
+        //     })
+        // });
+        // this.map.addLayer(tian_di_tu_road_layer);
+        // var tian_di_tu_annotation = new ol.layer.Tile({
+        //     title: "标注",
+        //     source: new ol.source.XYZ({
+        //         url: 'http://t0.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}'
+        //     })
+        // });
+        // this.map.addLayer(tian_di_tu_annotation);
+        //浮动区域
 
     }
 
+    showBaseMap() {
+
+        this.baseLayer.show();
+
+    }
+
+    hideBaseMap() {
+
+        this.baseLayer.hide();
+
+    }
+
+    /**
+     * [setTheme description]
+     * @param {String} theme [description]
+     */
+    setTheme(theme) {
+
+        this.baseLayer.setUrl(this._serverUrl);
+        this.baseLayer.setTheme(theme);
+
+    }
+    setGeo(geo) {
+
+        this.baseGeoObject.setUrl(geo.serverUrl);
+        this.baseGeoObject.setGeoStyle(geo);
+        this.baseGeoObject.setGeoSource(geo.map);
+        this.baseGeoObject.setGeoDrillDown(geo.drillDown);
+        this.setTheme(geo.theme); //设置theme主题
+
+    }
+
+    showGeo() {
+
+        this.baseGeoObject.show();
+
+    }
+
+    hideGeo() {
+
+        this.baseGeoObject.hide();
+
+    }
+
+    /**
+     * [setDrillDown description]
+     * @param {Boolean} flag [description]
+     */
+    setGeoDrillDown(flag = false) {
+
+        this.baseGeoObject.setGeoDrillDown(flag);
+
+    }
+
+    /**
+     * [getDrillDown description]
+     * @return {[type]} [description]
+     */
+    getGeoDrillDown() {
+
+        return this.baseGeoObject.getGeoDrillDown();
+
+    }
+
+    /**
+     * [geoGo description]
+     * @param  {[type]} options [description]
+     * @return {[type]}         [description]
+     */
+    geoGo(options) {
+
+        this.baseGeoObject.geoGo(options);
+
+    }
+
+    geoGoBack() {
+
+        this.baseGeoObject.geoGoBack();
+
+    }
+
+    /**
+     * [geoQuery description]
+     * @param  {[type]} prototype{level,name,} [description]
+     * @return {[type]}        [description]
+     */
+    geoQuery(options, flag = true) {
+
+        this.baseGeoObject.geoQuery(options, flag);
+
+
+    }
+
+    geoQueryCallback(features, flag) {
+
+        this.baseGeoObject.geoQueryCallback(features, flag);
+
+    }
     setServerUrl(url) {
 
         this._serverUrl = url;
