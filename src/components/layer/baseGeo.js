@@ -2,9 +2,9 @@
  * @Author: wxq
  * @Date:   2017-04-18 10:04:23
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-15 18:46:30
+ * @Last Modified time: 2017-06-16 17:13:08
  * @Email: 304861063@qq.com
- * @File Path: F:\work\hyMap\src\components\geo\baseGeo.js
+ * @File Path: F:\work\hyMap\src\components\layer\baseGeo.js
  * @File Name: baseGeo.js
  * @Descript: 
  */
@@ -15,6 +15,7 @@ import hyMapQuery from '../../query/hyMapQuery';
 import mapTool from '../../util/mapToolUtil';
 import baseLayer from '../layer/baselayer';
 import hyStyle from '../style/hyMapStyle';
+import labelModel from '../../model/labelModel';
 
 const ol = require('ol');
 
@@ -158,10 +159,10 @@ export default class baseGeo extends baseLayer {
         regions,
         itemStyle,
         label
-    }) {
+    } = {}) {
 
         this._regionsObj = this.style._createRegionsStyle(regions);
-        let vectorStyle = this.style._createGeoStyle(itemStyle || this._geo.itemStyle, label || this._geo.label);
+        let vectorStyle = this.style._createGeoStyle(itemStyle || {}, label || labelModel);
         this.layer.set('fstyle', vectorStyle);
 
     }

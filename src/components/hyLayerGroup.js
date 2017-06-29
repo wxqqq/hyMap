@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-04 17:22:04
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-15 17:49:19
+ * @Last Modified time: 2017-06-22 11:36:02
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\hyLayerGroup.js
  * @File Name: hyLayerGroup.js
@@ -25,6 +25,7 @@ export default class hyLayerGroup extends hyMapStyle {
         this.map = options.map;
         this.layersArray = new ol.Collection();
         this.layerGroup = this._createGroup(options.id, options.name);
+        this.map.addLayer(this.layerGroup);
         this.addSeries(options.series, this.layersArray);
 
     }
@@ -217,6 +218,14 @@ export default class hyLayerGroup extends hyMapStyle {
         vector && layersArray.push(vector.layer);
 
     }
+
+    destory() {
+
+        this.map.removeLayer(this.layerGroup);
+        this.map = null;
+
+    }
+
 }
 
 Object.assign(hyLayerGroup.prototype, events);

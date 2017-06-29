@@ -2,7 +2,7 @@
  * @Author: FunctionRun
  * @Date:   2017-01-10 10:15:18
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-13 18:00:08
+ * @Last Modified time: 2017-06-29 13:47:46
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\webpack.config.js
  * @File Name: webpack.config.js
@@ -47,6 +47,7 @@ let webpackConfig = {
         host: hostConfig.host,
         port: hostConfig.port,
         historyApiFallback: true,
+        disableHostCheck: true
     },
 
     devtool: 'cheap-module-eval-source-map',

@@ -80,7 +80,7 @@ export default class hyMapStyle {
 
     }
 
-    _createStroke(width, color = 'rgba(0,0,0,0)') {
+    _createStroke(width, color = 'rgba(0,0,0,0)', lineDash = undefined) {
 
         if (width == 0 || isNaN(width)) {
 
@@ -89,7 +89,8 @@ export default class hyMapStyle {
         }
         return new ol.style.Stroke({
             width: width,
-            color: color
+            color: color,
+            lineDash: lineDash
 
         });
 
@@ -207,9 +208,7 @@ export default class hyMapStyle {
         } else if (symbol.indexOf('icon:') === 0) {
 
             const src = symbol.split(':')[1];
-            image = this._createIconStyle(src, styleModel.symbolSize, styleModel.color, styleModel.anchor, function(icon) {
-                // console.log(icon)
-            });
+            image = this._createIconStyle(src, styleModel.symbolSize, styleModel.color, styleModel.anchor, function(icon) {});
 
         }
         return image;

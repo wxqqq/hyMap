@@ -2,9 +2,9 @@
  * @Author: wxq
  * @Date:   2017-04-27 14:37:24
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-05-08 16:23:21
+ * @Last Modified time: 2017-06-28 15:43:41
  * @Email: 304861063@qq.com
- * @File Path: H:\work\hyMap\src\util\mapToolUtil.js
+ * @File Path: F:\work\hyMap\src\util\mapToolUtil.js
  * @File Name: mapToolUtil.js
  * @Descript: 
  */
@@ -68,7 +68,15 @@ function transform(coords, projection) {
         coords = (str.length > 0) ? str[0].split(',') : [0, 0];
 
     }
-    return ol.proj.fromLonLat([Number(coords[0]), Number(coords[1])], projection);
+    if (coords[0] > 1000) {
+
+        return coords;
+
+    } else {
+
+        return ol.proj.fromLonLat([Number(coords[0]), Number(coords[1])], projection);
+
+    }
 
 }
 

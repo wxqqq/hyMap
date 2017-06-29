@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-14 18:24:07
+ * @Last Modified time: 2017-06-29 16:22:31
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\test\container\Earth\gps.js
  * @File Name: gps.js
@@ -14,7 +14,8 @@ import React, {
     Component
 } from 'react';
 import map from '../../../src/index';
-
+require('sockjs_min');
+const Stomp = require('stomp');
 class gps extends Component {
     componentDidMount() {
 
@@ -117,20 +118,83 @@ class gps extends Component {
             geoCoord: '115.99637,36.52161'
         }];
 
-        obj.initTrackData(line);
+        // const trackObj = obj.addLayer({
+        //     id: 899,
+        //     type: 'track', //heatmap,
+        //     data: line,
+        //     arrow: true,
+        //     width: 5,
+        //     speed: 1,
+        //     wrap: false,
+        //     trackModel: '1', //1,2,3
+        // });
+
+        // obj.removeLayer(899)
+        obj.on('trackPlayPoint', (evt) => {
+
+            // console.log(4, evt);
+
+        });
+        obj.on('trackPlayIng', (evt) => {
+
+            // console.log(3, evt);
+
+        });
+        obj.on('trackPlayStart', (evt) => {
+
+            // console.log(1, evt);
+        });
+        obj.on('trackPlayEnd', (evt) => {
+
+            // console.log(2, evt);
+        });
 
         document.getElementById('play').addEventListener('click', () => {
-            obj.trck.startAnimation(1);
+            trackObj.execute('start');
         });
         document.getElementById('stop').addEventListener('click', () => {
-            obj.trck.startAnimation(1);
+            trackObj.execute('stop');
+        });
+
+        document.getElementById('containue').addEventListener('click', (obj) => {
+
+            if (obj.target.value == '暂停') {
+                obj.target.value = '继续'
+                trackObj.execute('pause');
+            } else {
+
+                obj.target.value = '暂停'
+                trackObj.execute('containue');
+            }
+
         });
 
 
+        const gpsObj = obj.addLayer({
+            id: 899,
+            type: 'gps', //heatmap,
+            // data: line,
+            rotation: true,
+            mode: 'flash', //move
+            width: 5,
+        });
+        let socket = new SockJS('http://192.168.3.48:8080/sdjg/websocket');
+        this.stompClient = Stomp.Stomp.over(socket);
+        this.stompClient.connect({}, (frame) => {
+
+            this.stompClient.subscribe('/topic/police', (greeting) => {
+
+                obj.updateGps(JSON.parse(greeting.body).data);
+
+            });
+        })
     }
     render() {
 
-        return (<div><input id='play' type='button' value='播放'/><input id='stop' type='button' value='停止'/> <div id = 'map' /> </div>);
+        return (<div><input id='play' type='button' value='播放'/>
+                <input id='stop' type='button' value='停止'/>
+                <input id='containue' type='button' value='暂停'/>
+                <div id = 'map' /> </div>);
 
     }
 }

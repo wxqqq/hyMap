@@ -109,7 +109,7 @@ export default class hyMap extends hytooltip {
         if (dom) {
 
             this._dom = dom;
-            dom.tabIndex = 0;
+            // dom.tabIndex = 0;
             this.map.setTarget(dom);
 
         }
@@ -133,18 +133,18 @@ export default class hyMap extends hytooltip {
      */
     _init(dom) {
 
-            this.map = new hymap();
+            this.map = new hymap(dom);
             mapTool.map = this.map;
+            this._dom = dom;
             this._createBasicGroup();
-            this.setDom(dom);
 
             this._overlay = this._createOverlay();
             this._createIntercation();
+            this._createCircleQuery();
             this._createtrackLayer();
-
-            // this.hymeasure = new hyMeasure({
-            // map: this.map
-            // })
+            this.hymeasure = new hyMeasure({
+                map: this.map
+            })
 
         }
         /**
@@ -160,19 +160,18 @@ export default class hyMap extends hytooltip {
         this._basicLayersArray.push(this.baseGeoObject.getLayer());
 
         this.map.addLayer(this._basicLayerGroup);
-        // this.map.addLayer(this.baseLayer.getLayer());
-        var tian_di_tu_satellite_layer = new ol.layer.Tile({
-            baseLayer: true,
-            title: '卫星',
-            visible: false,
-            displayInLayerSwitcher: false,
-            source: new ol.source.XYZ({
-                url: 'http://t0.tianditu.com/DataServer?T=img_w&x={x}&y={y}&l={z}'
-            })
-        });
+        // var tian_di_tu_satellite_layer = new ol.layer.Tile({
+        //     baseLayer: true,
+        //     title: '卫星',
+        //     visible: false,
+        //     displayInLayerSwitcher: false,
+        //     source: new ol.source.XYZ({
+        //         url: 'http://t0.tianditu.com/DataServer?T=img_w&x={x}&y={y}&l={z}'
+        //     })
+        // });
 
 
-        this.map.addLayer(tian_di_tu_satellite_layer);
+        // this.map.addLayer(tian_di_tu_satellite_layer);
 
         // var tian_di_tu_road_layer = new ol.layer.Tile({
         //     title: "天地图路网",
@@ -345,50 +344,63 @@ export default class hyMap extends hytooltip {
 
     }
 
-    addLayer(layer) {
+    addLayer(options) {
 
-        layer.id = layer.id || new Date().getTime();
-        layer.map = this.map;
-        const layerGroup = new hyLayerGroup(layer);
-        this._addLayerGroupArray[layer.id] = layerGroup;
-        this.map.addLayer(layerGroup.layerGroup);
+        options.id = options.id || new Date().getTime();
+        options.map = this.map;
+        const type = options.type;
+        let layer;
+        if (type == 'track') {
 
-        return layerGroup.layerGroup;
+            layer = this.initTrackData(options);
 
-    }
+        } else if (type == 'gps') {
 
-    updateLayer(options) {
+            layer = this.initgpslayer(options);
 
-        const id = options.id || null;
-        const layerGroup = this._addLayerGroupArray[id]; //获取对应的layergroup
-        if (!layerGroup) {
+        } else {
 
-            console.info('未找到对应数据。', id);
-            return;
+            layer = new hyLayerGroup(options);
 
         }
-        this.clickSelect.getFeatures().clear();
-        layerGroup.update(options);
+        this._addLayerGroupArray[options.id] = layer;
+        return layer;
 
     }
 
     removeLayer(id) {
 
+        const layer = this._addLayerGroupArray[id];
+        if (layer) {
 
-        const group = this._addLayerGroupArray[id];
-        if (group) {
-
-            this.map.removeLayer(group.layerGroup);
+            layer.destory();
+            this.map.removeLayer(layer.layerGroup);
             delete this._addLayerGroupArray[id];
 
         }
 
     }
 
+    updateLayer(options) {
+
+        const id = options.id || null;
+        const layer = this._addLayerGroupArray[id]; //获取对应的layergroup
+        if (!layer) {
+
+            console.info('未找到对应数据。', id);
+            return;
+
+        }
+        this.clickSelect.getFeatures().clear();
+        layer.update(options);
+
+    }
+
+
     hasLayer(id) {
 
-        const group = this._addLayerGroupArray[id];
-        if (group) {
+        const layer = this._addLayerGroupArray[id];
+        if (layer) {
 
             return true;
 
@@ -399,29 +411,25 @@ export default class hyMap extends hytooltip {
 
     showLayer(id) {
 
-        const group = this._addLayerGroupArray[id];
-        if (group) {
+        const layer = this._addLayerGroupArray[id];
+        if (layer) {
 
-            group.setVisible(true);
+            layer.setVisible(true);
 
         }
-
 
     }
 
     hideLayer(id) {
 
-        const group = this._addLayerGroupArray[id];
-        if (group) {
+        const layer = this._addLayerGroupArray[id];
+        if (layer) {
 
-            group.setVisible(false);
+            layer.setVisible(false);
 
         }
 
-
     }
-
-
 
     addMarkers(data) {
 
@@ -442,8 +450,13 @@ export default class hyMap extends hytooltip {
     addOverlay(obj) {
 
         let marker = this._markerLayer[obj.id];
-        obj.container.style.position = 'static';
-        obj.container.style.float = 'left';
+        if (obj && obj.container) {
+
+            obj.container.style.position = 'static';
+            obj.container.style.float = 'left';
+
+        }
+
         if (marker) {
 
             marker.setPosition(mapTool.transform(obj.geoCoord));
@@ -801,7 +814,6 @@ export default class hyMap extends hytooltip {
      */
     areaQuery(options) {
 
-        console.log(this.clickSelect.getFeatures())
         this.clickSelect.getFeatures().clear();
         const geom = options.geom;
         let result = {};
@@ -824,9 +836,13 @@ export default class hyMap extends hytooltip {
                     if (geom.intersectsCoordinate(coords)) {
 
                         //增加距离，单位为米
-                        var line = new ol.geom.LineString([coords, geom.getCenter()]);
-                        feature.set('pixel', this.map.getPixelFromCoordinate(coords));
-                        feature.set('distance', Number(line.getLength().toFixed(0)));
+                        if (geom instanceof ol.geom.Circle) {
+
+                            var line = new ol.geom.LineString([coords, geom.getCenter()]);
+                            feature.set('pixel', this.map.getPixelFromCoordinate(coords));
+                            feature.set('distance', Number(line.getLength().toFixed(0)));
+                        }
+
                         featureArray.push(feature);
                         this.clickSelect.getFeatures().push(feature);
 
@@ -924,7 +940,7 @@ export default class hyMap extends hytooltip {
      * @param  {Function} callback [description]
      * @return {[type]}            [description]
      */
-    spatialQuery(geoCoord, radius, callback) {
+    spatialQuery(geoCoord, radius, callback, options) {
 
         this.clearTrackInfo(); //该方法进行对查询到的所有轨迹和tooltip进行移除操作。
 
@@ -949,7 +965,7 @@ export default class hyMap extends hytooltip {
 
         });
 
-        this.queryCircle.load(geoCoord, radius);
+        this.queryCircle.load(geoCoord, radius, options);
 
     }
 
@@ -966,7 +982,7 @@ export default class hyMap extends hytooltip {
         isCustom = false
     } = {}) {
 
-        if (!start) {
+        if (!start || !end) {
 
             return;
 
@@ -977,11 +993,10 @@ export default class hyMap extends hytooltip {
             return;
 
         }
-
+        const viewparams = ['tbname:' + '\'road_jining\'', 'x1:' + start[0], 'y1:' + start[1], 'x2:' + end[0], 'y2:' + end[1]];
         let url = 'http://localhost:3000/routing';
-        const viewparams = ['x1:' + start[0], 'y1:' + start[1], 'x2:' + end[0], 'y2:' + end[1]];
         url = this._serverUrl + '/hygis/wfs?sversion=1.0.0&request=GetFeature&outputFormat=application%2Fjson';
-        url += '&typeName=' + 'routing_sd_jining' + '&viewparams=' + viewparams.join(';');
+        url += '&typeName=' + 'Route' + '&viewparams=' + viewparams.join(';');
 
         // let formData = new FormData();
         // formData.append("start", start);
@@ -1006,9 +1021,22 @@ export default class hyMap extends hytooltip {
 
         }).then((data) => {
 
-            var features = new ol.format.GeoJSON().readFeatures(data, {
+            let features = new ol.format.GeoJSON().readFeatures(data, {
                 featureProjection: 'EPSG:3857'
             });
+
+            let feature = features[0];
+
+            var wgs84Sphere = new ol.Sphere(6378137);
+            let first = ol.proj.transform(feature.getGeometry().getFirstCoordinate(), 'EPSG:3857', 'EPSG:4326');
+            let last = ol.proj.transform(feature.getGeometry().getLastCoordinate(), 'EPSG:3857', 'EPSG:4326');
+            const dis1 = wgs84Sphere.haversineDistance(start, first);
+            const dis2 = wgs84Sphere.haversineDistance(start, last);
+            let coords = feature.getGeometry().getCoordinates();
+            dis1 > dis2 && coords.reverse(); //反向的路径进行坐标翻转
+            coords.splice(0, 0, mapTool.transform(start)); //加入开始节点
+            coords.push(mapTool.transform(end)); //加入最后节点
+            feature.getGeometry().setCoordinates(coords);
             if (baseUtil.isFunction(callback)) {
 
                 callback(features[0]);
@@ -1033,7 +1061,7 @@ export default class hyMap extends hytooltip {
 
         }).catch(function(e) {
 
-            console.log(e);
+            console.info(e);
 
         });
 
@@ -1065,41 +1093,49 @@ export default class hyMap extends hytooltip {
         return overlay;
 
     }
-
-    _createtrackLayer() {
+    _createCircleQuery() {
 
         this.queryCircle = new circleQueryLayer({
             map: this.map
         });
 
+    }
+    _createtrackLayer() {
+
         this.queryCircleLayer = this.queryCircle.layer;
-        this.trck = new trackLayer({
-            map: this.map
-        });
+
         let group = new hyLayerGroup({
             map: this.map,
             series: [{
                 symbolStyle: {
                     'normal': {
-                        strokeColor: '#2dbc60',
-                        strokeWidth: 3
+                        strokeColor: '#00f893',
+                        strokeWidth: 5
                     },
                     'emphasis': {
                         strokeColor: 'green',
                         strokeWidth: 4
                     }
                 }
+            }, {
+
             }]
 
         });
         this.trackLayer = group.layerGroup.getLayers().getArray()[0];
-        this.map.addLayer(group.layerGroup);
+
+        // this.map.addLayer(group.layerGroup);
 
     }
 
-    initTrackData(polyline) {
+    initTrackData(obj) {
 
-        this.trck.initTrackData(polyline);
+        this.trck = new trackLayer({
+            map: this.map
+        });
+
+        this.trck.initTrackData(obj);
+        return this.trck;
 
     }
 
@@ -1123,12 +1159,11 @@ export default class hyMap extends hytooltip {
 
     }
 
-    initgpslayer() {
+    initgpslayer(options) {
 
-        this.gpslayer = new gpsLayer({
-            map: this.map
-        });
-        // console.log(this.gpslayer);
+        options.map = this.map;
+        this.gpslayer = new gpsLayer(options);
+
 
     }
 
@@ -1137,9 +1172,29 @@ export default class hyMap extends hytooltip {
         this.gpslayer.update(data);
 
     }
-    createDraw(value) {
+    createDraw(value, callback) {
 
+        this.queryCircle.setQueryFun((result) => {
+
+            this.areaQuery({
+                geom: result.geometry,
+                layers: this._addLayerGroupArray
+            }).then((data) => {
+
+                this.clearTrackInfo();
+
+                result.data = data;
+                if (baseUtil.isFunction(callback)) {
+
+                    callback(result);
+
+                }
+
+            });
+
+        });
         this.queryCircle.createDraw(value);
+
 
     }
 

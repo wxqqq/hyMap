@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:02:10
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-15 17:49:42
+ * @Last Modified time: 2017-06-29 11:33:02
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\hyLayer.js
  * @File Name: hyLayer.js
@@ -164,7 +164,8 @@ export default class hylayer extends hyMapStyle {
         vector.set('interior', serie.interior);
         vector.set('type', 'item');
         vector.set('id', serie.id || new Date().getTime());
-        vector.set('showPopup', serie.showPopup);
+        vector.set('contextmenu', serie.contextmenu);
+        // vector.set('showPopup', serie.showPopup);
         vector.set('fstyle', style);
 
         source.vector = vector;

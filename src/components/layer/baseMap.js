@@ -2,9 +2,9 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:03:05
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-14 15:01:17
+ * @Last Modified time: 2017-06-19 14:05:08
  * @Email: 304861063@qq.com
- * @File Path: F:\work\hyMap\src\components\geo\baseMap.js
+ * @File Path: F:\work\hyMap\src\components\layer\baseMap.js
  * @File Name: baseMap.js
  * @Descript: 
  */
@@ -120,8 +120,10 @@ export default class baseMap extends baseLayer {
         while (str.length < len) {
 
             str = '0' + str;
+
         }
 
         return str;
+
     }
 }

@@ -429,3 +429,17 @@ obj:{
 
 }
 ```
+
+周边查询
+```
+instance.spatialQuery(
+  center,//中心点坐标
+  distance,//距离
+  querycallbak,//查询结果回调
+  {
+    showRandar:true,//显示雷达 默认true
+    time:-1 //雷达扫描次数， 默认-1 扫描动画开启后不会消失
+    }
+  )
+
+```

@@ -53,5 +53,6 @@ export default {
         },
         'emphasis': {}
     },
-    showPopup: false //显示气泡框
+    contextmenu: false
+        // showPopup: false //显示气泡框
 };

@@ -2,13 +2,15 @@
  * @Author: wxq
  * @Date:   2017-05-08 20:09:53
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-14 13:48:35
+ * @Last Modified time: 2017-06-22 15:52:04
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\baselayer.js
  * @File Name: baselayer.js
  * @Descript: 
  */
 'use strict';
+
+import events from '../../events/events';
 export default class baseLayer {
     constructor(options) {
 
@@ -41,3 +43,4 @@ export default class baseLayer {
 
     }
 }
+Object.assign(baseLayer.prototype, events);

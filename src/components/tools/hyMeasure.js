@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-15 10:48:02
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-15 17:54:40
+ * @Last Modified time: 2017-06-29 11:40:25
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\tools\hyMeasure.js
  * @File Name: hyMeasure.js
@@ -12,6 +12,7 @@
 
 require('../../../css/measure.css');
 
+const ol = require('ol');
 export default class hyMeasure {
     constructor(options) {
 
@@ -71,7 +72,6 @@ export default class hyMeasure {
         });
         this.map.addLayer(this.vector);
         // this.map.on('singleclick', (evt) => {
-        //     console.log(evt);
         //     var feature = new ol.Feature({
         //         geometry: new ol.geom.Point(evt.coordinate)
         //     })
@@ -215,7 +215,6 @@ export default class hyMeasure {
                 })
             }),
             // geometryFunction: function(evt) {
-            //     console.log(evt);
             //     // return evt;
             // }
         });
