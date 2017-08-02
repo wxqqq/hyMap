@@ -14,16 +14,18 @@ npm install hy-map
 ```
 4.运行
 ```
-npm run dev //开发模式
-npm run start //执行模式
+在 代码中引入 hy-map
+import hymap from hy-map;
+或者 require('hy-map');
 ```
 
 ------
-##api手册
-[api](doc/api.md)
-##更新日志
+###api手册
+[api](doc/API/index.html)
+###更新日志
 [log](doc/log.md)
-##地图命名规范
+
+###地图命名规范
 
 一、地理底图命名规则：
 1.矢量切片命名： 行政区名+“_”+vector+”_”+样式+”gp”  例如：shandongsheng_ vector _dark_gp
@@ -31,7 +33,6 @@ npm run start //执行模式
 
 
 ##路网分析服务
-
 
 ##比例尺对应关系
 

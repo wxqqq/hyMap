@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-26 17:13:23
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-05-27 15:44:58
+ * @Last Modified time: 2017-07-17 13:55:36
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\track.js
  * @File Name: track.js
@@ -59,9 +59,6 @@ export default class track {
 
     /**
      * 清空轨迹线
-     * @author WXQ
-     * @date   2017-04-26
-     * @return {[type]}   [description]
      */
     clearLayer() {
 
@@ -81,9 +78,6 @@ export default class track {
 
     /**
      * 清空轨迹tooltip
-     * @author WXQ
-     * @date   2017-04-26
-     * @return {[type]}   [description]
      */
     clearOverlay() {
 
@@ -104,14 +98,11 @@ export default class track {
     }
 
     /**
-     * [drawTrack description]
-     * @author WXQ
-     * @date   2017-04-26
-     * @param  {[type]}   start              [description]
-     * @param  {[type]}   end                [description]
-     * @param  {[type]}   options.callback   [description]
-     * @param  {[type]}   options.tooltipFun [description]
-     * @return {[type]}                      [description]
+     * 绘制轨迹
+     * @param  {Array}   start              [description]
+     * @param  {Array}   end                [description]
+     * @param  {Function}   options.callback   [description]
+     * @param  {Function}   options.tooltipFun [description]
      */
     drawTrack(start, end, {
         callback = undefined,
@@ -208,5 +199,4 @@ export default class track {
         this.trackLayer.getSource().addFeatures(features);
 
     }
-
 }

@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-22 13:37:27
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-23 18:37:41
+ * @Last Modified time: 2017-07-17 13:56:42
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\trackLayer.js
  * @File Name: trackLayer.js
@@ -16,6 +16,10 @@ import hyFeature from '../feature/hyFeature';
 const ol = require('ol');
 
 export default class trackLayer extends baseLayer {
+    /**
+     * 初始化
+     * @param  {Object}   options 参数
+     */
     constructor(options) {
 
         super(options);
@@ -322,7 +326,7 @@ export default class trackLayer extends baseLayer {
         }
 
     }
-    destory() {
+    dispose() {
 
         this.map.removeLayer(this.trackLayer);
         this.map = null;

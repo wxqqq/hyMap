@@ -1,3 +1,6 @@
+/**
+ * @module serieModel
+ */
 export default {
     id: new Date().getTime(),
     cluster: {

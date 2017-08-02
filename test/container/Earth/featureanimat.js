@@ -2,21 +2,18 @@
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-05-11 09:57:46
+ * @Last Modified time: 2017-07-25 09:53:52
  * @Email: 304861063@qq.com
- * @File Path: H:\work\hyMap\test\container\Earth\featureanimat.js
+ * @File Path: F:\work\hyMap\test\container\Earth\featureanimat.js
  * @File Name: featureanimat.js
  * @Descript: 
  */
 'use strict';
-import React, {
-    Component
-} from 'react';
+import React, { Component } from 'react';
 import map from '../../../src/index';
 
 class featureanimat extends Component {
     componentDidMount() {
-        console.log(1)
 
         var layer = new ol.layer.Tile({
             name: "Natural Earth",
@@ -39,33 +36,32 @@ class featureanimat extends Component {
             layers: [layer]
         });
 
-        var style =
-            [new ol.style.Style({
+        var style = [new ol.style.Style({
 
-                    stroke: new ol.style.Stroke({
-                        color: [0, 0, 0, 0.3],
-                        width: 2
-                    }),
-                    fill: new ol.style.Fill({
-                        color: [0, 0, 0, 0.3]
-                    }),
-                    zIndex: -1
+            stroke: new ol.style.Stroke({
+                color: [0, 0, 0, 0.3],
+                width: 2
+            }),
+            fill: new ol.style.Fill({
+                color: [0, 0, 0, 0.3]
+            }),
+            zIndex: -1
+        }),
+            new ol.style.Style({
+                image: new ol.style.Icon({
+                    size: [70, 105],
+                    src: 'test/data/jingli-1.png',
+                    scale: 1
                 }),
-                new ol.style.Style({
-                    image: new ol.style.Icon({
-                        size: [70, 105],
-                        src: 'test/data/jingli-1.png',
-                        scale: 1
-                    }),
-                    stroke: new ol.style.Stroke({
-                        color: [0, 0, 255],
-                        width: 2
-                    }),
-                    fill: new ol.style.Fill({
-                        color: [0, 0, 255, 0.3]
-                    })
+                stroke: new ol.style.Stroke({
+                    color: [0, 0, 255],
+                    width: 2
+                }),
+                fill: new ol.style.Fill({
+                    color: [0, 0, 255, 0.3]
                 })
-            ];
+            })
+        ];
         // style[1].getImage().getAnchor()[1] += 10;
 
         // Vector layer

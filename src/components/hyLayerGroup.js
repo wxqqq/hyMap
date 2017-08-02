@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-04 17:22:04
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-22 11:36:02
+ * @Last Modified time: 2017-07-19 10:49:56
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\hyLayerGroup.js
  * @File Name: hyLayerGroup.js
@@ -19,32 +19,59 @@ import hyLayer from '../components/layer/hyLayer';
 const ol = require('ol');
 
 export default class hyLayerGroup extends hyMapStyle {
+    /**
+     * 初始化
+     * @param  {Object}   options 参数
+     */
     constructor(options) {
 
         super(options);
         this.map = options.map;
         this.layersArray = new ol.Collection();
         this.layerGroup = this._createGroup(options.id, options.name);
+        this.addSeries(options.series);
         this.map.addLayer(this.layerGroup);
-        this.addSeries(options.series, this.layersArray);
 
     }
 
+    /**
+     * 获取图层
+     * @return {Array} [layers] 图层组 
+     */
     getLayers() {
 
         return this.layerGroup.getLayers();
 
     }
+
+    /**
+     * 根据id获取图层
+     * @param  {String} id id
+     * @return {Object}  layer  图层
+     */
     get(id) {
 
-        return this.layerGroup.get(id);
+        return this.layersArray.get(id);
 
     }
+
+    /**
+     * 设置显示状态
+     * @param {Boolean} flag true/false
+     */
     setVisible(flag = true) {
 
         this.layerGroup.setVisible(flag);
 
     }
+
+    /**
+     * 创建图层
+     * @param   {String} id   id
+     * @param   {String} name 名称
+     * @return  {Object} layerGroup 图层组
+     * @private
+     */
     _createGroup(id, name) {
 
         this.layersArray.set('layerId', id);
@@ -57,27 +84,25 @@ export default class hyLayerGroup extends hyMapStyle {
         this.layersArray.parent = layerGroup;
         this.layersArray.on('add', (evt) => {
 
-            evt.element.set('layerId', evt.target.get('layerId'));
             evt.element.parent = this.layersArray;
+            evt.element.set('layerId', evt.target.get('layerId'));
+
 
         });
         return layerGroup;
 
     }
 
+    /**
+     * 更新数据
+     * @param  {Object} series 数据
+     */
     update(options) {
 
-        const layerGroup = this.layerGroup;
-        if (!layerGroup) {
-
-            console.info('未找到对应数据。');
-            return;
-
-        }
         const series = options.series; //新数据
         const newSeriesLength = series.length; //新数据长度
 
-        const layers = layerGroup.getLayers(); //旧数据
+        const layers = this.layerGroup.getLayers(); //旧数据
         const old_layersLength = layers.getLength(); //旧数据长度
 
         layers.forEach((layer, index) => {
@@ -99,7 +124,7 @@ export default class hyLayerGroup extends hyMapStyle {
                         serie: serie
                     });
                     layers.setAt(index, vector.layer);
-                    // console.log('update_changeOption');
+                    // console.info('update_changeOption');
 
                 } else {
 
@@ -137,7 +162,7 @@ export default class hyLayerGroup extends hyMapStyle {
 
                         } else {
 
-                            // console.log('update_rmData', feature);
+                            // console.info('update_rmData', feature);
                             source.removeFeature(feature);
 
                         }
@@ -176,8 +201,8 @@ export default class hyLayerGroup extends hyMapStyle {
 
             for (let i = old_layersLength; i < newSeriesLength; i++) {
 
-                // console.log('update_addSerie');
-                this.addSerie(series[i], layers);
+                // console.info('update_addSerie');
+                this.addSerie(series[i]);
 
             }
 
@@ -186,8 +211,8 @@ export default class hyLayerGroup extends hyMapStyle {
 
             for (let i = newSeriesLength; i < old_layersLength; i++) {
 
-                // console.log('update_rmSerie')
-                layers.removeAt(series.length);
+                // console.info('update_rmSerie')
+                layers.removeAt(newSeriesLength);
 
             }
 
@@ -197,35 +222,41 @@ export default class hyLayerGroup extends hyMapStyle {
 
     /**
      * 创建图层数组
-     * @param  {[type]} series [description]
-     * @return {[type]}        [description]
+     * @param  {Object} series 数据
      */
-    addSeries(series, layersArray) {
+    addSeries(series) {
 
         series.forEach((serie) => {
 
-            this.addSerie(serie, layersArray);
+            this.addSerie(serie);
 
         });
 
     }
-    addSerie(serie, layersArray) {
+
+    /**
+     * 创建图层
+     * @param {Object} serie  数据
+     */
+    addSerie(serie) {
 
         const vector = new hyLayer({
             map: this.map,
             serie: serie
         });
-        vector && layersArray.push(vector.layer);
+        vector && this.layersArray.push(vector.layer);
 
     }
 
-    destory() {
+    /**
+     * 销毁
+     */
+    dispose() {
 
         this.map.removeLayer(this.layerGroup);
-        this.map = null;
+        this.layerGroup = null;
 
     }
-
 }
 
 Object.assign(hyLayerGroup.prototype, events);

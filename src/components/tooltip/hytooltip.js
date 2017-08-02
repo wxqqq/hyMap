@@ -4,14 +4,17 @@ import events from '../../events/events';
 
 const ol = require('ol');
 require('../../../css/popup.css');
+
 export default class hytooltip extends hyMapStyle {
+    /**
+     * 初始化
+     * @param  {Object}   options 参数
+     */
     constructor(options) {
 
         super(options);
-
         this.tooltipShow = false;
-        this._overlay = null;
-        this.tooltipTrigger = undefined;
+        this.tooltipOverLay = undefined;
         this.formatter = () => undefined;
         this.tooltipTriggeron = '';
         this.enterable = false;
@@ -31,19 +34,32 @@ export default class hytooltip extends hyMapStyle {
         this._createSelectInteraction();
 
     }
-    setTooltip(options) {
 
-        const opt = options || {};
-        this.tooltipShow = opt.show || false;
-        this.formatter = baseUtil.isFunction(opt.formatter) ? opt.formatter : undefined;
-        this.tooltipOffset = baseUtil.isFunction(opt.position) ? opt.position : [0, 0];
-        this.tooltipTrigger = opt.trigger || undefined;
-        this.tooltipTriggeron = opt.triggeron || '';
-        this.enterable = opt.enterable || false;
-        this.setTooltipStyle(opt.style);
-        baseUtil.isFunction(opt.tooltipOffset) && this.setTooltipOffset(this.tooltipOffset);
+    /**
+     * [setTooltip description]
+     * @param {[type]} options [description]
+     */
+    setTooltip({
+        show = false,
+        formatter = undefined,
+        enterable = false,
+        offset = [0, 0],
+        style = undefined,
+        triggeron = '',
+        isCustom = true
+    } = {}) {
+
+        this.tooltipShow = show;
+        this.formatter = formatter;
+        this.tooltipOffset = offset;
+        this.tooltipTriggeron = triggeron;
+        this.enterable = enterable;
+        this.setTooltipStyle(style);
+        this.setTooltipOffset(this.tooltipOffset);
+        this.setTooltipPopup(isCustom);
 
     }
+
 
     setTooltipStyle(styleObject) {
 
@@ -54,112 +70,127 @@ export default class hytooltip extends hyMapStyle {
         let styleStr = '';
         for (const i in styleObject) {
 
-
             styleStr += i + ':' + (isNaN(styleObject[i]) ? styleObject[i] : styleObject[i] + 'px') + ';';
 
         }
 
-        this._overlay.getElement().setAttribute('style', styleStr);
+        this.tooltipOverLay.getElement().setAttribute('style', styleStr);
 
     }
 
     getToolip() {
 
+        return this.tooltipOverLay;
+
     }
 
-    setPopupStyle() {
+    setTooltipPopup(flag) {
+
+        let element = this._createPopup(flag);
+        this.tooltipOverLay.setElement(element);
 
     }
 
     setTooltipOffset(offset) {
 
-        if (offset) {
-
-            this._overlay.setOffset(offset());
-
-        }
+        this.tooltipOverLay.setOffset(offset);
 
     }
 
     /**
      * 创建popup
-     * @return {[type]} [description]
+     * @param {Boolean}  isCustom 默认气泡框
+     * @return {Element} [description]
      */
-    _createPopup() {
+    _createPopup(isCustom) {
+
 
         let container = document.createElement('div');
-        container.id = 'popup';
-        container.className = 'ol-popup';
-        let closer = document.createElement('div');
-        closer.id = 'popup-closer';
-        closer.className = 'ol-popup-closer';
-        container.appendChild(closer);
-        let content = document.createElement('div');
-        content.id = 'hy-popup-content';
-        container.appendChild(content);
-        document.body.appendChild(container);
-        closer.onclick = () => {
+        container.id = 'hy_popup_' + new Date().getTime();
+        if (isCustom) {
+            container.className = 'ol-popup';
+            let closer = document.createElement('div');
+            closer.id = 'popup-closer';
+            closer.className = 'ol-popup-closer';
+            container.appendChild(closer);
+            let content = document.createElement('div');
+            content.id = 'hy-popup-content';
+            container.appendChild(content);
+            document.body.appendChild(container);
+            closer.onclick = () => {
 
-            this.clickSelect.getFeatures().remove(this._overlay.feature);
-            this._hideOverlay();
-            closer.blur();
-            return false;
+                this.clickSelect.getFeatures().remove(this.tooltipOverLay.feature);
+                this.hideToolTip();
+                closer.blur();
+                return false;
 
-        };
+            };
 
+            container.addEventListener('click', (e) => {
 
-        container.addEventListener('click', (e) => {
+                this.dispatchEvent({
+                    evt: e,
+                    type: 'tooltipClick',
+                    // data: properties,
+                    // feature: unSelFeatures
+                    select: e.target
+                });
 
-            this.dispatchEvent({
-                evt: e,
-                type: 'tooltipClick',
-                // data: properties,
-                // feature: unSelFeatures
-                select: e.target
             });
-
-        });
+        }
 
         return container;
 
     }
 
     /**
-     * [_showOverlay description]
-     * @return {[type]} [description]
+     * 显示弹出框
+     * @param  {Feature} feature [description]
      */
-    _showOverlay(feature) {
+    showToolTip(feature) {
 
-        this._overlay.feature = feature;
+        const div = this.tooltipOverLay.getElement();
+        let properties = feature.getProperties();
+        properties.id = feature.getId();
+        const st = this.formatter(properties, div);
+        if (st) {
+
+            baseUtil.isDom(st) ? div.appendChild(st) : div.innerHTML = st;
+
+        }
+
+        this.tooltipOverLay.feature = feature;
         const geometry = feature.getGeometry();
         const type = geometry.getType();
 
         const coordinate = type == 'Polygon' ? geometry.getInteriorPoint().getCoordinates() : geometry.getCoordinates();
-        this._overlay.setPosition(coordinate);
+        this.tooltipOverLay.setPosition(coordinate);
 
     }
 
     /**
-     * hide popup
-     * @return {[type]} [description]
+     * 隐藏提示框
      */
-    _hideOverlay() {
+    hideToolTip() {
 
-        this._overlay.setPosition(undefined);
-        this._overlay.set('trigger', undefined);
+        this.tooltipOverLay.setPosition(undefined);
+        this.tooltipOverLay.set('trigger', undefined);
 
     }
 
     /**
-     * create popup
-     * @param  {[type]} element [description]
-     * @return {[type]}         [description]
+     * 创建popup
+     * @private
+     * @param  {Elemnt} element dom对象
+     * @param {Boolean} isCustomn 是否为默认样式
+     * @return {Overlay}        
      */
-    _createOverlay(element) {
+    _createOverlay(element, isCustom) {
 
-        element = element || this._createPopup();
-        let _overlay = new ol.Overlay({
+        element = element || this._createPopup(isCustom);
+        let overlay = new ol.Overlay({
             id: 'hy-overly-popup',
+            stopEvent: false,
             element: element,
             positioning: 'bottom-center',
             offset: [0, -20],
@@ -168,17 +199,26 @@ export default class hytooltip extends hyMapStyle {
                 duration: 250
             }
         });
-        this.map.addOverlay(_overlay);
-        return _overlay;
+        this.map.addOverlay(overlay);
+        return overlay;
 
     }
 
+    /**
+     * 移除
+     * @param   {Overlay} overlay [description]
+     * @private
+     */
     _reomoveOverlay(overlay) {
 
         this.map.removeOverlay(overlay);
 
     }
 
+    /**
+     * 全部移除
+     * @private
+     */
     _removeMarkerOverlay() {
 
         this._markerLayer.forEach((obj) => {
@@ -190,8 +230,8 @@ export default class hytooltip extends hyMapStyle {
     }
 
     /**
-     * 
-     * @return {[type]} [description]
+     * 创建交互
+     * @private
      */
     _createSelectInteraction() {
 
@@ -209,7 +249,7 @@ export default class hytooltip extends hyMapStyle {
             },
             layers: function(layer) {
 
-                if (layer.get('type')) {
+                if (layer.get('type') && !layer.get('interior')) {
 
                     return true;
 
@@ -222,6 +262,10 @@ export default class hytooltip extends hyMapStyle {
 
     }
 
+    /**
+     * 创建hover交互
+     * @private
+     */
     _createHoverInteraction() {
 
         this.hoverSelect = new ol.interaction.Select({
@@ -246,7 +290,7 @@ export default class hytooltip extends hyMapStyle {
                 let flag = false;
                 if (this.enterable) {
 
-                    flag = this.isEnter(this._overlay.getElement(), evt.pixel);
+                    flag = this.isEnter(this.tooltipOverLay.getElement(), evt.pixel);
 
                 }
 
@@ -273,16 +317,18 @@ export default class hytooltip extends hyMapStyle {
 
         const selFeatures = evt.selected;
         const unSelFeatures = evt.deselected;
+        evt.interaction = evt.target;
         // click, mouseover, mousemove, dblclick
         if (unSelFeatures && unSelFeatures.length > 0) {
 
             const unSelFeature = unSelFeatures[0];
+            unSelFeature.set('emphasis', false);
             const properties = unSelFeature.getProperties();
             const layer = unSelFeature.source.vector;
             const layerType = layer.get('type');
             const type = (layer.get('type') && layer.get('type') === 'geo') ? 'geoUnSelect' : 'unClick';
 
-            this._hideOverlay();
+            this.hideToolTip();
 
             evt.target.getFeatures().remove(unSelFeature);
             let event = {
@@ -292,31 +338,26 @@ export default class hytooltip extends hyMapStyle {
                 feature: unSelFeatures
                     // select: evt.target
             };
-            if (layerType != 'geo') {
 
-                unSelFeature.source.vector.parent.parent.dispatchEvent(event);
+            unSelFeature.source.vector.dispatchEvent(event);
 
-            }
             this.dispatchEvent(event);
 
         }
         if (selFeatures && selFeatures.length > 0) {
 
             const selFeature = selFeatures[0];
+            selFeature.set('emphasis', true);
+            //从鼠标移上的效果中移除。
+            // this.hoverSelect.getFeatures().remove(selFeature);
             const layer = selFeature.source.vector;
             let properties = selFeature.getProperties();
             properties.id = selFeature.getId();
             const layerType = layer.get('type');
             let type = 'click';
-            let div = null;
-            if (!layer.get('interior') && this.tooltipShow && this.tooltipTrigger.indexOf(layerType) > -1 && this.tooltipTriggeron.indexOf('click') > -1) {
+            if (!layer.get('interior') && this.tooltipShow && this.tooltipTriggeron.indexOf('click') > -1) {
 
-                // && (layer.get('showPopup') || layer.get('showPopup') === 'true')) {
-                // evt.target.addCondition_ = () => (true);
-                div = this._overlay.getElement();
-                const st = this.formatter(properties);
-                baseUtil.isDom(st) ? div.appendChild(st) : div.innerHTML = st;
-                this._showOverlay(selFeature);
+                this.showToolTip(selFeature);
 
             }
             evt.target.getFeatures().get('length') == 0 && evt.target.getFeatures().push(selFeature);
@@ -326,30 +367,21 @@ export default class hytooltip extends hyMapStyle {
                 type: type,
                 data: properties,
                 layerid: selFeature.source.vector.get('layerId'),
-                feature: selFeature,
-                // select: evt.target,
-                element: div
+                feature: selFeature
+                    // select: evt.target,
             };
             if (layerType == 'geo') {
 
                 event.type = 'geoSelect';
-                if (this.geoDrillDown) {
-
-                    this.geoGo(properties);
-
-                }
-
-                // evt.target.getFeatures().remove(selFeature)
+                selFeature.source.vector.dispatchEvent(evt);
 
             } else {
 
-                selFeature.source.vector.parent.parent.dispatchEvent(event);
+                selFeature.source.vector.dispatchEvent(event);
 
             }
 
-
             this.dispatchEvent(event);
-            this.hoverSelect.getFeatures().remove(selFeature)
 
 
         }
@@ -367,19 +399,16 @@ export default class hytooltip extends hyMapStyle {
             const layer = unSelFeature.source.vector;
             const layerType = layer.get('type');
             const type = (layer.get('type') && layer.get('type') === 'geo') ? 'geoUnHover' : 'unHover';
-            if (this.tooltipTriggeron.indexOf('mouseover') > -1 && this.tooltipTrigger.indexOf(layerType) > -1) {
+            if (this.tooltipTriggeron.indexOf('mouseover') > -1) {
 
                 window.clearTimeout(() => this.timer);
-                this.timer = window.setTimeout(() => this._hideOverlay(), 600);
-
+                this.timer = window.setTimeout(() => this.hideToolTip(), 600);
 
             }
-            if (!layer.get('interior') && this.tooltipShow && this.tooltipTrigger.indexOf(layerType) > -1 && this.tooltipTriggeron.indexOf('mouseout') > -1) {
+            if (!layer.get('interior') && this.tooltipShow && this.tooltipTriggeron.indexOf('mouseout') > -1) {
 
-                let div = this._overlay.getElement();
-                const st = this.formatter(properties);
-                baseUtil.isDom(st) ? div.appendChild(st) : div.innerHTML = st;
-                this._showOverlay(unSelFeature);
+
+                this.showToolTip(unSelFeature);
 
             }
             evt.target.getFeatures().remove(unSelFeature);
@@ -392,32 +421,28 @@ export default class hytooltip extends hyMapStyle {
                     // select: evt.target
             };
 
-            if (layerType != 'geo') {
 
-                unSelFeature.source.vector.parent.parent.dispatchEvent(event);
+            unSelFeature.source.vector.dispatchEvent(event);
 
-            }
-            this.dispatchEvent(event);
+            // this.dispatchEvent(event);
 
         }
         if (selFeatures && selFeatures.length > 0) {
 
             const selFeature = selFeatures[0];
+
             const layer = selFeature.source.vector;
             let properties = selFeature.getProperties();
             properties.id = selFeature.getId();
             const layerType = layer.get('type');
             const type = (layer.get('type') && layer.get('type') === 'geo') ? 'geoHover' : 'hover';
-            let div = null;
-            if (!layer.get('interior') && this.tooltipShow && this.tooltipTrigger.indexOf(layerType) > -1 && this.tooltipTriggeron.indexOf('mouseover') > -1) {
+            if (!layer.get('interior') && this.tooltipShow && this.tooltipTriggeron.indexOf('mouseover') > -1) {
 
                 // && (layer.get('showPopup') || layer.get('showPopup') === 'true')) {
                 // evt.target.addCondition_ = () => (true);
-                div = this._overlay.getElement();
-                const st = this.formatter(properties);
-                baseUtil.isDom(st) ? div.appendChild(st) : div.innerHTML = st;
+
                 window.clearTimeout(() => this.timer);
-                this._showOverlay(selFeature);
+                this.showToolTip(selFeature);
 
             }
             evt.target.getFeatures().get('length') == 0 && evt.target.getFeatures().push(selFeature);
@@ -425,21 +450,147 @@ export default class hytooltip extends hyMapStyle {
                 evt: evt.mapBrowserEvent,
                 type: type,
                 data: properties,
-                feature: selFeature,
-                // select: evt.target,
-                element: div
+                feature: selFeature
+                    // select: evt.target,
             };
             if (layerType != 'geo') {
 
-                selFeature.source.vector.parent.parent.dispatchEvent(event);
+                selFeature.source.vector.dispatchEvent(event);
+
+            }
+            if (selFeature.get('emphasis')) {
+
+                // evt.target.getFeatures().remove(selFeature);
 
             }
             this.dispatchEvent(event);
 
-
         }
 
     }
+
+    /**
+     * style回调方法
+     * @param  {ol.feature} feature    [description]
+     * @param  {array} resolution [description]
+     * @param  {String} type  样式类型     [description]
+     * @return {Style}  显示的定义样式
+     */
+    _geoStyleFn(feature, resolution, type = 'normal') {
+
+        const style = feature.get('style') || feature.source.vector.get('fstyle');
+        const rStyle = style[type];
+        const serie = feature.source.vector.get('serie');
+        const symbolSize = serie && serie.symbolSize;
+        const serieType = serie && serie.type;
+
+        //判断是否对图形大小进行动态设置
+        if (symbolSize && symbolSize[0] != symbolSize[1]) {
+
+            let geoScaleNum = this._scaleSize(symbolSize, feature.source.get('minValue'), feature.source.get('maxValue'));
+            let value = feature.get('value') || 0;
+            //对数据进行判断，
+            if (feature.source instanceof ol.source.Cluster) {
+
+                geoScaleNum = this._scaleSize(symbolSize, feature.source.getSource().get('minValue'), feature.source.getSource().get('maxValue'));
+
+                const features = feature.get('features');
+
+                if (features) {
+
+                    features.forEach((feature) => {
+
+                        let fValue = feature.get('value');
+                        if (fValue > value) {
+
+                            value = fValue;
+
+                        }
+
+                    });
+
+                } else {
+
+                    value = feature.get('value');
+
+                }
+
+            }
+            const scale = Math.floor(value / geoScaleNum);
+            const icon = rStyle[0].getImage();
+            if (icon) {
+
+                if (icon instanceof ol.style.Icon) {
+
+                    icon.setScale((symbolSize[0] + scale) / (symbolSize[0] / icon.relScale));
+
+                } else {
+
+                    icon.setRadius(scale + symbolSize[0]);
+
+                }
+
+            }
+
+        }
+
+        //判断是否需要进行文本标签显示
+        const text = rStyle[1].getText();
+        if (text && text.show) {
+
+            const textSize = serie && serie.labelSize;
+            const column = serie && serie.labelColumn || 'value';
+            let value = '';
+            let textScaleNum = this._scaleSize(textSize, feature.source.get('minValue'), feature.source.get('maxValue'));
+
+            if (feature.source instanceof ol.source.Cluster) {
+
+                textScaleNum = this._scaleSize(textSize, feature.source.getSource().get('minValue'), feature.source.getSource().get('maxValue'));
+
+                const features = feature.get('features');
+
+                if (features) {
+
+                    features.forEach((feature) => {
+
+                        let fValue = feature.get(column);
+                        if (fValue > value) {
+
+                            value = fValue;
+
+                        }
+
+                    });
+
+                } else {
+
+                    value = feature.get(column);
+
+                }
+
+            } else {
+
+                value = feature.get(column);
+
+            }
+            text.setText(value.toString());
+            if (textSize && textSize[0] != textSize[1]) {
+
+                const font = text.getFont().split(' ');
+                const value = feature.get(column);
+                const scale = Math.floor(value / textScaleNum);
+                const newFont = scale + textSize[0] - 1;
+                font[2] = newFont + 'pt';
+                text.setFont(font.join(' '));
+
+            }
+
+        }
+
+        return rStyle;
+
+    }
+
     isEnter(div, event) {
 
         var x = event[0];

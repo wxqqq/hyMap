@@ -1,7 +1,16 @@
 'use strick';
 
+/**
+ * @namespace StiStrap
+ * @class labelModel
+ */
 export default {
     'normal': {
+        /**
+         * 颜色
+         * @type {String}
+         * @public
+         */
         color: '#fff',
         fontStyle: 'normal',
         fontWeight: 'normal',

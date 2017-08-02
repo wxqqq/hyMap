@@ -1,5 +1,11 @@
 'use strict';
 
+/**
+ * 事件
+ * @module event
+ * @type {Object}
+ * @namespace  event
+ */
 const event = {
 
     pendingRemovals_: {},
@@ -24,7 +30,12 @@ const event = {
         }
     },
 
-
+    /**
+     * 注册
+     * @param  {String}   type     事件类型
+     * @param  {Function}   listener 监听方法
+     * @return {Function}            监听方法
+     */
     on(type, listener) {
 
         let listeners = this.listeners_[type];
@@ -42,6 +53,11 @@ const event = {
 
     },
 
+    /**
+     * 取消注册事件
+     * @param  {String}   type    事件类型
+     * @param  {Function}   listener 监听方法
+     */
     un(type, listener) {
 
         if (!type) {
@@ -78,6 +94,12 @@ const event = {
         }
 
     },
+
+    /**
+     * 执行事件
+     * @param  {Event}   event 事件
+     * @return {Boolean}  true/false  执行结果（成功、失败）       
+     */
     dispatchEvent(event) {
 
         let evt = event;

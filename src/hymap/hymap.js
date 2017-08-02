@@ -1,5 +1,6 @@
 import hymapOption from '../model/mapModel';
 import hyLayerGroup from '../components/hyLayerGroup';
+import hyLayer from '../components/layer/hyLayer';
 import baseUtil from '../util/baseUtil';
 import events from '../events/events';
 import hymap from '../components/map';
@@ -9,36 +10,40 @@ import gpsLayer from '../components/layer/gpsLayer';
 import hyView from '../components/view';
 import hyMeasure from '../components/tools/hyMeasure';
 import trackLayer from '../components/layer/trackLayer';
-import circleQueryLayer from '../components/layer/circelQueryLayer';
+import spatialQueryLayer from '../components/layer/spatialQueryLayer';
 import baseMap from '../components/layer/baseMap';
-import baseGeo from '../components/layer/baseGeo';
+import regionLayer from '../components/layer/regionLayer';
 import hytooltip from '../components/tooltip/hytooltip';
 
 const ol = require('ol');
-/**
- * 
- */
-export default class hyMap extends hytooltip {
-    constructor(dom, options) {
 
+export default class hyMap extends hytooltip {
+    /**
+     * 初始化
+     * @param  {Document}   dom     dom对象
+     * @param  {Object}   options   参数
+     * @extends events
+     */
+    constructor(dom, options) {
         super(options);
-        this._basicLayersArray = new ol.Collection();
-        this._basicLayerGroup = new ol.layer.Group();
-        this._basicLayerGroup.setLayers(this._basicLayersArray);
+        /**
+         * basiclayersarray
+         * @private
+         * @type {ol.Collection}
+         */
+        this.baseLayer;
         this._geo = hymapOption;
         this.map = null;
         this._show = true;
-        this._overlay = null;
+        this.tooltipOverLay = null;
         this._event = [];
         this._showLogo = true;
         this._addLayerGroupArray = {};
         this._markerLayer = {};
 
         this._panFunction = function(evt) {
-
             evt.preventDefault();
             evt.stopPropagation();
-
         };
 
         this._init(dom);
@@ -49,359 +54,296 @@ export default class hyMap extends hytooltip {
 
         this.trackOverlayArray = [];
         this.postListenerObj = {};
-
     }
 
     /**
      * 初始化hymap对象
-     * @param  {[type]} dom [description]
-     * @return {[type]}     [description]
+     * @param  {Element} dom [description]
      */
     init(dom) {
-
         this.setDom(dom);
 
         return this;
-
     }
 
     /**
-     * 设置属性
-     * @param {[type]} opt_options [description]
+     * 设置地图参数
+     * @param {Object} options 参数
      */
-    setOption(opt_options) {
-
-        if (!opt_options) {
-
+    setOption(options) {
+        if (!options) {
             return;
-
         }
-        baseUtil.merge(this._geo, opt_options || {}, true);
+        baseUtil.merge(this._geo, options || {}, true);
 
         this.setServerUrl(this._geo.serverUrl);
-        this.setGeo(this._geo); //设置geo配置
+        // this.setGeo(this._geo); //设置geo配置
+        //
+        this.setTheme(this._geo.theme); //设置theme主题
         this.setView(this._geo);
-        this.setTooltip(opt_options.tooltip);
-        this.addLayer({
-            series: this._geo.series
-        }); //设置series
-
+        this.setTooltip(options.tooltip);
+        this.addLayer(this._geo.series); //设置series
     }
-
-
 
     /**
      * 获取option对象
-     * @return {[type]} [description]
+     * @return {Object} [description]
      */
     getOption() {
-
         return this._geo;
-
     }
 
     /**
      * 设置map对应的容器
-     * @param {[type]} dom [description]
+     * @param {Element} dom [description]
      */
     setDom(dom) {
-
         if (dom) {
-
             this._dom = dom;
             // dom.tabIndex = 0;
             this.map.setTarget(dom);
-
         }
-
     }
 
     /**
      * 获取map对应的dom容器
-     * @return {[type]} [description]
+     * @return {Elemnt} [description]
      */
     getDom() {
-
         return this._dom;
-
     }
 
     /**
      * 内部初始化
-     * @param  {[type]} dom [description]
-     * @return {[type]}     [description]
+     * @private
+     * @param  {Element} dom [description]
      */
     _init(dom) {
+        this.map = new hymap(dom);
+        mapTool.map = this.map;
 
-            this.map = new hymap(dom);
-            mapTool.map = this.map;
-            this._dom = dom;
-            this._createBasicGroup();
+        this._dom = dom;
+        this._createBasicLayer();
 
-            this._overlay = this._createOverlay();
-            this._createIntercation();
-            this._createCircleQuery();
-            this._createtrackLayer();
-            this.hymeasure = new hyMeasure({
-                map: this.map
-            })
-
-        }
-        /**
-         * 创建基础图层组
-         * @return {[type]} [description]
-         */
-    _createBasicGroup() {
-
-        //底图
-        this.baseLayer = new baseMap({});
-        this._basicLayersArray.push(this.baseLayer.getLayer());
-        this.baseGeoObject = new baseGeo();
-        this._basicLayersArray.push(this.baseGeoObject.getLayer());
-
-        this.map.addLayer(this._basicLayerGroup);
-        // var tian_di_tu_satellite_layer = new ol.layer.Tile({
-        //     baseLayer: true,
-        //     title: '卫星',
-        //     visible: false,
-        //     displayInLayerSwitcher: false,
-        //     source: new ol.source.XYZ({
-        //         url: 'http://t0.tianditu.com/DataServer?T=img_w&x={x}&y={y}&l={z}'
-        //     })
-        // });
-
-
-        // this.map.addLayer(tian_di_tu_satellite_layer);
-
-        // var tian_di_tu_road_layer = new ol.layer.Tile({
-        //     title: "天地图路网",
-        //     source: new ol.source.XYZ({
-        //         url: "http://t0.tianditu.com/DataServer?T=vec_w&x={x}&y={y}&l={z}"
-        //     })
-        // });
-        // this.map.addLayer(tian_di_tu_road_layer);
-        // var tian_di_tu_annotation = new ol.layer.Tile({
-        //     title: "标注",
-        //     source: new ol.source.XYZ({
-        //         url: 'http://t0.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}'
-        //     })
-        // });
-        // this.map.addLayer(tian_di_tu_annotation);
-        //浮动区域
-
-    }
-
-    showBaseMap() {
-
-        this.baseLayer.show();
-
-    }
-
-    hideBaseMap() {
-
-        this.baseLayer.hide();
-
+        this.tooltipOverLay = this._createOverlay();
+        this._createIntercation();
+        this._createCircleQuery();
+        this._createtrackLayer();
+        this.hymeasure = new hyMeasure({
+            map: this.map
+        });
     }
 
     /**
-     * [setTheme description]
-     * @param {String} theme [description]
+     * 创建基础图层组
+     * @private
+     */
+    _createBasicLayer() {
+        //底图
+        this.baseLayer = new baseMap({
+            map: this.map
+        });
+    }
+
+    /**
+     * 显示底图
+     */
+    showBaseMap() {
+        this.baseLayer.show();
+    }
+
+    /**
+     * 隐藏底图
+     */
+    hideBaseMap() {
+        this.baseLayer.hide();
+    }
+
+    /**
+     * 设置底图风格
+     * @param {String} theme 'dark','blue','white' 默认为blue
      */
     setTheme(theme) {
-
         this.baseLayer.setUrl(this._serverUrl);
         this.baseLayer.setTheme(theme);
-
-    }
-    setGeo(geo) {
-
-        this.baseGeoObject.setUrl(geo.serverUrl);
-        this.baseGeoObject.setGeoStyle(geo);
-        this.baseGeoObject.setGeoSource(geo.map);
-        this.baseGeoObject.setGeoDrillDown(geo.drillDown);
-        this.setTheme(geo.theme); //设置theme主题
-
-    }
-
-    showGeo() {
-
-        this.baseGeoObject.show();
-
-    }
-
-    hideGeo() {
-
-        this.baseGeoObject.hide();
-
     }
 
     /**
-     * [setDrillDown description]
-     * @param {Boolean} flag [description]
+     * 设置地图边界线
+     * @param {Object} geo {serverUrl,map,drillDown,theme}
      */
-    setGeoDrillDown(flag = false) {
-
-        this.baseGeoObject.setGeoDrillDown(flag);
-
-    }
+    setGeo(geo) {}
 
     /**
-     * [getDrillDown description]
-     * @return {[type]} [description]
+     * 设置请求服务器地址
+     * @param {String} url 服务器地址ip
      */
-    getGeoDrillDown() {
-
-        return this.baseGeoObject.getGeoDrillDown();
-
-    }
-
-    /**
-     * [geoGo description]
-     * @param  {[type]} options [description]
-     * @return {[type]}         [description]
-     */
-    geoGo(options) {
-
-        this.baseGeoObject.geoGo(options);
-
-    }
-
-    geoGoBack() {
-
-        this.baseGeoObject.geoGoBack();
-
-    }
-
-    /**
-     * [geoQuery description]
-     * @param  {[type]} prototype{level,name,} [description]
-     * @return {[type]}        [description]
-     */
-    geoQuery(options, flag = true) {
-
-        this.baseGeoObject.geoQuery(options, flag);
-
-
-    }
-
-    geoQueryCallback(features, flag) {
-
-        this.baseGeoObject.geoQueryCallback(features, flag);
-
-    }
     setServerUrl(url) {
-
         this._serverUrl = url;
-
     }
 
+    /**
+     * 获取服务器地址
+     */
     getServerUrl() {
-
         return this._serverUrl;
-
     }
 
     /**
      * 创建view
-     * @return {[type]} [description]
      */
     setView(geo) {
-
-
         this.view = new hyView(geo, this.map);
         this.map.setView(this.view);
 
-        this.view.on('change:resolution', (evt) => {
-
+        this.view.on('change:resolution', evt => {
             if (this.map.getView().getZoom() > 8) {
-
                 // this.hideGeo();
+            } else {
+                // this.showGeo();
+            }
+        });
+    }
+
+    /**
+     * 设置中心点
+     * @param {Array} coord 坐标数组
+     */
+    setCenter(coord) {
+        this.view.setCenter(mapTool.transform(coord));
+    }
+    _createIntercation() {
+        this._createHoverInteraction();
+        this._createSelectInteraction();
+    }
+
+    /**
+     * 启动测量
+     * @param  {String} type 类型 distance,area 
+     */
+    measure(type) {
+        this.hymeasure.active(type);
+    }
+
+    /**
+     * 增加图层
+     * @param {Array} options 参数
+     */
+    addLayer(arrays) {
+
+        let layers = [];
+        arrays.forEach(serie => {
+
+            let layer = this._addLayer(serie);
+            layers.push(layer);
+
+        });
+        return layers;
+
+    }
+
+    _addLayer(serie) {
+        let layer;
+        serie.id = serie.id || 'layer_' + new Date().getTime();
+        switch (serie.type) {
+            case 'track':
+                layer = this.initTrackData(serie);
+                break;
+            case 'gps':
+                layer = this.initgpslayer(serie);
+                break;
+            case 'region':
+                serie.url = serie.url || this._serverUrl;
+                serie = new regionLayer({
+                    map: this.map,
+                    serie
+                });
+                break;
+            default:
+                layer = new hyLayer({
+                    map: this.map,
+                    serie: serie
+                });
+        }
+        this._addLayerGroupArray[serie.id] = layer;
+        return layer;
+    }
+
+    /**
+     * 更新图层数据
+     * @param  {Object} series serie对象
+     */
+    updateLayer(arrays) {
+
+        this.clickSelect.getFeatures().clear();
+        arrays.forEach(serie => {
+
+            const layer = this._addLayerGroupArray[serie.id]; //获取对应的layergroup
+            if (!layer) {
+
+                this._addLayer(serie);
 
             } else {
 
-                // this.showGeo();
+                layer.update(serie);
 
             }
 
         });
 
-
-    }
-    setCenter(coord) {
-
-        this.view.setCenter(mapTool.transform(coord));
-
-    }
-    _createIntercation() {
-
-        this._createHoverInteraction();
-        this._createSelectInteraction();
-
-    }
-    measure(type) {
-
-        this.hymeasure.active(type);
-
     }
 
-    addLayer(options) {
+    /**
+     * 图层是否存在
+     * @param  {String}  id 唯一标识
+     * @return {Boolean}    
+     */
+    hasLayer(id) {
+        const layer = this._addLayerGroupArray[id];
+        if (layer) {
+            return true;
+        }
+        return false;
+    }
 
-        options.id = options.id || new Date().getTime();
-        options.map = this.map;
-        const type = options.type;
-        let layer;
-        if (type == 'track') {
+    /**
+     * 显示图层
+     * @param  {String} id 唯一标识
+     */
+    showLayer(id) {
+        const layer = this._addLayerGroupArray[id];
+        if (layer) {
+            layer.show(true);
+        }
+    }
 
-            layer = this.initTrackData(options);
+    /**
+     * 隐藏图层
+     * @param  {String} id 唯一标识
+     */
+    hideLayer(id) {
 
-        } else if (type == 'gps') {
+        const layer = this._addLayerGroupArray[id];
+        if (layer) {
 
-            layer = this.initgpslayer(options);
-
-        } else {
-
-            layer = new hyLayerGroup(options);
+            layer.hide(false);
 
         }
-        this._addLayerGroupArray[options.id] = layer;
-        return layer;
 
     }
 
+    /**
+     * 移除layer
+     * @param  {String} id 唯一标识
+     * @return {Boolean}    成功，失败
+     */
     removeLayer(id) {
 
         const layer = this._addLayerGroupArray[id];
         if (layer) {
 
-            layer.destory();
-            this.map.removeLayer(layer.layerGroup);
+            layer.dispose();
             delete this._addLayerGroupArray[id];
-
-        }
-
-    }
-
-    updateLayer(options) {
-
-        const id = options.id || null;
-        const layer = this._addLayerGroupArray[id]; //获取对应的layergroup
-        if (!layer) {
-
-            console.info('未找到对应数据。', id);
-            return;
-
-        }
-        this.clickSelect.getFeatures().clear();
-        layer.update(options);
-
-    }
-
-
-    hasLayer(id) {
-
-        const layer = this._addLayerGroupArray[id];
-        if (layer) {
-
             return true;
 
         }
@@ -409,61 +351,50 @@ export default class hyMap extends hytooltip {
 
     }
 
-    showLayer(id) {
+    /**
+     * 移除所有图层
+     */
+    removeLayers() {
 
-        const layer = this._addLayerGroupArray[id];
-        if (layer) {
+        for (let group in this._addLayerGroupArray) {
 
-            layer.setVisible(true);
-
-        }
-
-    }
-
-    hideLayer(id) {
-
-        const layer = this._addLayerGroupArray[id];
-        if (layer) {
-
-            layer.setVisible(false);
+            this.removeLayer(group);
 
         }
 
-    }
-
-    addMarkers(data) {
-
-        data.forEach(obj => {
-
-            this.addOverlay(obj);
-
-        });
+        this._addLayerGroupArray = {};
 
     }
 
     /**
-     * [addOverlay description]
-     * @author WXQ
-     * @date   2017-06-02
-     * @param  {[type]}    // { id, container, linewidth,geoCoord,showLine,offset,positioning}
+     * 批量叠加标记
+     * @param {Object} data 数据
+     */
+    addMarkers(data) {
+        data.forEach(obj => {
+            this.addOverlay(obj);
+        });
+    }
+
+    /**
+     * 增加覆盖物
+     * @param  {Object}  object {id:id,   container:dom,  geoCoord:[],//坐标
+                                showLine:true|false,//显示连线
+                                linewidth:80//线的偏移长度。
+                                offset:[0,0],//偏移量
+                                positioning:'top-left'//top[center,bottom]-left[right];相对位置
      */
     addOverlay(obj) {
-
         let marker = this._markerLayer[obj.id];
         if (obj && obj.container) {
-
             obj.container.style.position = 'static';
             obj.container.style.float = 'left';
-
         }
 
         if (marker) {
-
             marker.setPosition(mapTool.transform(obj.geoCoord));
             marker.setElement(obj.container);
-
         } else {
-
             marker = new ol.Overlay({
                 position: mapTool.transform(obj.geoCoord),
                 positioning: obj.positioning || 'center-center',
@@ -473,13 +404,8 @@ export default class hyMap extends hytooltip {
                 id: obj.id
             });
 
-
-
-            this._markerLayer[obj.id] = marker;
-
             this.map.addOverlay(marker);
             if (obj.showLine) {
-
                 let lineWidth = obj.lineWidth || 80;
                 let canvas = document.createElement('canvas');
                 let ctx = canvas.getContext('2d');
@@ -493,509 +419,366 @@ export default class hyMap extends hytooltip {
                 ctx.lineTo(0, 6);
                 ctx.stroke();
                 obj.container.parentNode.appendChild(canvas);
-
             }
-
+            this._markerLayer[obj.id] = marker;
         }
         marker.set('geoCoord', obj.geoCoord);
         return marker;
-
-    }
-
-
-
-    removeOverlay(marker) {
-
-        if (!(marker instanceof ol.Overlay)) {
-
-            marker = this._markerLayer[marker];
-
-        }
-        if (marker) {
-
-            this.map.removeOverlay(marker);
-            delete this._markerLayer[marker.getId()];
-
-        }
-
-
-    }
-
-    removeOverlays() {
-
-        for (let id in this._markerLayer) {
-
-            const marker = this._markerLayer[id];
-            this.map.removeOverlay(marker);
-
-        }
-
-    }
-
-    showOverlay(id) {
-
-        const marker = this._markerLayer[id];
-        marker && marker.setPosition(mapTool.transform(marker.get('geoCoord')));
-
-    }
-
-    hideOverlay(id) {
-
-        const marker = this._markerLayer[id];
-        marker && marker.setPosition();
-
     }
 
     /**
-     * [_removeSerie description]
-     * @author WXQ
-     * @date   2017-03-22
-     * @param  {[type]}   id [description]
-     * @return {[type]}      [description]
+     * 显示覆盖物
+     * @param  {String} id [description]
+     */
+    showOverlay(id) {
+        const marker = this._markerLayer[id];
+        marker && marker.setPosition(mapTool.transform(marker.get('geoCoord')));
+    }
+
+    /**
+     * 隐藏覆盖物
+     * @param  {String} id [description]
+     */
+    hideOverlay(id) {
+        const marker = this._markerLayer[id];
+        marker && marker.setPosition();
+    }
+
+    /**
+     * 删除覆盖物
+     * @param  {overlay|id} marker 覆盖物
+     */
+    removeOverlay(marker) {
+        if (!(marker instanceof ol.Overlay)) {
+            marker = this._markerLayer[marker];
+        }
+        if (marker) {
+            this.map.removeOverlay(marker);
+            delete this._markerLayer[marker.getId()];
+        }
+    }
+
+    /**
+     * 删除所有覆盖物
+     */
+    removeOverlays() {
+        for (let id in this._markerLayer) {
+            const marker = this._markerLayer[id];
+            this.map.removeOverlay(marker);
+        }
+    }
+
+    /**
+     * 移除数据
+     * @param   {Stirng} id [description]
+     * @private
      */
     _removeSerie(id) {
-
         const marker = this._markerLayer[id];
         if (marker) {
-
             this.removeOverlay(marker);
-
         }
 
         for (let group in this._addLayerGroupArray) {
-
             this._addLayerGroupArray(group).forEach(obj => {
-
                 const key = obj.get('id');
                 if (key == id) {
-
                     group.remove(obj);
                     return;
-
                 }
-
             });
-
         }
-
-
     }
 
     removeSeries(id) {
-
         if (id) {
-
             if (baseUtil.isArray(id)) {
-
                 id.forEach(obj => {
-
                     this._removeSerie(obj);
-
                 });
-
             } else {
-
                 this._removeSerie(id);
-
             }
-
-
         } else {
-
             this.removeLayers();
-
         }
-
     }
-
-
-    removeLayers() {
-
-        for (let group in this._addLayerGroupArray) {
-
-            this.removeLayer(group);
-
-        }
-
-        this._addLayerGroupArray = {};
-
-    }
-
-
 
     /**
-     * [dispatchAction description]
-     * @param  {[type]} evt [description]
-     * @return {[type]}     [description]
+     * 根据id获取feature
+     * @param  {String} id 唯一标识
+     * @return {object|null} feature feature    
      */
-    dispatchAction(evt) {
-
-        let feature = this.getFeature(evt.id);
-        const geoType = this.geoType_[evt.type]['arrayType'];
-        let e = {
-            'type': 'select',
-            [geoType]: [feature]
-        };
-        this.clickSelect.dispatchEvent(e);
-
-    }
-
     getFeature(id) {
-
         const layersGroup = this.map.getLayers();
         let feature = null;
-        layersGroup.forEach((group) => {
-
+        layersGroup.forEach(group => {
             if (group instanceof ol.layer.Group) {
-
                 const layers = group.getLayers();
                 layers.forEach(function(element) {
-
                     if (element.getSource() instanceof ol.source.Vector) {
-
-                        feature = element.getSource().forEachFeature((feature) => {
-
+                        feature = element.getSource().forEachFeature(feature => {
                             feature.get('id') == id;
                             return feature;
-
                         });
-
                     }
-
                 });
-
+            } else {
+                if (group.getSource() instanceof ol.source.Vector) {
+                    feature = group.getSource().forEachFeature(feature => {
+                        feature.get('id') == id;
+                        return feature;
+                    });
+                }
             }
-
         });
         return feature;
-
-
     }
 
     /**
-     * [getFeaturesByProperty description]
-     * @author WXQ
-     * @date   2017-06-07
-     * @param  {[type]}   key   [description]
-     * @param  {[type]}   value [description]
-     * @return {[type]}         [description]
+     * 根据属性获取features
+     * @param  {String}   key   属性 
+     * @param  {String}   value 值
+     * @return {Array}    features  features数组
      */
     getFeaturesByProperty(key, value) {
-
         const layersGroup = this.map.getLayers();
         let array = [];
-        layersGroup.forEach((group) => {
+        layersGroup.forEach(group => {
+            if (group instanceof ol.layer.Group) {
+                const layers = group.getLayers();
+                layers.forEach(element => {
+                    if (element.getSource() instanceof ol.source.Vector) {
+                        const features = element.getSource().getFeatures();
 
-            const layers = group.getLayers();
-            layers.forEach((element) => {
+                        features && features.forEach(feature => {
+                            if (feature.get(key) && feature.get(key) == value) {
+                                const pixel = mapTool.getPixelFromCoords(
+                                    feature.getGeometry().getCoordinates()
+                                );
+                                array.push({
+                                    pixel: pixel,
+                                    // properties: feature.getProperties()
+                                    properties: feature
+                                });
+                            }
+                        });
+                    }
+                });
+            } else {
+                if (group.getSource() instanceof ol.source.Vector) {
+                    const features = group.getSource().getFeatures();
 
-                if (element.getSource() instanceof ol.source.Vector) {
-
-                    const features = element.getSource().getFeatures();
-
-                    features && features.forEach((feature) => {
-
+                    features && features.forEach(feature => {
                         if (feature.get(key) && feature.get(key) == value) {
-
-                            const pixel = mapTool.getPixelFromCoords(feature.getGeometry().getCoordinates());
+                            const pixel = mapTool.getPixelFromCoords(
+                                feature.getGeometry().getCoordinates()
+                            );
                             array.push({
                                 pixel: pixel,
                                 // properties: feature.getProperties()
                                 properties: feature
                             });
-
                         }
-
                     });
-
                 }
-
-            });
+            }
 
         });
         return array;
-
     }
 
     /**
-     * dom状态切换（显示，隐藏）
-     * @return {[type]} [description]
+     * 切换地图显示隐藏状态
      */
     tollgeShow() {
-
         if (this._show === false) {
-
             this._dom.style.display = 'block';
-
         } else {
-
             this._dom.style.display = 'none';
-
         }
-
     }
 
     /**
      * 隐藏dom对象
-     * @return {[type]} [description]
      */
     hide() {
-
         this._dom.style.display = 'none';
         this._show = false;
-
     }
 
     /**
      * 显示dom对象
-     * @return {[type]} [description]
      */
     show() {
-
         this._dom.style.display = 'block';
         this._show = true;
-
     }
 
     /**
-     * [resize description]
-     * @return {[type]} [description]
+     * 地图更新尺寸，改变地图所在div尺寸时调用地图重绘
+     * 
      */
     resize() {
-
         this.map.updateSize();
-
     }
 
     /**
-     * [flyto description]
-     * @return {[type]} [description]
+     * 地图移动方法
+     * @param  {Array} geoCoord                坐标数组
+     * @param  {Number} options.animateDuration 动画执行时长
+     * @param  {Number} options.zoom            地图级别
+     * @param  {String} options.animateEasing   默认为线性
+     * @param  {Function} options.callback        回调方法
      */
-    flyTo(geoCoord, {
-        animateDuration = 2000,
-        zoom = undefined,
-        animateEasing = '',
-        callback = undefined
-    } = {}) {
-
+    flyTo(
+        geoCoord, {
+            animateDuration = 2000,
+            zoom = undefined,
+            animateEasing = '',
+            callback = undefined
+        } = {}
+    ) {
         let geometry = geoCoord;
         if (!(geoCoord instanceof ol.geom.Geometry)) {
-
-            geometry = new ol.geom.Point(mapTool.transform(geoCoord, this.map.getView().getProjection()));
-
+            geometry = new ol.geom.Point(
+                mapTool.transform(geoCoord, this.map.getView().getProjection())
+            );
         }
         if (zoom) {
-
-            let animate = new animation(this.map, geometry, zoom, animateDuration);
+            let animate = new animation(
+                this.map,
+                geometry,
+                zoom,
+                animateDuration
+            );
             zoom === 5 ? animate.centerAndZoom() : animate.flyTo(callback);
-
         } else {
-
             this.view.fit(geometry.getExtent(), {
                 duration: animateDuration
-
             });
             if (callback && typeof callback == 'function') {
-
                 callback();
-
             }
-
         }
-
     }
 
     /**
-     * [areaQuery description]
-     * @author WXQ
-     * @date   2017-04-12
-     * @param  {[type]}   options {geom,layers}
-     * @return {[type]}           [description]
-     */
-    areaQuery(options) {
-
-        this.clickSelect.getFeatures().clear();
-        const geom = options.geom;
-        let result = {};
-        const groupLayers = options.layers;
-
-        for (let key in groupLayers) {
-
-            const group = groupLayers[key];
-
-            const layers = group.getLayers();
-            let array = [];
-            result[group.get('id')] = array;
-
-            layers.forEach((layer) => {
-
-                let featureArray = [];
-                layer.getSource().forEachFeature((feature) => {
-
-                    const coords = feature.getGeometry().getCoordinates();
-                    if (geom.intersectsCoordinate(coords)) {
-
-                        //增加距离，单位为米
-                        if (geom instanceof ol.geom.Circle) {
-
-                            var line = new ol.geom.LineString([coords, geom.getCenter()]);
-                            feature.set('pixel', this.map.getPixelFromCoordinate(coords));
-                            feature.set('distance', Number(line.getLength().toFixed(0)));
-                        }
-
-                        featureArray.push(feature);
-                        this.clickSelect.getFeatures().push(feature);
-
-                    }
-
-                });
-
-                featureArray = this.sortBy(featureArray, 'distance');
-                array.push(featureArray);
-            });
-
-        }
-
-        return new Promise(function(resolve, resject) {
-
-            resolve(result);
-
-        });
-
-    }
-
-    sortBy(array, key) {
-
-        array.sort((a, b) => {
-
-            return a.get('distance') - b.get('distance');
-
-        });
-        return array;
-
-    }
-
-    /**
-     * 创建视频链接线
-     * @author WXQ
-     * @date   2017-06-02
-     * @param  {[type]}   obj 对象体
-     * @return {[type]}    对象内部id
-     */
+         * 创建连接线
+         * @param  {object}   obj {id:123//唯一标识，默认为时间戳 
+      geoCoord:[]//经纬度坐标
+      end:[]//屏幕固定位置像素位置}
+         * @return {String}    对象内部id
+         */
     drawCable(obj) {
-
-        let listererObj = this.map.on('postcompose', (evt) => {
-
+        let listererObj = this.map.on('postcompose', evt => {
             let ctx = evt.context;
-            let piex = this.map.getPixelFromCoordinate(mapTool.transform(obj.geoCoord));
+            let piex = this.map.getPixelFromCoordinate(
+                mapTool.transform(obj.geoCoord)
+            );
             const tmpX = piex[0] > obj.end[0] ? piex[0] - 100 : piex[0] + 100;
             ctx.strokeStyle = obj.color || 'red';
             ctx.moveTo(piex[0], piex[1]);
             ctx.lineTo(tmpX, obj.end[1]);
             ctx.lineTo(obj.end[0], obj.end[1]);
             ctx.stroke();
-
         });
         let id = obj.id || new Date().getTime();
         this.postListenerObj[id] = listererObj;
         return id;
-
     }
 
     /**
-     * 更新连接线
-     * @author WXQ
-     * @date   2017-06-02
-     * @param  {[type]}   obj [description]
-     * @return {[type]}       [description]
-     */
+         * 更新连接线
+         * @param  {object}   obj {id:123//唯一标识，默认为时间戳 
+      geoCoord:[]//经纬度坐标
+      end:[]//屏幕固定位置像素位置}
+         */
     updateCable(obj) {
-
         this.removeCable(obj.id);
         this.drawCable(obj);
-
     }
 
     /**
      * 删除连接线
-     * @author WXQ
-     * @date   2017-06-02
-     * @param  {[type]}   id [description]
-     * @return {[type]}      [description]
+     * @param  {String}   id [description]
      */
     removeCable(id) {
-
         const listererObj = this.postListenerObj[id];
         this.map.un('postcompose', listererObj.listener);
         delete this.postListenerObj[id];
-
     }
 
     /**
      * 空间查询
-     * @author WXQ
-     * @date   2017-06-02
-     * @param  {[type]}   geoCoord [description]
-     * @param  {[type]}   radius   [description]
-     * @param  {Function} callback [description]
-     * @return {[type]}            [description]
+     * @param  {Array}   geoCoord 中心点坐标
+     * @param  {Number}   radius   距离
+     * @param  {Function} callback 查询结果回调
+     * @param {Object} Object { showRandar:true,//显示雷达 默认true
+    time:-1 //雷达扫描次数， 默认-1 扫描动画开启后不会消失} 
      */
     spatialQuery(geoCoord, radius, callback, options) {
-
         this.clearTrackInfo(); //该方法进行对查询到的所有轨迹和tooltip进行移除操作。
-
         this.clearSpatial();
-        this.queryCircle.setQueryFun((result) => {
 
-            this.areaQuery({
-                geom: result.geometry,
-                layers: this._addLayerGroupArray
-            }).then((data) => {
-
-                this.clearTrackInfo();
-
-                result.data = data;
-                if (baseUtil.isFunction(callback)) {
-
-                    callback(result);
-
-                }
-
-            });
-
+        this.queryCircle.setQueryFun(result => {
+            for (let id in result.selected) {
+                const array = result.selected[id];
+                array.forEach(features => {
+                    this.clickSelect.getFeatures().extend(features);
+                });
+            }
+            this.clearTrackInfo();
+            if (baseUtil.isFunction(callback)) {
+                callback(result);
+            }
         });
 
         this.queryCircle.load(geoCoord, radius, options);
-
     }
 
+    /**
+     * 清空查询结果
+     */
     clearSpatial() {
-
         this.queryCircle.clear();
         this.clickSelect.getFeatures().clear();
-
     }
 
-    drawTrack(start, end, {
-        callback = undefined,
-        tooltipFun = undefined,
-        isCustom = false
-    } = {}) {
-
+    /**
+     * 绘制轨迹（依赖路网数据,目前仅提供济南市的测试数据。）
+     * @param  {Array} start             起始点
+     * @param  {Array} end                结束点
+     * @param  {Function} options.callback   结果回调
+     * @param  {Function} options.tooltipFun 弹出气泡框回调
+     * @param  {Boolean} options.isCustom   是否通用气泡框
+     */
+    drawTrack(
+        start,
+        end, {
+            callback = undefined,
+            tooltipFun = undefined,
+            isCustom = false
+        } = {}
+    ) {
         if (!start || !end) {
-
             return;
-
         }
         //起始点一致，不进行查询
         if (start.toString() == end.toString()) {
-
             return;
-
         }
-        const viewparams = ['tbname:' + '\'road_jining\'', 'x1:' + start[0], 'y1:' + start[1], 'x2:' + end[0], 'y2:' + end[1]];
+        const viewparams = [
+            'tbname:' + "'road_jining'",
+            'x1:' + start[0],
+            'y1:' + start[1],
+            'x2:' + end[0],
+            'y2:' + end[1]
+        ];
         let url = 'http://localhost:3000/routing';
-        url = this._serverUrl + '/hygis/wfs?sversion=1.0.0&request=GetFeature&outputFormat=application%2Fjson';
+        url =
+            this._serverUrl +
+            '/hygis/wfs?sversion=1.0.0&request=GetFeature&outputFormat=application%2Fjson';
         url += '&typeName=' + 'Route' + '&viewparams=' + viewparams.join(';');
 
         // let formData = new FormData();
@@ -1006,210 +789,205 @@ export default class hyMap extends hytooltip {
         // start: start,
         // end: new ol.format.WKT().writeGeometry(end.getGeometry().clone().transform('EPSG:3857', "EPSG:4326"))
         // });
-        fetch(url, {
-            // mode: "cors",
-            // headers: {
-            // "Content-Type": "application/x-www-form-urlencoded",
-            // 'Content-Type': 'application/json'
-            // },
-            // method: 'POST',
-            // body: data
+        fetch(
+                url, {
+                    // mode: "cors",
+                    // headers: {
+                    // "Content-Type": "application/x-www-form-urlencoded",
+                    // 'Content-Type': 'application/json'
+                    // },
+                    // method: 'POST',
+                    // body: data
+                }
+            )
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                let features = new ol.format.GeoJSON().readFeatures(data, {
+                    featureProjection: 'EPSG:3857'
+                });
 
-        }).then((response) => {
+                let feature = features[0];
 
-            return response.json();
+                var wgs84Sphere = new ol.Sphere(6378137);
+                let first = ol.proj.transform(
+                    feature.getGeometry().getFirstCoordinate(),
+                    'EPSG:3857',
+                    'EPSG:4326'
+                );
+                let last = ol.proj.transform(
+                    feature.getGeometry().getLastCoordinate(),
+                    'EPSG:3857',
+                    'EPSG:4326'
+                );
+                const dis1 = wgs84Sphere.haversineDistance(start, first);
+                const dis2 = wgs84Sphere.haversineDistance(start, last);
+                let coords = feature.getGeometry().getCoordinates();
+                dis1 > dis2 && coords.reverse(); //反向的路径进行坐标翻转
+                coords.splice(0, 0, mapTool.transform(start)); //加入开始节点
+                coords.push(mapTool.transform(end)); //加入最后节点
+                feature.getGeometry().setCoordinates(coords);
+                if (baseUtil.isFunction(callback)) {
+                    callback(features[0]);
+                }
 
-        }).then((data) => {
+                this.trackLayer.getSource().addFeatures(features);
 
-            let features = new ol.format.GeoJSON().readFeatures(data, {
-                featureProjection: 'EPSG:3857'
+                if (tooltipFun) {
+                    const geometry = features[0].getGeometry().clone();
+                    const length = geometry.getLength();
+
+                    const time = Math.ceil(length / 1000 * 60 / 60);
+                    let overlay = this._createTrackOverLay(
+                        start,
+                        null,
+                        isCustom
+                    );
+                    let element = overlay.getElement();
+
+                    let str = baseUtil.isFunction(tooltipFun) ? tooltipFun({
+                            length,
+                            time,
+                            element
+                        },
+                        overlay.getElement()
+                    ) : tooltipFun;
+                }
+            })
+            .catch(function(e) {
+                console.info(e);
             });
-
-            let feature = features[0];
-
-            var wgs84Sphere = new ol.Sphere(6378137);
-            let first = ol.proj.transform(feature.getGeometry().getFirstCoordinate(), 'EPSG:3857', 'EPSG:4326');
-            let last = ol.proj.transform(feature.getGeometry().getLastCoordinate(), 'EPSG:3857', 'EPSG:4326');
-            const dis1 = wgs84Sphere.haversineDistance(start, first);
-            const dis2 = wgs84Sphere.haversineDistance(start, last);
-            let coords = feature.getGeometry().getCoordinates();
-            dis1 > dis2 && coords.reverse(); //反向的路径进行坐标翻转
-            coords.splice(0, 0, mapTool.transform(start)); //加入开始节点
-            coords.push(mapTool.transform(end)); //加入最后节点
-            feature.getGeometry().setCoordinates(coords);
-            if (baseUtil.isFunction(callback)) {
-
-                callback(features[0]);
-
-            }
-
-            this.trackLayer.getSource().addFeatures(features);
-
-            if (tooltipFun) {
-
-                const geometry = features[0].getGeometry().clone();
-                const length = geometry.getLength();
-
-                const time = Math.ceil(length / 1000 * 60 / 60);
-                let overlay = this._createTrackOverLay(start, null, isCustom);
-                let str = baseUtil.isFunction(tooltipFun) ? tooltipFun({
-                    length,
-                    time
-                }, overlay.getElement()) : tooltipFun;
-
-            }
-
-        }).catch(function(e) {
-
-            console.info(e);
-
-        });
-
     }
 
     _createTrackOverLay(coordinate, content, isCustom) {
-
-        let d;
-        if (isCustom) {
-
-            d = document.createElement('div');
-
-        }
-
-        let overlay = this._createOverlay(d);
+        let overlay = this._createOverlay(null, isCustom);
         let div = overlay.getElement();
         if (baseUtil.isDom(content)) {
-
             div.appendChild(content);
-
         } else {
-
             div.innerHTML = content;
-
         }
 
         overlay.setPosition(mapTool.transform(coordinate));
         this.trackOverlayArray.push(overlay);
         return overlay;
-
     }
     _createCircleQuery() {
-
-        this.queryCircle = new circleQueryLayer({
-            map: this.map
+        this.queryCircle = new spatialQueryLayer({
+            map: this.map,
+            queryLayer: this._addLayerGroupArray
         });
-
     }
     _createtrackLayer() {
-
         this.queryCircleLayer = this.queryCircle.layer;
 
         let group = new hyLayerGroup({
             map: this.map,
             series: [{
+                interior: true,
                 symbolStyle: {
-                    'normal': {
+                    normal: {
                         strokeColor: '#00f893',
                         strokeWidth: 5
                     },
-                    'emphasis': {
+                    emphasis: {
                         strokeColor: 'green',
                         strokeWidth: 4
                     }
                 }
-            }, {
-
-            }]
-
+            }, {}]
         });
         this.trackLayer = group.layerGroup.getLayers().getArray()[0];
 
         // this.map.addLayer(group.layerGroup);
-
     }
 
     initTrackData(obj) {
-
         this.trck = new trackLayer({
             map: this.map
         });
 
         this.trck.initTrackData(obj);
         return this.trck;
-
     }
 
     /**
-     * [clearTrackInfo description]
-     * @author WXQ
-     * @date   2017-04-20
-     * @return {[type]}   [description]
+     * 清除轨迹查询结果
      */
     clearTrackInfo() {
-
         //清空轨迹线
         this.trackLayer.getSource().clear();
         //清空轨迹tooltip
-        this.trackOverlayArray.forEach((overlay) => {
-
+        this.trackOverlayArray.forEach(overlay => {
             this.map.removeOverlay(overlay);
-
         });
         this.trackOverlayArray = [];
-
     }
 
     initgpslayer(options) {
-
-        options.map = this.map;
-        this.gpslayer = new gpsLayer(options);
-
-
-    }
-
-    updateGps(data) {
-
-        this.gpslayer.update(data);
-
-    }
-    createDraw(value, callback) {
-
-        this.queryCircle.setQueryFun((result) => {
-
-            this.areaQuery({
-                geom: result.geometry,
-                layers: this._addLayerGroupArray
-            }).then((data) => {
-
-                this.clearTrackInfo();
-
-                result.data = data;
-                if (baseUtil.isFunction(callback)) {
-
-                    callback(result);
-
-                }
-
-            });
-
+        this.gpslayer = new gpsLayer({
+            map: this.map,
+            options
         });
-        this.queryCircle.createDraw(value);
+    }
 
+    /**
+     * 更新gps数据
+     * @param  {Object} data 数据
+     */
+    updateGps(data) {
+        this.gpslayer.update(data);
+    }
 
+    /**
+     * 绘制查询
+     * @param  {String}   type     类型：box,circle,polygon
+     * @param  {Function} callback 回调
+     */
+    draw(type, callback) {
+        this.queryCircle.setQueryFun(result => {
+            this.clearTrackInfo();
+
+            for (let id in result.selected) {
+                const array = result.selected[id];
+                array.forEach(features => {
+                    this.clickSelect.getFeatures().extend(features);
+                });
+            }
+
+            if (baseUtil.isFunction(callback)) {
+                callback(result);
+            }
+        });
+        this.queryCircle.createDraw(type);
+    }
+
+    /**
+     * 触发事件
+     * @param  {Event} evt   type: 'geoSelect', || 'geoUnSelect' || 'geoToggleSelect'
+    name: '天津市和平区'
+     */
+    dispatchAction(evt) {
+        let feature = this.getFeature(evt.id);
+        const geoType = this.geoType_[evt.type]['arrayType'];
+        let e = {
+            type: 'select',
+            [geoType]: [feature]
+        };
+        this.clickSelect.dispatchEvent(e);
     }
 
     /**
      * 销毁对象
-     * @return {[type]} [description]
+     * @return {null} [description]
      */
     dispose() {
-
         this._dom.innerHTML = '';
         this.removeLayers();
         this.removeOverlays();
         this.map.setTarget(null);
         return null;
-
     }
 }
 

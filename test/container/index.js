@@ -4,14 +4,13 @@
  * @Last modified by:   deyuhua
  * @Last modified time: 2016-07-24T22:14:47+08:00
  * @Email: zhangyujie3344521@163.com
- * @File Path: H:\work\hyMap\test\container\index.js
+ * @File Path: F:\work\hyMap\test\container\index.js
  * @File Name: index.js
  * @Descript:
  */
 
 'use strict';
 import App from './App/App';
-import circle from './Earth/circle';
 import rect from './Earth/rect';
 import icon from './Earth/icon';
 import line from './Earth/line';
@@ -22,10 +21,11 @@ import ripple from './Earth/ripple';
 import labelAnimate from './Earth/labelAnimate';
 import gps from './Earth/gps';
 import featureanimat from './Earth/featureanimat';
+import region from './Earth/region';
+
 
 export {
     App,
-    circle,
     rect,
     icon,
     line,
@@ -35,5 +35,6 @@ export {
     heatmap,
     ripple,
     gps,
-    featureanimat
+    featureanimat,
+    region
 };

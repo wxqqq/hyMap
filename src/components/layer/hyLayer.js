@@ -2,14 +2,15 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:02:10
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-29 11:33:02
+ * @Last Modified time: 2017-08-01 15:27:46
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\hyLayer.js
  * @File Name: hyLayer.js
  * @Descript: 
  */
 'use strict';
-import hyMapStyle from '../style/hyMapStyle';
+
+import baseLayer from './baselayer';
 import hyFeature from '../feature/hyFeature';
 import baseUtil from '../../util/baseUtil';
 import colorUtil from '../../util/colorUtil';
@@ -17,30 +18,262 @@ import serieModel from '../../model/serieModel';
 import mapTool from '../../util/mapToolUtil';
 
 const ol = require('ol');
+// const geojsonvt = require('geojsonvt');
 
-export default class hylayer extends hyMapStyle {
+export default class hylayer extends baseLayer {
+    /**
+     * 初始化
+     * @param  {Object}   options 参数
+     */
     constructor(options) {
 
         super(options);
         this.map = options.map;
         this.view = this.map.getView();
         this.layer = this.init(options.serie);
+        this.map.addLayer(this.layer);
 
     }
+
     add() {
 
     }
     remove() {
 
     }
-    update() {
+    update(serie) {
 
+        let newserie = baseUtil.clone(serieModel);
+        baseUtil.merge(newserie, serie, true);
+        serie = newserie;
+        const style = this._createFeatureStyle(serie);
+        this.layer.set('fstyle', style);
+        this.layer.set('serie', serie);
+        const data = serie.data;
+        let source = this.layer.getSource();
+        //聚合图层的source为两层，进行判断获取到最底层的source
+        if (source instanceof ol.layer.AnimatedCluster) {
 
+            source = source.getSource();
+
+        }
+
+        let addData = [];
+        let updateData = new Map();
+        let strMap = new Map();
+
+        for (let k of Object.keys(data)) {
+
+            strMap.set('serie|' + data[k].geoCoord, data[k]);
+
+        }
+        //目标数据遍历，找到的更新，未找到的删除。
+        source.forEachFeature(function(feature) {
+
+            const geoCoord = feature.getId();
+            if (strMap.has(geoCoord)) {
+
+                const value = strMap.get(geoCoord);
+                feature.setProperties(value);
+                updateData.set('serie|' + value.geoCoord, value);
+
+            } else {
+
+                // console.info('update_rmData', feature);
+                source.removeFeature(feature);
+
+            }
+
+        });
+        //找到的数据进行更新，未找到的准备新增。
+
+        data.map((value) => {
+
+            if (!updateData.has(value.geoCoord)) {
+
+                addData.push(value);
+
+            }
+
+        });
+
+        //增加数据.
+        if (addData.length > 0) {
+
+            const featuresObj = hyFeature.getFeatures(addData, serie.type);
+            //获取feature数组
+            const array = featuresObj.features;
+            this.layer.getSource().addFeatures(array);
+
+        }
 
     }
-    getlayer() {
 
+    createLayer(serie, source, array) {
+
+        let vector = null;
+        if (serie.type == 'heatmap') {
+
+            //创建热力图
+            vector = new ol.layer.Heatmap({
+                source: source,
+                gradient: serie.heatOption && serie.heatOption.gradient || undefined,
+                blur: serie.heatOption && serie.heatOption.blur || undefined,
+                radius: serie.heatOption && serie.heatOption.radius || undefined,
+                shadow: serie.heatOption && serie.heatOption.shadow || undefined,
+                maxResolution: mapTool.getResolutionByZoom(serie.minZoom, this.view),
+                minResolution: mapTool.getResolutionByZoom(serie.maxZoom, this.view)
+            });
+
+        } else {
+
+            //创建聚合图层
+            if (serie.cluster && (serie.cluster.enable == true || serie.cluster.enable === 'true')) {
+
+                let clusterSource = new ol.source.Cluster({
+                    distance: serie.cluster.distance || 20,
+                    source: source
+                });
+                clusterSource.on('addfeature', function(evt) {
+
+                    evt.feature.source = evt.target;
+
+                });
+                vector = new ol.layer.AnimatedCluster({
+                    source: clusterSource,
+                    style: (feature, resolution, type) => {
+
+                        return this._geoStyleFn(feature, resolution, type);
+
+                    },
+
+                    minResolution: mapTool.getResolutionByZoom(serie.maxZoom, this.view),
+                    maxResolution: mapTool.getResolutionByZoom(serie.minZoom, this.view)
+                });
+                clusterSource.vector = vector;
+
+            } else if (serie.type == 'tile') {
+                // var replacer = function(key, value) {
+                //     if (value.geometry) {
+                //         var type;
+                //         var rawType = value.type;
+                //         var geometry = value.geometry;
+
+                //         if (rawType === 1) {
+                //             type = 'MultiPoint';
+                //             if (geometry.length == 1) {
+                //                 type = 'Point';
+                //                 geometry = geometry[0];
+                //             }
+                //         } else if (rawType === 2) {
+                //             type = 'MultiLineString';
+                //             if (geometry.length == 1) {
+                //                 type = 'LineString';
+                //                 geometry = geometry[0];
+                //             }
+                //         } else if (rawType === 3) {
+                //             type = 'Polygon';
+                //             if (geometry.length > 1) {
+                //                 type = 'MultiPolygon';
+                //                 geometry = [geometry];
+                //             }
+                //         }
+
+                //         return {
+                //             'type': 'Feature',
+                //             'geometry': {
+                //                 'type': type,
+                //                 'coordinates': geometry
+                //             },
+                //             'properties': value.tags
+                //         };
+                //     } else {
+                //         return value;
+                //     }
+                // };
+                // let json = new ol.format.GeoJSON().writeFeaturesObject(array, {
+                //     dataProjection: 'EPSG:4326',
+                //     featureProjection: 'EPSG:3857'
+                // });
+                // let tileIndex = geojsonvt(json, {
+                //     extent: 4096,
+                //     debug: 0
+                // });
+                // // console.log(tileIndex);
+                // console.log(tileIndex.getTile(1, 1, 0))
+                // var tilePixels = new ol.proj.Projection({
+                //     code: 'TILE_PIXELS',
+                //     units: 'tile-pixels'
+                // });
+
+                // let vsource = new ol.source.VectorTile({
+                //     format: new ol.format.GeoJSON(),
+                //     tileGrid: ol.tilegrid.createXYZ(),
+                //     tilePixelRatio: 16,
+                //     tileLoadFunction: function(tile, url) {
+
+                //         var format = tile.getFormat();
+                //         var tileCoord = tile.getTileCoord();
+                //         var data = tileIndex.getTile(tileCoord[0], tileCoord[1], -tileCoord[2] - 1);
+                //         var features = format.readFeatures(
+                //             JSON.stringify({
+                //                 type: 'FeatureCollection',
+                //                 features: data ? data.features : []
+                //             }, replacer));
+                //         tile.setLoader(function() {
+                //             tile.setFeatures(features);
+                //             tile.setProjection(tilePixels);
+                //         });
+                //     },
+                //     url: 'data:' // arbitrary url, we don't use it in the tileLoadFunction
+                // });
+                // vector = new ol.layer.VectorTile({
+                //     source: vsource,
+                //     style: function(feature, projection) {
+
+                //         return new ol.style.Style({
+                //             image: new ol.style.Circle({
+                //                 radius: 1,
+                //                 snapToPixel: false,
+                //                 fill: new ol.style.Fill({
+                //                     color: 'red'
+                //                 }),
+                //                 stroke: new ol.style.Stroke({
+                //                     color: 'red',
+                //                     width: 1
+                //                 })
+                //             }),
+                //             fill: new ol.style.Fill({
+                //                 color: 'rgba(255, 255, 255, 0.6)'
+                //             }),
+                //             stroke: new ol.style.Stroke({
+                //                 color: '#319FD3',
+                //                 width: 1
+                //             })
+                //         })
+                //     }
+                // })
+            } else {
+
+                vector = new ol.layer.Vector({
+                    source: source,
+                    style: (feature, resolution, type) => {
+
+                        return this._geoStyleFn(feature, resolution, type);
+
+                    },
+                    minResolution: mapTool.getResolutionByZoom(serie.maxZoom, this.view),
+                    maxResolution: mapTool.getResolutionByZoom(serie.minZoom, this.view)
+                });
+
+                this.startAnimate(array, serie.animation); //执行动画
+
+            }
+
+        }
+        return vector;
     }
+
     init(serie) {
 
         let newserie = baseUtil.clone(serieModel);
@@ -95,70 +328,9 @@ export default class hylayer extends hyMapStyle {
 
         });
 
-
-
-        let vector = null;
+        let vector = this.createLayer(serie, source, array);
         const style = this._createFeatureStyle(serie);
 
-        if (serie.type == 'heatmap') {
-
-            //创建热力图
-            vector = new ol.layer.Heatmap({
-                source: source,
-                gradient: serie.heatOption && serie.heatOption.gradient || undefined,
-                blur: serie.heatOption && serie.heatOption.blur || undefined,
-                radius: serie.heatOption && serie.heatOption.radius || undefined,
-                shadow: serie.heatOption && serie.heatOption.shadow || undefined,
-                maxResolution: mapTool.getProjectionByZoom(serie.minZoom, this.view),
-                minResolution: mapTool.getProjectionByZoom(serie.maxZoom, this.view)
-            });
-
-        } else {
-
-            //创建聚合图层
-            if (serie.cluster && (serie.cluster.enable == true || serie.cluster.enable === 'true')) {
-
-                let clusterSource = new ol.source.Cluster({
-                    distance: serie.cluster.distance || 20,
-                    source: source
-                });
-                clusterSource.on('addfeature', function(evt) {
-
-                    evt.feature.source = evt.target;
-
-                });
-                vector = new ol.layer.AnimatedCluster({
-                    source: clusterSource,
-                    style: (feature, resolution, type) => {
-
-                        return this._geoStyleFn(feature, resolution, type);
-
-                    },
-
-                    minResolution: mapTool.getProjectionByZoom(serie.maxZoom, this.view),
-                    maxResolution: mapTool.getProjectionByZoom(serie.minZoom, this.view)
-                });
-                clusterSource.vector = vector;
-
-            } else {
-
-                vector = new ol.layer.Vector({
-                    source: source,
-                    style: (feature, resolution, type) => {
-
-                        return this._geoStyleFn(feature, resolution, type);
-
-                    },
-
-                    minResolution: mapTool.getProjectionByZoom(serie.maxZoom, this.view),
-                    maxResolution: mapTool.getProjectionByZoom(serie.minZoom, this.view)
-                });
-
-                this.startAnimate(array, serie.animation); //执行动画
-
-            }
-
-        }
         vector.set('name', serie.name || new Date().getTime());
         vector.set('serie', serie);
         vector.set('interior', serie.interior);
@@ -190,22 +362,136 @@ export default class hylayer extends hyMapStyle {
         //         })]);
         //          },2000)
         // })
-
-
-
         return vector;
 
+    }
 
+    /**
+     * style回调方法
+     * @param  {ol.feature} feature    [description]
+     * @param  {array} resolution [description]
+     * @param  {String} type  样式类型     [description]
+     * @return {Style}  显示的定义样式
+     */
+    _geoStyleFn(feature, resolution, type = 'normal') {
+
+        const style = feature.get('style') || feature.source.vector.get('fstyle');
+        const rStyle = style[type];
+        const serie = feature.source.vector.get('serie');
+        const symbolSize = serie && serie.symbolSize;
+        const serieType = serie && serie.type;
+
+        //判断是否对图形大小进行动态设置
+        if (symbolSize && symbolSize[0] != symbolSize[1]) {
+
+            let geoScaleNum = this._scaleSize(symbolSize, feature.source.get('minValue'), feature.source.get('maxValue'));
+            let value = feature.get('value') || 0;
+            //对数据进行判断，
+            if (feature.source instanceof ol.source.Cluster) {
+
+                geoScaleNum = this._scaleSize(symbolSize, feature.source.getSource().get('minValue'), feature.source.getSource().get('maxValue'));
+
+                const features = feature.get('features');
+
+                if (features) {
+
+                    features.forEach((feature) => {
+
+                        let fValue = feature.get('value');
+                        if (fValue > value) {
+
+                            value = fValue;
+
+                        }
+
+                    });
+
+                } else {
+
+                    value = feature.get('value');
+
+                }
+
+            }
+            const scale = Math.floor(value / geoScaleNum);
+            const icon = rStyle[0].getImage();
+            if (icon) {
+
+                if (icon instanceof ol.style.Icon) {
+
+                    icon.setScale((symbolSize[0] + scale) / (symbolSize[0] / icon.relScale));
+
+                } else {
+
+                    icon.setRadius(scale + symbolSize[0]);
+
+                }
+
+            }
+
+        }
+
+        //判断是否需要进行文本标签显示
+        const text = rStyle[1].getText();
+        if (text && text.show) {
+
+            const textSize = serie && serie.labelSize;
+            const column = serie && serie.labelColumn || 'value';
+            let value = '';
+            let textScaleNum = this._scaleSize(textSize, feature.source.get('minValue'), feature.source.get('maxValue'));
+
+            if (feature.source instanceof ol.source.Cluster) {
+
+                textScaleNum = this._scaleSize(textSize, feature.source.getSource().get('minValue'), feature.source.getSource().get('maxValue'));
+
+                const features = feature.get('features');
+
+                if (features) {
+
+                    features.forEach((feature) => {
+
+                        let fValue = feature.get(column);
+                        if (fValue > value) {
+
+                            value = fValue;
+
+                        }
+
+                    });
+
+                } else {
+
+                    value = feature.get(column);
+
+                }
+
+            } else {
+
+                value = feature.get(column);
+
+            }
+            text.setText(value.toString());
+            if (textSize && textSize[0] != textSize[1]) {
+
+                const font = text.getFont().split(' ');
+                const value = feature.get(column);
+                const scale = Math.floor(value / textScaleNum);
+                const newFont = scale + textSize[0] - 1;
+                font[2] = newFont + 'pt';
+                text.setFont(font.join(' '));
+
+            }
+
+        }
+
+        return rStyle;
 
     }
 
     /**
      * 执行动画
-     * @author WXQ
-     * @date   2017-04-13
-     * @param  {[type]}   array     [description]
-     * @param  {[type]}   options [description]
-     * @return {[type]}             [description]
+     * @param  {Array}   array     数据
+     * @param  {Object}   options  参数
      */
     startAnimate(array, options) {
 
@@ -242,13 +528,10 @@ export default class hylayer extends hyMapStyle {
     }
 
     /**
-     * [animateFlights description]
-     * @author WXQ
-     * @date   2017-04-13
-     * @param  {[type]}   event     [description]
-     * @param  {[type]}   array     [description]
-     * @param  {[type]}   options [description]
-     * @return {[type]}             [description]
+     * 缩放效果
+     * @param  {Event}   event     事件
+     * @param  {Array}   array     数据
+     * @param  {Object}   options  参数
      */
     animateFlights(event, array, options) {
 
@@ -270,6 +553,11 @@ export default class hylayer extends hyMapStyle {
 
     }
 
+    /**
+     * 缩放动画
+     * @param  {Feature} feature      元素
+     * @param  {Number} elapsedRatio  开始位置
+     */
     animateScale(feature, elapsedRatio) {
 
         let style = this.getFeatureStyle(feature);
@@ -290,6 +578,11 @@ export default class hylayer extends hyMapStyle {
 
     }
 
+    /**
+     * 文本缩放动画
+     * @param  {Event} event  事件
+     * @param  {Feature} feature feature对象
+     */
     textScale(event, feature) {
 
         const duration = feature.period * 1000 || 700;
@@ -315,9 +608,9 @@ export default class hylayer extends hyMapStyle {
 
     /**
      * 涟漪动画
-     * @param  {[type]} event [description]
-     * @param  {[type]} array [description]
-     * @return {[type]}       [description]
+     * @param  {Event} event 事件
+     * @param  {Array} array 数组
+     * @param  {Object}   options  参数
      */
     animationRipple(event, array, options) {
 
@@ -373,11 +666,12 @@ export default class hylayer extends hyMapStyle {
 
     /**
      * 涟漪动画样式设置
-     * @param  {[type]} elapsedRatio [description]
-     * @param  {[type]} iconradius   [description]
-     * @param  {Number} scale        [description]
-     * @param  {String} type         [description]
-     * @return {[type]}              [description]
+     * @param  {Number} elapsedRatio 起始值
+     * @param  {Number} iconradius   半径
+     * @param  {Number} scale       倍率
+     * @param  {String} type         类型
+     * @param  {String} color        颜色
+     * @return {Style}               样式
      */
     _createAnimationStyle(elapsedRatio, iconradius, scale = 2.5, type = 'stroke', color = 'rgba(140,0,140,1)') {
 
@@ -444,12 +738,17 @@ export default class hylayer extends hyMapStyle {
     }
     dispose() {
 
-        this.map.reomve(this.layer);
+        this.map.removeLayer(this.layer);
+        let source = this.layer.getSource();
+        //聚合图层的source为两层，进行判断获取到最底层的source
+        if (source instanceof ol.layer.AnimatedCluster) {
 
-    }
-    update(serie) {
+            source = source.getSource();
 
-
+        }
+        source.clear();
+        this.source = null;
+        this.layer = null;
 
     }
 }

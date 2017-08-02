@@ -1,4 +1,89 @@
 #version
+
+##v0.2.1
+注意此版本部分与此前部分功能不兼容
+1.setoption 选项，移除map相关配置
+包括map,  drillDown, label, itemStyle,  region:selectedMode,
+现在的geo更改为layer控制 使用 addLayer进行添加 配置项如下：
+```
+serie={
+    type: 'region',
+            location: '中国', //当前地图显示哪个地图
+            drillDown: true, //是否开启区域点击下钻功能。
+            label: {
+                'normal': {
+                    show: false,
+                    textStyle: {
+                        color: '#fff',
+                        fontStyle: 'normal',
+                        fontWeight: 'bold',
+                        fontFamily: 'sans-serif',
+                        fontSize: '16px'
+                    }
+                },
+                'emphasis': {
+                    show: true,
+                    textStyle: {
+                        color: '#fff',
+                        fontStyle: 'normal',
+                        fontWeight: 'bold',
+                        fontFamily: 'sans-serif',
+                        fontSize: '16px'
+                    }
+                }
+            },
+            itemStyle: {
+                'normal': {
+                    strokeWidth: 2, //边框宽度
+                    strokeColor: 'green', //边框颜色
+                    fillColor: 'rgba(255,255,255,0.2)'
+                },
+                'emphasis': {
+                    strokeWidth: 1, //边框宽度
+                    fillColor: 'rgba(255,255,255,0.5)'
+                }
+            }, //地图上每块区域的样式
+            special: [{
+                name: '山东省',
+                itemStyle: {
+                    'normal': {
+                        strokeWidth: 1, //边框宽度
+                        strokeColor: 'blue', //边框颜色
+                        fillColor: '#2a333d'
+                    },
+                    'emphasis': {
+                        strokeWidth: 1, //边框宽度
+                        strokeColor: '#B5FF91', //边框颜色
+                        fillColor: 'blue'
+                    }
+                },
+                label: {
+                    'normal': {
+                        show: false,
+                        textStyle: {
+                            color: 'red'
+                        }
+                    },
+                    'emphasis': {
+                        show: true,
+                        textStyle: {
+                            color: '#B5FF91',
+                            fontStyle: 'italic',
+                            fontWeight: 'bold',
+                            fontFamily: 'sans-serif',
+                            fontSize: '16px'
+                        }
+
+                    }
+                }
+            }], //  name: '',特殊区域的样式
+            selectedMode: '', //地图区域的选中模式 single mulit 
+     };       
+```
+2. 底图 theme 增加互联网地图配置 sougou//搜狗地图  tianditu//天地图 gaode//高德  google//　谷歌
+3. layer增加special选择，可以进行特殊样式的控制。如1中special的设置
+4. layer增加tooltip设置。
+
 ##v0.1.46
 增加周边查询，重构调用代码。
 ##v0.1.19

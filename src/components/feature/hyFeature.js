@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-18 09:51:02
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-15 17:45:37
+ * @Last Modified time: 2017-07-17 10:23:44
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\feature\hyFeature.js
  * @File Name: hyFeature.js
@@ -15,13 +15,23 @@ import mapTool from '../../util/mapToolUtil';
 const ol = require('ol');
 
 export default class hyFeature {
+    /**
+     * 初始化
+     * @param  {Object}   options 参数
+     */
     constructor(options) {
 
         // super(options);
-
         return this._createFeature();
+
     }
 
+    /**
+     * 构建features对象
+     * @param  {Object} data 数据
+     * @param  {String} type 类型
+     * @return {Object}  {features,max,min}    结果对象
+     */
     static getFeatures(data, type) {
 
         let features = [];
@@ -45,11 +55,17 @@ export default class hyFeature {
 
     }
 
+    /**
+     * 构建feature对象
+     * @param   {String} type 类型
+     * @param   {Object} data 数据
+     * @return  {feature} feature feature对象
+     * @private
+     */
     static _createFeature(type, data) {
 
         let feature = new ol.Feature({
             geometry: this._createGeometry(type, data.geoCoord)
-                // dataIndex: new Date().getTime()
 
         });
         feature.setProperties(data);
@@ -58,15 +74,15 @@ export default class hyFeature {
         // const featurestyle = this._createGeoStyle(serie.itemStyle, serie.label);
         // feature.set('style', featurestyle);
         // 
-
         return feature;
+
     }
 
     /**
      * 创建空间对象
-     * @param  {[type]} type [description]
-     * @param  {[type]} obj  [description]
-     * @return {[type]}      [description]
+     * @param  {String} type 类型
+     * @param  {Array|String} geoCoord  坐标
+     * @return {Object} geometry 空间对象
      */
     static _createGeometry(type, geoCoord) {
 
@@ -94,8 +110,7 @@ export default class hyFeature {
 
             geometry = new ol.geom.LineString(coords);
 
-        } else
-        if (type == 'polygon') {
+        } else if (type == 'polygon') {
 
             geometry = new ol.geom.Polygon(coords);
 
@@ -117,6 +132,12 @@ export default class hyFeature {
         return geometry;
 
     }
+
+    /**
+     * 构造线对象
+     * @param  {Object} data 数据
+     * @return {Object}  geometry  空间对象
+     */
     static createLine(data) {
 
         let coords = [];

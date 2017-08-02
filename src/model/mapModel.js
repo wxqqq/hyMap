@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * @module mapModel
+ */
 export default {
     serverUrl: 'http://192.168.1.50:8080/geoserver', //服务器地址
     show: true, //地图的显示状态 true为显示 false 为不显示

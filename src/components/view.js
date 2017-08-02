@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-27 16:37:06
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-01 15:18:34
+ * @Last Modified time: 2017-07-17 14:01:13
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\view.js
  * @File Name: view.js
@@ -13,6 +13,10 @@ import mapTool from '../util/mapToolUtil';
 const ol = require('ol');
 
 export default class view {
+    /**
+     * 初始化
+     * @param  {Object}   options 参数
+     */
     constructor(geo, map) {
 
         this.map = map;
@@ -60,10 +64,11 @@ export default class view {
             center: mapTool.transform(center, projection),
             zoom: zoom,
             enableRotation: false,
-            minZoom: minZoom,
-            maxZoom: maxZoom,
-            projection: projection
-                // extent: []
+            // minZoom: minZoom,
+            // maxZoom: maxZoom,
+            // projection: projection,
+
+            // extent: []
 
         });
 

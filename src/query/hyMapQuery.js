@@ -1,11 +1,18 @@
 'use strict';
 
 const ol = require('ol');
+
 export default class hyMapQuery {
-    constructor() {
+    /**
+     * 初始化
+     */
+    constructor() {}
 
-    }
-
+    /**
+     * 创建空间过滤
+     * @param  {geometry}   geometry  空间对象
+     * @return {filter}      filter   过滤条件
+     */
     static spatialFilter(geometry) {
 
         return ol.format.filter.intersects('geom', geometry.clone().transform(this._projection, 'EPSG:4326'), 'urn:x-ogc:def:crs:EPSG:4326');
@@ -13,10 +20,10 @@ export default class hyMapQuery {
     }
 
     /**
-     * [createFeatureRequest description]
-     * @param  {[type]} tables [description]
-     * @param  {[type]} filter [description]
-     * @return {[type]}        [description]
+     * 创建请求串
+     * @param  {array} tables 表名
+     * @param  {filter} filter  过滤对象
+     * @return {string}  string xml请求串
      */
 
     static createFeatureRequest(tables, filter, projection = 'EPSG:3857') {
@@ -28,20 +35,18 @@ export default class hyMapQuery {
             filter: filter,
             outputFormat: 'application/json'
 
-            // filter: ol.format.filter.and(
-            //     ol.format.filter.like('name', 'Mississippi*'),
-            //     ol.format.filter.equalTo('waterway', 'riverbank')
-            // )
+        // filter: ol.format.filter.and(
+        //     ol.format.filter.like('name', 'Mississippi*'),
+        //     ol.format.filter.equalTo('waterway', 'riverbank')
+        // )
         });
         return new XMLSerializer().serializeToString(featureRequest);
 
     }
 
     /**
-     * [spatialQuery description]
-     * @param  {[type]}   featureRequest [description]
-     * @param  {Function} callback       [description]
-     * @return {[type]}                  [description]
+     * 空间查询
+     * @param  {Object}   options 参数
      */
     static spatialQuery(options) {
 

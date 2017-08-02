@@ -2,7 +2,7 @@
  * @Author: FunctionRun
  * @Date:   2017-01-10 10:15:18
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-29 13:47:46
+ * @Last Modified time: 2017-07-25 15:57:44
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\webpack.config.js
  * @File Name: webpack.config.js
@@ -31,6 +31,7 @@ let webpackConfig = {
         root: '',
         extensions: ['', '.js', '.json', '.css', '.styl', '.sass', '.scss'],
         alias: {
+            geojsonvt: path.join(__dirname, '/public/lib/geojson-vt-dev'),
             ol: path.join(__dirname, '/public/lib/ol-debug'),
             sockjs_min: path.join(__dirname, 'public/lib/sockjs.min'),
             stomp: path.join(__dirname, 'public/lib/stomp.min')

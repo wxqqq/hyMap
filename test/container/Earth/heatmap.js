@@ -2,17 +2,15 @@
  * @Author: wxq
  * @Date:   2017-03-16 13:33:33
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-14 14:16:51
+ * @Last Modified time: 2017-07-25 09:54:26
  * @Email: 304861063@qq.com
- * @File Path: H:\work\hyMap\test\container\Earth\heatmap.js
+ * @File Path: F:\work\hyMap\test\container\Earth\heatmap.js
  * @File Name: heatmap.js
  * @Descript: 
  */
 
 'use strict';
-import React, {
-    Component
-} from 'react';
+import React, { Component } from 'react';
 import map from '../../../src/index';
 
 class heatmap extends Component {

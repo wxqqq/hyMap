@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-27 16:37:00
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-06-29 16:25:56
+ * @Last Modified time: 2017-07-17 13:57:36
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\map.js
  * @File Name: map.js
@@ -18,6 +18,10 @@ require('../../css/layerswitchercontrol.css');
 const ol = require('ol');
 
 export default class map {
+    /**
+     * 初始化
+     * @param  {Object}   options 参数
+     */
     constructor(dom) {
 
         this.map = this._createMap(dom);
@@ -28,8 +32,8 @@ export default class map {
 
     /**
      * 创建map
-     * @param  {[type]} dom [description]
-     * @return {[type]}     [description]
+     * @param  {Element} dom [description]
+     * @return {Map}     [description]
      */
     _createMap(dom) {
 
@@ -45,24 +49,23 @@ export default class map {
                 // new ol.control.LayerSwitcher({
                 //     reordering: false
                 // }),
-
                 // new ol.control.LayerSwitcherImage(),
-
                 // new ol.control.FullScreen(),
                 // new ol.control.MousePosition(), //鼠标位置
                 // new ol.control.OverviewMap({
                 // layers: this._basicLayersArray
                 // }), //鹰眼
-                new ol.control.ScaleLine({
-                    minWidth: 52,
-                    // units: 'zh'
-                }),
+                // new ol.control.ScaleLine({
+                // minWidth: 52,
+                // units: 'zh'
+                // }),
                 // new ol.control.ZoomSlider(), //地图缩放侧边栏
                 // new ol.control.ZoomToExtent()//一键缩放到全图
             ]),
             logo: this.getLogo()
 
         });
+
         this.addClass(dom, 'ol-grab');
         //增加鼠标样式
         dom.addEventListener('mousedown', () => {
@@ -83,7 +86,6 @@ export default class map {
             evt.map.getTargetElement().style.cursor = evt.map.hasFeatureAtPixel(evt.pixel) ? 'pointer' : '';
 
         });
-
 
         // map.on('pointerdrag', function(evt) {
 
@@ -114,26 +116,36 @@ export default class map {
         dom.oncontextmenu = (event) => {
 
             var pixel = this.map.getEventPixel(event); //获取鼠标当前像素点
-            var hit = this.map.hasFeatureAtPixel(pixel); //通过像素点判断当前鼠标上是否有图形 
             var coordinate = this.map.getEventCoordinate(event); //获取鼠标坐标
             let features = [];
-
+            let selected = [];
             this.map.forEachFeatureAtPixel(pixel, (feature, layer) => {
-                if (layer.get('contextmenu')) {
+
+                if (layer && layer.get('contextmenu')) {
+
+                    selected = features;
+                    if (layer.get('interior')) {
+
+                        selected = feature.get('queryResult');
+
+                    }
                     features.push(feature);
+
                 }
 
             });
 
-            if (hit && features.length > 0) {
+            if (features.length > 0) {
 
-                let dom = this.addOverlay(coordinate);
+                this.showOverlay(coordinate);
+
                 this.dispatchEvent({
-                    evt: event,
                     type: 'contextmenu',
+                    evt: event,
                     coordinate,
-                    dom: this.menu_overlay.getElement(),
-                    features: features
+                    element: this.menu_overlay.getElement(),
+                    features,
+                    selected: selected
                 });
                 event.preventDefault(); //取消右键默认行为
 
@@ -144,28 +156,37 @@ export default class map {
     }
 
     initMenuOverLay() {
+
         var dom = document.createElement('div');
         dom.id = 'hy_contextmenu_' + new Date().getTime();
+        document.body.appendChild(dom);
         var menu_overlay = new ol.Overlay({
             element: dom,
+            stopEvent: false,
             positioning: 'center-center'
         });
-        menu_overlay.setMap(this.map);
+
+        this.map.addOverlay(menu_overlay);
+        // menu_overlay.setMap(this.map);
         return menu_overlay;
+
     }
 
-    addOverlay(coordinate) {
+    showOverlay(coordinate) {
 
         this.menu_overlay.setPosition(coordinate);
 
     }
+
     hideOverlay() {
+
         this.menu_overlay.setPosition(undefined);
+
     }
 
     /**
      * 增加logo
-     * @return {[type]} [description]
+     * @return {Element} [description]
      */
     getLogo() {
 
@@ -183,19 +204,28 @@ export default class map {
         return logoElement;
 
     }
+
     hasClass(obj, cls) {
+
         return obj.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
+
     }
 
     addClass(obj, cls) {
-        if (!this.hasClass(obj, cls)) obj.className += " " + cls;
+
+        if (!this.hasClass(obj, cls)) obj.className += ' ' + cls;
+
     }
 
     removeClass(obj, cls) {
+
         if (this.hasClass(obj, cls)) {
+
             var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
             obj.className = obj.className.replace(reg, ' ');
+
         }
+
     }
 }
 

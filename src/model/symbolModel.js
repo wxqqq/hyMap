@@ -1,5 +1,8 @@
 'use strick';
 
+/**
+ * @module symbolModel
+ */
 export default {
     'normal': {
         symbol: 'circle', //circle|react|icon:img/jingli.png

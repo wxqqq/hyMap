@@ -3,11 +3,35 @@ import hymap from './hymap/hymap';
 const instances = {};
 const DOM_ATTRIBUTE_KEY = '_hy_instance_';
 let idBase = new Date() - 0;
+
+/**
+ * 全局变量
+ * @type {Object}
+ * @namespace  index
+ */
 const config = {
+    /**
+     * 版本
+     * @memberof index 
+     * @type {String}
+     */
     version: '0.0.1',
+    /**
+     * 依赖
+     * @memberof index
+     * @type {Object}
+     */
     dependencies: {
         'openlayers': '4.1.0'
     },
+    /**
+     * 初始化DOM, 返回instance实例
+     * @memberof index
+     * @alias init
+     * @param  {dom}   Elemnt 窗体dom
+     * @return {Object}  hymap        实例
+     * @method 
+     */
     init(DOMNode) {
 
         if (null == DOMNode) {
@@ -26,6 +50,14 @@ const config = {
         return map;
 
     },
+
+    /**
+     * 获取实例
+     * @memberof index
+     * @param  {dom}   Elemnt 窗体dom
+     * @return {hymap}  hymap        实例
+     * @method 
+     */
     getInstanceByDom(DOMNode) {
 
         const key = DOMNode.getAttribute(DOM_ATTRIBUTE_KEY);

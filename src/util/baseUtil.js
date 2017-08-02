@@ -2,15 +2,19 @@
  * @Author: zhangyujie
  * @Date:   2016-05-11 14:48:57
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-04-27 17:42:31
+ * @Last Modified time: 2017-07-07 15:59:35
  * @Email: zhangyujie3344521@163.com
- * @File Path: H:\work\hyMap\src\util\baseUtil.js
+ * @File Path: F:\work\hyMap\src\util\baseUtil.js
  * @File Name: baseUtil.js
  * @Descript: 提供最基本的数据类型判断、、、可以使用underscore lodash 、、、、
+ * @module baseUtil
  */
 
 'use strict';
-
+/**
+ * baseUtil
+ * @module  baseUtil
+ */
 // 用于处理merge时无法遍历Date等对象的问题
 var BUILTIN_OBJECT = {
     '[object Function]': 1,
@@ -28,8 +32,8 @@ var nativeMap = arrayProto.map;
 var nativeReduce = arrayProto.reduce;
 
 /**
- * @param {*} source
- * @return {*} 拷贝后的新对象
+ * @param {object} source
+ * @return {object} 拷贝后的新对象
  */
 function clone(source) {
     if (typeof source == 'object' && source !== null) {
@@ -332,7 +336,6 @@ function bind(func, context) {
 /**
  * @memberOf module:zrender/tool/util
  * @param {Function} func
- * @param {...}
  * @return {Function}
  */
 function curry(func) {
@@ -392,7 +395,7 @@ function isDom(value) {
 
 /**
  * If value1 is not null, then return value1, otherwise judget rest of values.
- * @param  {*...} values
+ * @param  {...*} values
  * @return {*} Final value
  */
 function retrieve(values) {
