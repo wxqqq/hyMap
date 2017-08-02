@@ -1,0 +1,57 @@
+{
+    "opts": {
+        "recurse": true,
+        "template": "doc/jsdoc",
+        "destination": "doc/API/",
+        "readme": "doc/index.md"
+    },
+    "tags": {
+        "allowUnknownTags": true
+    },
+    "source": {
+        "includePattern": ".+\\.js(doc)?$",
+        "excludePattern": "(^|\\/|\\\\)_",
+        "include": [
+            "src"
+        ]
+    },
+    "plugins": [
+        "plugins/markdown"
+        // "../ol3/node_modules/jsdoc/plugins/markdown",
+        // "doc/jsdoc/plugins/inheritdoc",
+        // "doc/jsdoc/plugins/typedefs",
+        // "doc/jsdoc/plugins/events",
+        // "doc/jsdoc/plugins/observable",
+        // "doc/jsdoc/plugins/api"
+    ],
+    "markdown": {
+        "parser": "gfm"
+    },
+    "stability": {
+        "levels": ["deprecated", "experimental", "unstable", "stable", "frozen", "locked"]
+    },
+    "templates": {
+        "cleverLinks": true,
+        "monospaceLinks": true,
+        "default": {
+            "outputSourceFiles": true
+        },
+        "applicationName": "配置项",
+        "disqus": "",
+        "googleAnalytics": "",
+        "openGraph": {
+            "title": "",
+            "type": "website",
+            "image": "",
+            "site_name": "",
+            "url": ""
+        },
+        "meta": {
+            "title": "",
+            "description": "",
+            "keyword": ""
+        },
+        "linenums": false
+    },
+    "jsVersion": 180
+}
