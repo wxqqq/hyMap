@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-27 10:56:48
+ * @Last Modified time: 2017-08-02 18:18:58
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\test\container\Earth\mapmethod.js
  * @File Name: mapmethod.js
@@ -45,6 +45,8 @@ class mapmethod extends Component {
 
     componentDidMount() {
 
+
+        map.ON_WEBGL = true;
         this.mapObj = map.init(document.getElementById('map'))
         this.setState({
             mapObj: this.mapObj
