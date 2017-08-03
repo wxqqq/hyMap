@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-27 14:37:24
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-07 16:04:23
+ * @Last Modified time: 2017-08-03 15:06:23
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\util\mapToolUtil.js
  * @File Name: mapToolUtil.js
@@ -95,6 +95,12 @@ function transform(coords, projection) {
 function deleteEndSign(str, sign) {
 
     return (str.substring(str.length - 1) == sign) ? str.substring(0, str.length - 1) : str;
+
+}
+
+function getDistance(first, second) {
+    var wgs84Sphere = new ol.Sphere(6378137);
+
 
 }
 const mapToolUtil = {

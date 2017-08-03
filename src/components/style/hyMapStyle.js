@@ -277,6 +277,8 @@ export default class hyMapStyle {
 
         const style = this._createItemStyle(IconStyle, this._baseIconStyle);
         const label = this._createItemStyle(labelStyle, this._baseLabelStyle);
+
+
         return {
             normal: this._createDataStyle(style.normal, label.normal),
             emphasis: this._createDataStyle(style.emphasis, label.emphasis)
