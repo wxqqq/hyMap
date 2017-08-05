@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-23 20:14:54
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-17 14:25:15
+ * @Last Modified time: 2017-08-04 16:34:59
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\spatialQueryLayer.js
  * @File Name: spatialQueryLayer.js
@@ -372,17 +372,45 @@ export default class spatialQueryLayer extends baseLayer {
 
         let result = {};
         for (let key in groupLayers) {
-
-            const group = groupLayers[key];
-
-            const layers = group.getLayers();
             let array = [];
-            result[group.get('id')] = array;
+            const group = groupLayers[key];
+            const layers = group.getLayer();
 
-            layers.forEach((layer) => {
+            if (layers instanceof ol.Collection) {
 
-                let featureArray = [];
-                layer.getSource().forEachFeature((feature) => {
+                result[group.get('id')] = array;
+
+                layers.forEach((layer) => {
+                    let featureArray = [];
+                    layer.getSource().forEachFeature((feature) => {
+
+                        const coords = feature.getGeometry().getCoordinates();
+                        if (geometry.intersectsCoordinate(coords)) {
+
+                            //增加距离，单位为米
+                            if (geometry instanceof ol.geom.Circle) {
+
+                                var line = new ol.geom.LineString([coords, geometry.getCenter()]);
+                                feature.set('distance', Number(line.getLength().toFixed(0)));
+
+                            }
+                            feature.set('pixel', this.map.getPixelFromCoordinate(coords));
+                            featureArray.push(feature);
+
+
+                        }
+
+
+                    });
+                    featureArray = this.sortBy(featureArray, 'distance');
+                    array.push(featureArray);
+                });
+
+            } else {
+
+                result[layers.get('id')] = array;
+                let featureArray1 = [];
+                layers.getSource().forEachFeature((feature) => {
 
                     const coords = feature.getGeometry().getCoordinates();
                     if (geometry.intersectsCoordinate(coords)) {
@@ -395,16 +423,19 @@ export default class spatialQueryLayer extends baseLayer {
 
                         }
                         feature.set('pixel', this.map.getPixelFromCoordinate(coords));
-                        featureArray.push(feature);
+                        featureArray1.push(feature);
 
 
                     }
 
+
+                    featureArray1 = this.sortBy(featureArray1, 'distance');
+
                 });
 
-                featureArray = this.sortBy(featureArray, 'distance');
-                array.push(featureArray);
-            });
+
+                array.push(featureArray1);
+            }
 
         }
 

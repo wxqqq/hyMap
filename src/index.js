@@ -1,5 +1,5 @@
 import hymap from './hymap/hymap';
-
+import hyMapBox from './hyMapBox';
 const instances = {};
 const DOM_ATTRIBUTE_KEY = '_hy_instance_';
 let idBase = new Date() - 0;
@@ -15,7 +15,7 @@ const config = {
      * @memberof index 
      * @type {String}
      */
-    version: '0.0.1',
+    version: '0.1.1',
     /**
      * 依赖
      * @memberof index
@@ -24,6 +24,8 @@ const config = {
     dependencies: {
         'openlayers': '4.1.0'
     },
+    ON_WEBGL: false,
+
     /**
      * 初始化DOM, 返回instance实例
      * @memberof index
@@ -40,7 +42,13 @@ const config = {
 
         }
         const nowID = 'map_' + idBase++;
-        const map = new hymap(DOMNode);
+        let map;
+        if (this.ON_WEBGL) {
+            map = new hyMapBox(DOMNode);
+        } else {
+            map = new hymap(DOMNode);
+        }
+
         instances[nowID] = map;
         if (DOMNode.setAttribute) {
 

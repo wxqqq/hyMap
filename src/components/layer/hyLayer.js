@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:02:10
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-27 16:23:29
+ * @Last Modified time: 2017-08-04 15:54:40
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\hyLayer.js
  * @File Name: hyLayer.js
@@ -31,7 +31,6 @@ export default class hylayer extends baseLayer {
         this.map = options.map;
         this.view = this.map.getView();
         this.layer = this.init(options.serie);
-
     }
 
     add() {
@@ -40,7 +39,71 @@ export default class hylayer extends baseLayer {
     remove() {
 
     }
-    update() {
+    update(serie) {
+
+        let newserie = baseUtil.clone(serieModel);
+        baseUtil.merge(newserie, serie, true);
+        serie = newserie;
+        const style = this._createFeatureStyle(serie);
+        this.layer.set('fstyle', style);
+        this.layer.set('serie', serie);
+        const data = serie.data;
+        let source = this.layer.getSource();
+        //聚合图层的source为两层，进行判断获取到最底层的source
+        if (source instanceof ol.layer.AnimatedCluster) {
+
+            source = source.getSource();
+
+        }
+
+        let addData = [];
+        let updateData = new Map();
+        let strMap = new Map();
+
+        for (let k of Object.keys(data)) {
+
+            strMap.set('serie|' + data[k].geoCoord, data[k]);
+
+        }
+        //目标数据遍历，找到的更新，未找到的删除。
+        source.forEachFeature(function(feature) {
+
+            const geoCoord = feature.getId();
+            if (strMap.has(geoCoord)) {
+
+                const value = strMap.get(geoCoord);
+                feature.setProperties(value);
+                updateData.set('serie|' + value.geoCoord, value);
+
+            } else {
+
+                // console.info('update_rmData', feature);
+                source.removeFeature(feature);
+
+            }
+
+        });
+        //找到的数据进行更新，未找到的准备新增。
+
+        data.map((value) => {
+
+            if (!updateData.has(value.geoCoord)) {
+
+                addData.push(value);
+
+            }
+
+        });
+
+        //增加数据.
+        if (addData.length > 0) {
+
+            const featuresObj = hyFeature.getFeatures(addData, serie.type);
+            //获取feature数组
+            const array = featuresObj.features;
+            this.layer.getSource().addFeatures(array);
+
+        }
 
     }
 
@@ -673,7 +736,17 @@ export default class hylayer extends baseLayer {
     }
     dispose() {
 
-        this.map.reomve(this.layer);
+        this.map.removeLayer(this.layer);
+        let source = this.layer.getSource();
+        //聚合图层的source为两层，进行判断获取到最底层的source
+        if (source instanceof ol.layer.AnimatedCluster) {
+
+            source = source.getSource();
+
+        }
+        source.clear();
+        this.source = null;
+        this.layer = null;
 
     }
 }

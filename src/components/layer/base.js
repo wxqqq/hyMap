@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-07-26 11:22:13
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-27 17:03:41
+ * @Last Modified time: 2017-08-01 11:43:51
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\base.js
  * @File Name: base.js
@@ -12,16 +12,21 @@
 import events from '../../events/events';
 
 const ol = require('ol');
+
 export default class base {
     /**
      * 初始化
      * @param  {Object}   options 参数
      */
-    constructor(options) {
-        options = Object.assign({}, options);
-        this.layer = options.layer || undefined;
-        this.url;
+    constructor({
+        map = undefined,
+        url = undefined
+    } = {}) {
+
+        this.url = url;
+        this.map = map;
         this.source;
+        this.layer = undefined;
 
     }
 
@@ -85,6 +90,4 @@ export default class base {
 
     }
 }
-// Object.assign(base, events);
-
-base.call(events);
+Object.assign(base.prototype, events);

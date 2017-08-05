@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:03:05
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-27 10:53:47
+ * @Last Modified time: 2017-08-04 17:44:25
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\baseMap.js
  * @File Name: baseMap.js
@@ -39,7 +39,6 @@ export default class baseMap extends base {
          */
         this.layer = this.init();
 
-
     }
 
     /**
@@ -52,7 +51,7 @@ export default class baseMap extends base {
         this.layerGroup = new ol.layer.Group({
             layers: this.layerArray
         });
-
+        this.map.addLayer(this.layerGroup);
         return this.layerGroup;
 
 
@@ -103,7 +102,6 @@ export default class baseMap extends base {
 
         } else if (theme == 'dark') {
 
-
             source = new ol.source.TileWMS({
                 url: this.url + '/wms',
                 params: {
@@ -115,7 +113,7 @@ export default class baseMap extends base {
             const layer = this.createTile(source);
             layers.push(layer);
 
-        } else if (theme == 'test') {
+        } else if (theme == 'tile') {
 
             let url = 'http://localhost:8080/alllayers/';
             source = new ol.source.XYZ({

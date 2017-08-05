@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-27 14:37:24
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-07 16:04:23
+ * @Last Modified time: 2017-08-04 15:28:17
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\util\mapToolUtil.js
  * @File Name: mapToolUtil.js
@@ -97,11 +97,28 @@ function deleteEndSign(str, sign) {
     return (str.substring(str.length - 1) == sign) ? str.substring(0, str.length - 1) : str;
 
 }
+
+/**
+ * 获取两点间的距离
+ * @param  {[type]} first  [description]
+ * @param  {[type]} second [description]
+ * @return {[type]}        [description]
+ */
+function getDistance(first, second) {
+
+    var wgs84Sphere = new ol.Sphere(6378137);
+
+    const distance = wgs84Sphere.haversineDistance(first, second);
+    return distance;
+
+}
+
 const mapToolUtil = {
     map: map,
     transform: transform,
     getResolutionByZoom: getResolutionByZoom,
     getPixelFromCoords: getPixelFromCoords,
-    deleteEndSign: deleteEndSign
+    deleteEndSign: deleteEndSign,
+    getDistance: getDistance
 };
 export default mapToolUtil;

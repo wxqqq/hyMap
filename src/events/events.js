@@ -38,7 +38,6 @@ const event = {
      */
     on(type, listener) {
 
-        console.log(this)
         let listeners = this.listeners_[type];
         if (!listeners) {
 

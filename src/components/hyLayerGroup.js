@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-04 17:22:04
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-19 10:49:56
+ * @Last Modified time: 2017-08-04 16:41:08
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\hyLayerGroup.js
  * @File Name: hyLayerGroup.js
@@ -38,7 +38,7 @@ export default class hyLayerGroup extends hyMapStyle {
      * 获取图层
      * @return {Array} [layers] 图层组 
      */
-    getLayers() {
+    getLayer() {
 
         return this.layerGroup.getLayers();
 
@@ -246,6 +246,13 @@ export default class hyLayerGroup extends hyMapStyle {
         });
         vector && this.layersArray.push(vector.layer);
 
+    }
+
+    show() {
+        this.setVisible(true)
+    }
+    hide() {
+        this.setVisible(false)
     }
 
     /**

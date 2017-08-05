@@ -38,6 +38,16 @@ class Nav extends Component {
         // }).bind(this);  
 
     }
+    componentWillMount() {
+
+        let current = this.props.location.pathname
+        console.log(this.props)
+        var index = current.lastIndexOf("\/");
+        current = current.substring(index + 1, current.length);
+        this.setState({
+            'current': current
+        });
+    }
     handleClick(e) {
 
 
@@ -54,8 +64,8 @@ class Nav extends Component {
         return (
             <Menu  onClick={this.handleClick.bind(this)}
                    mode='inline' 
-                   defaultSelectedKeys={['mapmethod']} 
-                   defaultOpenKeys={['sub1']} 
+                   defaultSelectedKeys={[this.state.current]} 
+                   defaultOpenKeys={['sub1','sub2','sub3']} 
                    style={{ height: '100%', borderRight: 0 }} >
                 <SubMenu key='sub1' title={<span><Icon type='user' />地图方法</span>}>
                     <Menu.Item key='mapmethod'><Link to='mapmethod'>初始化</Link></Menu.Item>

@@ -2,24 +2,12 @@
  * @Author: wxq
  * @Date:   2017-07-26 11:31:30
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-26 16:13:19
+ * @Last Modified time: 2017-07-31 15:38:24
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\region.js
  * @File Name: region.js
  * @Descript: 
  */
-'use strict';
-/*
- * @Author: 1
- * @Date:   2017-01-10 10:15:25
- * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-25 19:30:17
- * @Email: zhangyujie3344521@163.com
- * @File Path: F:\work\hyMap\test\container\Earth\mapmethod.js
- * @File Name: mapmethod.js
- * @Descript:
- */
-
 'use strict';
 import 'antd/dist/antd.css';
 import React, {
@@ -39,7 +27,6 @@ import Editor from '../App/editor';
 
 class region extends Component {
     constructor(props) {
-
         super(props);
 
         this.state = {
@@ -48,10 +35,8 @@ class region extends Component {
             mapObj: {},
             options: {}
         };
-
     }
     componentDidMount() {
-
         this.mapObj = map.init(document.getElementById('map'));
 
         this.setState({
@@ -59,7 +44,6 @@ class region extends Component {
         });
 
         let options = {
-
             serverUrl: 'http://192.168.1.50:8080/geoserver',
             show: true, //地图的显示状态 true为显示 false 为不显示
             roam: 'true', //地图是否开启缩放、平移功能
@@ -86,7 +70,7 @@ class region extends Component {
             location: '中国', //当前地图显示哪个地图
             drillDown: false, //是否开启区域点击下钻功能。
             label: {
-                'normal': {
+                normal: {
                     show: false,
                     textStyle: {
                         color: '#fff',
@@ -96,7 +80,7 @@ class region extends Component {
                         fontSize: '16px'
                     }
                 },
-                'emphasis': {
+                emphasis: {
                     show: true,
                     textStyle: {
                         color: '#fff',
@@ -108,12 +92,12 @@ class region extends Component {
                 }
             },
             itemStyle: {
-                'normal': {
+                normal: {
                     strokeWidth: 2, //边框宽度
                     strokeColor: 'green', //边框颜色
                     fillColor: 'rgba(255,255,255,0.2)'
                 },
-                'emphasis': {
+                emphasis: {
                     strokeWidth: 1, //边框宽度
                     fillColor: 'rgba(255,255,255,0.5)'
                 }
@@ -121,25 +105,25 @@ class region extends Component {
             special: [{
                 name: '山东省',
                 itemStyle: {
-                    'normal': {
+                    normal: {
                         strokeWidth: 1, //边框宽度
                         strokeColor: 'blue', //边框颜色
                         fillColor: '#2a333d'
                     },
-                    'emphasis': {
+                    emphasis: {
                         strokeWidth: 1, //边框宽度
                         strokeColor: '#B5FF91', //边框颜色
                         fillColor: 'blue'
                     }
                 },
                 label: {
-                    'normal': {
+                    normal: {
                         show: false,
                         textStyle: {
                             color: 'red'
                         }
                     },
-                    'emphasis': {
+                    emphasis: {
                         show: true,
                         textStyle: {
                             color: '#B5FF91',
@@ -148,16 +132,13 @@ class region extends Component {
                             fontFamily: 'sans-serif',
                             fontSize: '16px'
                         }
-
                     }
                 }
             }], //  name: '',特殊区域的样式
-            selectedMode: '', //地图区域的选中模式 single mulit
-        }
+            selectedMode: '' //地图区域的选中模式 single mulit
+        };
 
-        this.mapObj.addLayer(regionOptions);
-
-
+        this.mapObj.addLayer([regionOptions]);
 
         // //选中
         // document.getElementById('changesd').addEventListener('click', () => {
@@ -177,33 +158,23 @@ class region extends Component {
         // });
 
         this.mapObj.on('geoSelect', function(data) {
-
             console.log('getdata:', data);
-
         });
 
         this.mapObj.on('geoUnSelect', function(data) {
-
             console.log('getundata:', data);
-
         });
-
-
-
     }
 
-
     render() {
-
         // <Col span={8}><Editor mapObj={this.state.mapObj} options={this.state.options}/></Col>
         return (
             <Row>
-                    <Col span={23}>
-                            <div id = 'map' ></div>
-                    </Col>
-                </Row>
+                <Col span={23}>
+                    <div id="map" />
+                </Col>
+            </Row>
         );
-
     }
 }
 export default region;

@@ -30,7 +30,7 @@
         "no-param-reassign": "off",
         "comma-dangle": ["error", "never"],
         "padded-blocks": ["error", {
-            "switches": "always",
+            "switches": "never",
             "classes": "never",
             "blocks": "always"
         }],
