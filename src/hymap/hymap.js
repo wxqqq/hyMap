@@ -567,7 +567,6 @@ export default class hyMap extends hytooltip {
                                 const pixel = mapTool.getPixelFromCoords(
                                     feature.getGeometry().getCoordinates()
                                 );
-                                console.log(feature)
                                 array.push({
                                     pixel: pixel,
                                     // properties: feature.getProperties()
@@ -586,7 +585,6 @@ export default class hyMap extends hytooltip {
                             const pixel = mapTool.getPixelFromCoords(
                                 feature.getGeometry().getCoordinates()
                             );
-                            console.log(feature)
                             array.push({
                                 pixel: pixel,
                                 // properties: feature.getProperties()
@@ -736,7 +734,6 @@ export default class hyMap extends hytooltip {
         this.queryCircle.setQueryFun(result => {
 
             this.clickSelect.getFeatures().clear();
-            console.log(result)
             for (let id in result.selected) {
 
                 const array = result.selected[id];

@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:03:05
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-04 17:44:25
+ * @Last Modified time: 2017-08-06 14:30:55
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\baseMap.js
  * @File Name: baseMap.js
@@ -85,10 +85,12 @@ export default class baseMap extends base {
         let layers = [];
         if (typeof theme == 'object') {
 
+            var url = 'https://b.tiles.mapbox.com/v4/' + theme.mapId + '/{z}/{x}/{y}.png?access_token=' + theme.key
             source = new ol.source.XYZ({
-                url: 'https://b.tiles.mapbox.com/v4/' + theme.mapId + '/{z}/{x}/{y}.png?access_token=' + theme.key
+                url: url
                     // url: 'https://api.mapbox.com/v4/' + theme.mapId + '/{z}/{x}/{y}.png?access_token=' + theme.key
             });
+            console.log(url)
             const layer = this.createTile(source);
             layers.push(layer);
 
@@ -115,7 +117,7 @@ export default class baseMap extends base {
 
         } else if (theme == 'tile') {
 
-            let url = 'http://localhost:8080/alllayers/';
+            let url = 'http://localhost:8080/_alllayers/';
             source = new ol.source.XYZ({
                 // projection: 'EPSG:3857',
 

@@ -210,25 +210,6 @@ export default class hyMapStyle {
     }
 
     /**
-     * 创建特定style
-     * @param   {Array}  regions [description]
-     * @return  {Object}         [description]
-     * @private
-     */
-    _createRegionsStyle(regions = []) {
-
-        let regionObj = {};
-        regions && regions.forEach(region => {
-
-            const style = this._createGeoStyle(region.itemStyle, region.label);
-            regionObj[region.name] = style;
-
-        });
-        return regionObj;
-
-    }
-
-    /**
      * 创建feature的样式
      * @param  {object} serie [description]
      * @return {Style}       [description]

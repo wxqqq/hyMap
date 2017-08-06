@@ -10,7 +10,9 @@
  */
 
 'use strict';
-import React, { Component } from 'react';
+import React, {
+    Component
+} from 'react';
 import map from '../../../src/index';
 require('sockjs_min');
 const Stomp = require('stomp');
@@ -29,8 +31,7 @@ class gps extends Component {
             theme: {
                 // string('dark'，'blue'，'white')|mapObjectr{mapId,key} 对应maobox中的mapid和access_token
                 mapId: 'zhangyujie.a80cdc83',
-                key:
-                    'sk.eyJ1Ijoiemhhbmd5dWppZSIsImEiOiJkTEp6WDZrIn0.nY5bsQlZegBbb2uGgJ5jEA'
+                key: 'sk.eyJ1Ijoiemhhbmd5dWppZSIsImEiOiJkTEp6WDZrIn0.nY5bsQlZegBbb2uGgJ5jEA'
             }, //地图风格
             regions: '', //  name: '',特殊区域的样式
             label: '', //文本标签样式
@@ -92,39 +93,30 @@ class gps extends Component {
             console.log('getundata:', data);
         });
 
-        const line = [
-            {
-                geoCoord: '119.17692,36.6919'
-            },
-            {
-                geoCoord: ' 118.03983,36.81824'
-            },
-            {
-                geoCoord: ' 116.98612837827636,36.6650505841216'
-            },
-            {
-                geoCoord: '116.60062,35.45594'
-            },
-            {
-                geoCoord: '116.077248,35.461552'
-            },
-            {
-                geoCoord: '115.99637,36.52161'
-            }
-        ];
+        const line = [{
+            geoCoord: '119.17692,36.6919'
+        }, {
+            geoCoord: ' 118.03983,36.81824'
+        }, {
+            geoCoord: ' 116.98612837827636,36.6650505841216'
+        }, {
+            geoCoord: '116.60062,35.45594'
+        }, {
+            geoCoord: '116.077248,35.461552'
+        }, {
+            geoCoord: '115.99637,36.52161'
+        }];
 
-        const trackObj = obj.addLayer([
-            {
-                id: 899,
-                type: 'track', //heatmap,
-                data: line,
-                // arrow: true,
-                width: 5,
-                speed: 1,
-                wrap: false,
-                trackModel: '2' //1,2,3
-            }
-        ]);
+        const trackObj = obj.addLayer([{
+            id: 899,
+            type: 'track', //heatmap,
+            data: line,
+            // arrow: true,
+            width: 5,
+            speed: 1,
+            wrap: false,
+            trackModel: '2' //1,2,3
+        }]);
 
         // obj.removeLayer(899)
         obj.on('trackPlayPoint', evt => {
@@ -157,16 +149,14 @@ class gps extends Component {
             }
         });
 
-        const gpsObj = obj.addLayer([
-            {
-                id: 899,
-                type: 'gps', //heatmap,
-                // data: line,
-                rotation: true,
-                mode: 'flash', //move
-                width: 5
-            }
-        ]);
+        const gpsObj = obj.addLayer([{
+            id: 899,
+            type: 'gps', //heatmap,
+            // data: line,
+            rotation: true,
+            mode: 'flash', //move
+            width: 5
+        }]);
         let socket = new SockJS('http://192.168.3.48:8080/sdjg/websocket');
         this.stompClient = Stomp.Stomp.over(socket);
         this.stompClient.connect({}, frame => {
