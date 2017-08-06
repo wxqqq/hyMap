@@ -24,7 +24,7 @@ class icon extends Component {
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 6, //当前地图缩放比例
             scaleLimit: [3, 20], //滚轮缩放的边界
-            theme: 'dark', //地图风格/地图风格
+            theme: 'white', //地图风格/地图风格
             series: []
         };
         const series = [];

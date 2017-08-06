@@ -5,17 +5,6 @@ import baseUtil from '../../util/baseUtil';
 const ol = require('ol');
 
 export default class hyMapStyle {
-    /**
-     * 初始化
-     * @param  {Object}   options 参数
-     */
-    constructor() {
-
-        this._baseIconStyle = symbolModel;
-        this._baseLabelStyle = labelModel;
-        this._regionsObj = {};
-
-    }
 
     /**
      * [_createTextStyle description]
@@ -51,16 +40,15 @@ export default class hyMapStyle {
         color,
         strokeColor,
         strokeWidth
-    } = {}) {
+    } = {}, show = false) {
 
-        const font = fontStyle + ' ' + fontWeight + ' ' + fontSize + ' ' + fontFamily;
         if (rotation) {
 
             rotation = Number(rotation) / 360 * Math.PI * 2;
 
         }
-        return new ol.style.Text({
-            font: font,
+        let text = new ol.style.Text({
+            font: fontStyle + ' ' + fontWeight + ' ' + fontSize + ' ' + fontFamily,
             offsetX: offsetX,
             offsetY: offsetY,
             scale: scale,
@@ -71,6 +59,8 @@ export default class hyMapStyle {
             stroke: this._createStroke(strokeWidth, strokeColor)
 
         });
+        text.show = show;
+        return text;
 
     }
 
@@ -195,24 +185,24 @@ export default class hyMapStyle {
 
     }
 
-    _createImageStyle(symbol, styleModel) {
+    _createImageStyle(styleModel) {
 
         let image = undefined;
-
+        const symbol = styleModel.symbol;
         const stroke = this._createStroke(styleModel.strokeWidth, styleModel.strokeColor);
         const fill = this._createFill(styleModel.fillColor);
         if (symbol == 'circle') {
 
             image = this._createCircleStyle(styleModel.symbolSize, fill, stroke);
 
-        } else if (symbol == 'rect') {
-
-            image = this._createRectStyle(styleModel.symbolSize, fill, stroke);
-
         } else if (symbol.indexOf('icon:') === 0) {
 
             const src = symbol.split(':')[1];
             image = this._createIconStyle(src, styleModel.symbolSize, styleModel.color, styleModel.anchor, function(icon) {});
+
+        } else if (symbol == 'rect') {
+
+            image = this._createRectStyle(styleModel.symbolSize, fill, stroke);
 
         }
         return image;
@@ -275,9 +265,8 @@ export default class hyMapStyle {
     _createGeoStyle(IconStyle, labelStyle) {
 
 
-        const style = this._createItemStyle(IconStyle, this._baseIconStyle);
-        const label = this._createItemStyle(labelStyle, this._baseLabelStyle);
-
+        const style = this._createItemStyle(IconStyle, symbolModel);
+        const label = this._createItemStyle(labelStyle, labelModel);
 
         return {
             normal: this._createDataStyle(style.normal, label.normal),
@@ -294,9 +283,7 @@ export default class hyMapStyle {
      */
     _createItemStyle(symbolStyle, style) {
 
-        let styleModel = Object.assign({}, style);
-
-        const normal = Object.assign({}, styleModel.normal, symbolStyle && symbolStyle.normal || {});
+        const normal = Object.assign({}, style.normal, symbolStyle && symbolStyle.normal || {});
         const emphasis = Object.assign({}, normal, symbolStyle && symbolStyle.emphasis || {});
         return {
             normal,
@@ -308,15 +295,14 @@ export default class hyMapStyle {
 
         const stroke = this._createStroke(style.strokeWidth, style.strokeColor);
         const fill = this._createFill(style.fillColor);
-        const text = this._createTextStyle(label && label.textStyle || {});
-        text.show = label && label.show || false;
-        const image = this._createImageStyle(style.symbol, style);
+        const text = this._createTextStyle(label.textStyle, label.show);
+        const image = this._createImageStyle(style);
         let styles = [
-            new ol.style.Style({
+            new ol.style.Style({ //icon
                 image: image,
                 stroke: stroke,
                 fill: fill
-            }), new ol.style.Style({
+            }), new ol.style.Style({ //text
                 text: text,
                 geometry: (feature) => {
 
