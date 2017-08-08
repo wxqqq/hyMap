@@ -48,7 +48,7 @@ class ripple extends Component {
                 // minZoom: 6, //数据显示最小级别
                 data: values,
                 type: 'point',
-                symbol: 'circle',
+                symbol: 'rect',
                 symbolSize: [25, 25],
                 symbolStyle: {
                     'normal': {

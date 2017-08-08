@@ -1,5 +1,5 @@
 import hymap from './hymap/hymap';
-import hyMapBox from './hyMapBox';
+// import hyMapBox from './hyMapBox';
 const instances = {};
 const DOM_ATTRIBUTE_KEY = '_hy_instance_';
 let idBase = new Date() - 0;
@@ -43,11 +43,11 @@ const config = {
         }
         const nowID = 'map_' + idBase++;
         let map;
-        if (this.ON_WEBGL) {
-            map = new hyMapBox(DOMNode);
-        } else {
-            map = new hymap(DOMNode);
-        }
+        // if (this.ON_WEBGL) {
+        // map = new hyMapBox(DOMNode);
+        // } else {
+        map = new hymap(DOMNode);
+        // }
 
         instances[nowID] = map;
         if (DOMNode.setAttribute) {

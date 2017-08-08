@@ -322,7 +322,7 @@ export default class hytooltip extends hyMapStyle {
         if (unSelFeatures && unSelFeatures.length > 0) {
 
             const unSelFeature = unSelFeatures[0];
-            unSelFeature.set('emphasis', false);
+            // unSelFeature.set('emphasis', false);
             const properties = unSelFeature.getProperties();
             const layer = unSelFeature.source.vector;
             const layerType = layer.get('type');
@@ -347,7 +347,7 @@ export default class hytooltip extends hyMapStyle {
         if (selFeatures && selFeatures.length > 0) {
 
             const selFeature = selFeatures[0];
-            selFeature.set('emphasis', true);
+            // selFeature.set('emphasis', true);
             //从鼠标移上的效果中移除。
             // this.hoverSelect.getFeatures().remove(selFeature);
             const layer = selFeature.source.vector;
@@ -458,11 +458,11 @@ export default class hytooltip extends hyMapStyle {
                 selFeature.source.vector.dispatchEvent(event);
 
             }
-            if (selFeature.get('emphasis')) {
+            // if (selFeature.get('emphasis')) {
 
-                // evt.target.getFeatures().remove(selFeature);
+            // evt.target.getFeatures().remove(selFeature);
 
-            }
+            // }
             this.dispatchEvent(event);
 
         }

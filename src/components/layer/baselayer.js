@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-08 20:09:53
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-27 16:22:29
+ * @Last Modified time: 2017-08-07 11:19:44
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\baselayer.js
  * @File Name: baselayer.js
@@ -152,6 +152,21 @@ export default class baseLayer extends mix(base, hyMapStyle) {
 
         let a = symbolSize[1] - symbolSize[0] + 1;
         return max / a;
+
+    }
+    dispose() {
+
+        this.map && this.map.removeLayer(this.layer);
+        let source = this.layer.getSource();
+        //聚合图层的source为两层，进行判断获取到最底层的source
+        if (source instanceof ol.layer.AnimatedCluster) {
+
+            source = source.getSource();
+
+        }
+        source.clear();
+        this.source = null;
+        this.layer = null;
 
     }
 }

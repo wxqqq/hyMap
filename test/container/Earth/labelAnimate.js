@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-14 10:39:57
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-31 17:25:09
+ * @Last Modified time: 2017-08-07 11:43:56
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\labelAnimate.js
  * @File Name: labelAnimate.js
@@ -28,7 +28,7 @@ class labelAnimate extends Component {
             scaleLimit: [3, 20], //滚轮缩放的边界
             itemStyle: '', //地图上每块区域的样式
             selectedMode: '', //地图区域的选中模式
-            theme: 'dark', //地图风格
+            theme: 'white', //地图风格
             regions: '', //  name: '',特殊区域的样式
             label: '', //文本标签样式
             series: []
@@ -43,29 +43,29 @@ class labelAnimate extends Component {
 
                 series.push({
                     id: 3,
-                    cluster: {
-                        enable: false, //是否开启聚合
-                        distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
-                        animationDuration: 700 //聚合动画时间，默认为700毫秒
-                    },
+                    // cluster: {
+                    //     enable: false, //是否开启聚合
+                    //     distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
+                    //     animationDuration: 700 //聚合动画时间，默认为700毫秒
+                    // },
                     // maxZoom: 10, //数据显示最大级别
                     // minZoom: 6, //数据显示最小级别
                     data: values,
                     // type: 'point',
                     // symbol: 'icon:test/data/test.png',
                     // symbolSize: [10, 20],
-                    symbolStyle: {
-                        normal: {
-                            // symbolSize: [15, 15],
-                            // fillColor: 'rgb(140,0,140)',
-                            // strokeWitdh: 1,
-                            // strokeColor: 'rbg(140,0,140)'
-                        },
-                        emphasis: {
-                            // strokeWitdh: 2,
-                            // symbolSize: [20, 30],
-                        }
-                    },
+                    // symbolStyle: {
+                    // normal: {
+                    // symbolSize: [15, 15],
+                    // fillColor: 'rgb(140,0,140)',
+                    // strokeWitdh: 1,
+                    // strokeColor: 'rbg(140,0,140)'
+                    // },
+                    // emphasis: {
+                    // strokeWitdh: 2,
+                    // symbolSize: [20, 30],
+                    // }
+                    // },
                     /******************新增属性**************************** */
                     labelColumn: 'value', //显示的字段名称
                     labelAnimate: {
@@ -82,12 +82,12 @@ class labelAnimate extends Component {
                                 color: 'red',
                                 textAlign: 'center', //文字对齐方式：'left', 'right', 'center', 'end' or 'start'
                                 offsetX: 0, //x轴偏移
-                                offsetY: 15 //y轴偏移
-                                    // rotation: 0, //旋转角度 360 顺时针 number
-                                    // fontStyle: 'normal',
-                                    // fontWeight: 'bold',
-                                    // fontFamily: 'sans-serif',
-                                    // fontSize: '30pt'
+                                offsetY: 15, //y轴偏移
+                                rotation: 0, //旋转角度 360 顺时针 number
+                                fontStyle: 'normal',
+                                fontWeight: 'bold',
+                                fontFamily: 'sans-serif',
+                                fontSize: '30pt'
                             }
                         },
                         emphasis: {
@@ -100,7 +100,10 @@ class labelAnimate extends Component {
                     showPopup: false //显示气泡框
                 });
                 obj.setOption(options);
-                obj.addLayer(series);
+                obj.addLayer({
+                    id: 113,
+                    series: series
+                });
 
                 obj.setTooltip({
                     show: false,
@@ -266,7 +269,10 @@ class labelAnimate extends Component {
                         showPopup: false //显示气泡框
 
                     }];*/
-            obj.updateLayer(series);
+            obj.updateLayer({
+                id: 113,
+                series: series
+            });
 
             // window.setTimeout(function() {
 

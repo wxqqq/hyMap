@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:02:10
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-01 15:27:46
+ * @Last Modified time: 2017-08-07 11:20:45
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\hyLayer.js
  * @File Name: hyLayer.js
@@ -31,8 +31,6 @@ export default class hylayer extends baseLayer {
         this.map = options.map;
         this.view = this.map.getView();
         this.layer = this.init(options.serie);
-        this.map.addLayer(this.layer);
-
     }
 
     add() {
@@ -734,21 +732,6 @@ export default class hylayer extends baseLayer {
             source.set('minValue', value);
 
         }
-
-    }
-    dispose() {
-
-        this.map.removeLayer(this.layer);
-        let source = this.layer.getSource();
-        //聚合图层的source为两层，进行判断获取到最底层的source
-        if (source instanceof ol.layer.AnimatedCluster) {
-
-            source = source.getSource();
-
-        }
-        source.clear();
-        this.source = null;
-        this.layer = null;
 
     }
 }

@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-18 10:04:23
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-02 10:06:45
+ * @Last Modified time: 2017-08-07 14:24:47
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\regionLayer.js
  * @File Name: regionLayer.js
@@ -185,7 +185,7 @@ export default class regionLayer extends baseLayer {
     }
 
     setGeoStyle({
-        special,
+        filter,
         itemStyle,
         label
     } = {}) {
@@ -197,7 +197,12 @@ export default class regionLayer extends baseLayer {
         // this._regionsObj[region.name] = style;
 
         // });
-        this._regionsObj = this.style._createRegionsStyle(special);
+        let regionObj = {};
+        filter && filter.forEach(region => {
+            const style = this._createGeoStyle(region.itemStyle, region.label);
+            regionObj[region.name] = style;
+        })
+        this._regionsObj = regionObj;
         let vectorStyle = this.style._createGeoStyle(
             itemStyle || {},
             label || labelModel

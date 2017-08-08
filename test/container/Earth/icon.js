@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-01 16:02:18
+ * @Last Modified time: 2017-08-08 10:07:40
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\icon.js
  * @File Name: icon.js
@@ -18,16 +18,13 @@ class icon extends Component {
     componentDidMount() {
         let mapObj = map.init(document.getElementById('map'));
         let options = {
+            serverUrl: 'http://192.168.1.50:8080/geoserver',
             show: true, //地图的显示状态 true为显示 false 为不显示
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 6, //当前地图缩放比例
             scaleLimit: [3, 20], //滚轮缩放的边界
-            theme: {
-                // string('dark'，'blue'，'white')|mapObjectr{mapId,key} 对应maobox中的mapid和access_token
-                mapId: 'zhangyujie.a80cdc83',
-                key: 'sk.eyJ1Ijoiemhhbmd5dWppZSIsImEiOiJkTEp6WDZrIn0.nY5bsQlZegBbb2uGgJ5jEA'
-            }, //地图风格/地图风格
+            theme: 'white', //地图风格/地图风格
             series: []
         };
         const series = [];
@@ -90,7 +87,7 @@ class icon extends Component {
                 // values.splice(1,16);
 
                 const series1 = [{
-                    // id: 3,
+                    id: 3,
                     cluster: {
                         enable: false, //是否开启聚合
                         distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
@@ -142,9 +139,12 @@ class icon extends Component {
                     showPopup: false //显示气泡框
                 }];
 
-                let layer1 = mapObj.addLayer(series1);
+                let layer1 = mapObj.addLayer({
+                    id: 5,
+                    series: series1
+                });
 
-                layer1[0].on('click', function(data) {
+                layer1.on('click', function(data) {
                     console.log('layer1', data);
                 });
                 // console.log(layer1);
@@ -174,7 +174,6 @@ class icon extends Component {
                     mapObj.geoCoord = [mapObj.lon, mapObj.lat];
                 });
                 series.push({
-                    id: 5,
                     cluster: {
                         enable: false, //是否开启聚合
                         distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
@@ -204,7 +203,10 @@ class icon extends Component {
                     showPopup: false
                 });
 
-                // let layer2 = mapObj.addLayer(series);
+                let layer2 = mapObj.addLayer({
+                    id: 55,
+                    series: series
+                });
 
                 // layer2[0].on('click', function(data) {
                 //     console.log('layer2:', data);
@@ -285,7 +287,10 @@ class icon extends Component {
 
         document.getElementById('add').addEventListener('click', () => {
 
-            mapObj.addLayer(series);
+            mapObj.addLayer({
+                id: 5,
+                series: series
+            });
         });
 
         document.getElementById('showlayer').addEventListener('click', () => {

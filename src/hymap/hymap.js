@@ -1,20 +1,14 @@
 import hymapOption from '../model/mapModel';
 import hyLayerGroup from '../components/hyLayerGroup';
-import hyLayer from '../components/layer/hyLayer';
 import baseUtil from '../util/baseUtil';
+import mapTool from '../util/mapToolUtil';
 import events from '../events/events';
 import hymap from '../components/map';
-import animation from '../animation/animation';
-import mapTool from '../util/mapToolUtil';
-import gpsLayer from '../components/layer/gpsLayer';
 import hyView from '../components/view';
 import hyMeasure from '../components/tools/hyMeasure';
-import trackLayer from '../components/layer/trackLayer';
-import spatialQueryLayer from '../components/layer/spatialQueryLayer';
-import baseMap from '../components/layer/baseMap';
-import regionLayer from '../components/layer/regionLayer';
 import hytooltip from '../components/tooltip/hytooltip';
-
+import animation from '../animation/animation';
+import * as Layer from '../components/layer';
 const ol = require('ol');
 
 export default class hyMap extends hytooltip {
@@ -25,6 +19,7 @@ export default class hyMap extends hytooltip {
      * @extends events
      */
     constructor(dom, options) {
+
         super(options);
         /**
          * basiclayersarray
@@ -75,7 +70,6 @@ export default class hyMap extends hytooltip {
             return;
         }
         baseUtil.merge(this._geo, options || {}, true);
-
         this.setServerUrl(this._geo.serverUrl);
         // this.setGeo(this._geo); //设置geo配置
         //
@@ -129,9 +123,9 @@ export default class hyMap extends hytooltip {
         this._createIntercation();
         this._createCircleQuery();
         this._createtrackLayer();
-        this.hymeasure = new hyMeasure({
-            map: this.map
-        });
+        // this.hymeasure = new hyMeasure({
+        // map: this.map
+        // });
     }
 
     /**
@@ -140,7 +134,7 @@ export default class hyMap extends hytooltip {
      */
     _createBasicLayer() {
         //底图
-        this.baseLayer = new baseMap({
+        this.baseLayer = new Layer.baseMap({
             map: this.map
         });
     }
@@ -232,12 +226,21 @@ export default class hyMap extends hytooltip {
     addLayer(arrays) {
 
         let layers = [];
-        arrays.forEach(serie => {
+        if (Array.isArray(arrays)) {
+            arrays.forEach(serie => {
 
-            let layer = this._addLayer(serie);
-            layers.push(layer);
+                let layer = this._addLayer(serie);
+                layers.push(layer);
 
-        });
+            });
+        } else {
+
+            arrays.id = arrays.id || new Date().getTime();
+            arrays.map = this.map;
+            layers = new hyLayerGroup(arrays);
+            this._addLayerGroupArray[arrays.id] = layers;
+        }
+
         return layers;
 
     }
@@ -254,16 +257,17 @@ export default class hyMap extends hytooltip {
                 break;
             case 'region':
                 serie.url = serie.url || this._serverUrl;
-                serie = new regionLayer({
+                serie = new Layer.regionLayer({
                     map: this.map,
                     serie
                 });
                 break;
             default:
-                layer = new hyLayer({
+                layer = new Layer.hyLayer({
                     map: this.map,
                     serie: serie
                 });
+                this.map.addLayer(layer.getLayer());
         }
         this._addLayerGroupArray[serie.id] = layer;
         return layer;
@@ -276,20 +280,38 @@ export default class hyMap extends hytooltip {
     updateLayer(arrays) {
 
         this.clickSelect.getFeatures().clear();
-        arrays.forEach(serie => {
+        if (Array.isArray(arrays)) {
 
-            const layer = this._addLayerGroupArray[serie.id]; //获取对应的layergroup
+            arrays.forEach(serie => {
+
+                const layer = this._addLayerGroupArray[serie.id]; //获取对应的layergroup
+                if (!layer) {
+
+                    this._addLayer(serie);
+
+                } else {
+
+                    layer.update(serie);
+
+                }
+
+            });
+
+        } else {
+
+            const id = arrays.id || null;
+            const layer = this._addLayerGroupArray[id]; //获取对应的layergroup
             if (!layer) {
 
-                this._addLayer(serie);
-
-            } else {
-
-                layer.update(serie);
+                console.info('未找到对应数据。', id);
+                return;
 
             }
+            layer.update(arrays);
 
-        });
+        }
+
+
 
     }
 
@@ -379,7 +401,8 @@ export default class hyMap extends hytooltip {
     /**
      * 增加覆盖物
      * @param  {Object}  object {id:id,   container:dom,  geoCoord:[],//坐标
-                                showLine:true|false,//显示连线
+                                showLine:true|false,//显示连线,
+                                lineColor:'white'
                                 linewidth:80//线的偏移长度。
                                 offset:[0,0],//偏移量
                                 positioning:'top-left'//top[center,bottom]-left[right];相对位置
@@ -406,20 +429,30 @@ export default class hyMap extends hytooltip {
 
             this.map.addOverlay(marker);
             if (obj.showLine) {
+
                 let lineWidth = obj.lineWidth || 80;
                 let canvas = document.createElement('canvas');
                 let ctx = canvas.getContext('2d');
                 // canvas.style.float = 'right';
+
                 canvas.width = lineWidth;
                 canvas.height = obj.container.offsetHeight;
-                ctx.strokeStyle = 'white';
+                ctx.strokeStyle = obj.lineColor ? obj.lineColor : 'white';
+                if (obj.lineDirection && obj.lineDirection == 'left') {
+                    obj.container.style.float = 'right';
+                    ctx.translate(lineWidth, 0);
+                    ctx.scale(-1, 1);
+                }
                 ctx.moveTo(lineWidth, canvas.height);
                 let tmpX = lineWidth / 2;
                 ctx.lineTo(tmpX, 6);
                 ctx.lineTo(0, 6);
+
                 ctx.stroke();
+
                 obj.container.parentNode.appendChild(canvas);
             }
+
             this._markerLayer[obj.id] = marker;
         }
         marker.set('geoCoord', obj.geoCoord);
@@ -719,11 +752,14 @@ export default class hyMap extends hytooltip {
      */
     spatialQuery(geoCoord, radius, callback, options) {
         this.clearTrackInfo(); //该方法进行对查询到的所有轨迹和tooltip进行移除操作。
-        this.clearSpatial();
 
         this.queryCircle.setQueryFun(result => {
+
+            this.clickSelect.getFeatures().clear();
             for (let id in result.selected) {
+
                 const array = result.selected[id];
+
                 array.forEach(features => {
                     this.clickSelect.getFeatures().extend(features);
                 });
@@ -874,7 +910,7 @@ export default class hyMap extends hytooltip {
         return overlay;
     }
     _createCircleQuery() {
-        this.queryCircle = new spatialQueryLayer({
+        this.queryCircle = new Layer.spatialQueryLayer({
             map: this.map,
             queryLayer: this._addLayerGroupArray
         });
@@ -904,7 +940,7 @@ export default class hyMap extends hytooltip {
     }
 
     initTrackData(obj) {
-        this.trck = new trackLayer({
+        this.trck = new Layer.trackLayer({
             map: this.map
         });
 
@@ -926,7 +962,7 @@ export default class hyMap extends hytooltip {
     }
 
     initgpslayer(options) {
-        this.gpslayer = new gpsLayer({
+        this.gpslayer = new Layer.gpsLayer({
             map: this.map,
             options
         });
