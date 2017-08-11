@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-27 16:37:06
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-17 14:01:13
+ * @Last Modified time: 2017-08-11 17:43:00
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\view.js
  * @File Name: view.js
@@ -64,9 +64,9 @@ export default class view {
             center: mapTool.transform(center, projection),
             zoom: zoom,
             enableRotation: false,
-            // minZoom: minZoom,
-            // maxZoom: maxZoom,
-            // projection: projection,
+            minZoom: minZoom,
+            maxZoom: maxZoom,
+            projection: projection,
 
             // extent: []
 

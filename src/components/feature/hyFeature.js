@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-18 09:51:02
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-17 10:23:44
+ * @Last Modified time: 2017-08-07 11:48:57
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\feature\hyFeature.js
  * @File Name: hyFeature.js

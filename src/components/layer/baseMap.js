@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:03:05
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-06 14:30:55
+ * @Last Modified time: 2017-08-11 15:13:44
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\baseMap.js
  * @File Name: baseMap.js
@@ -57,19 +57,21 @@ export default class baseMap extends base {
 
     }
 
+
     getLayer() {
 
         return this.layerGroup;
 
     }
 
-    createTile(source, label = '地图') {
+    createTile(source, label = '地图', opacity) {
 
         return new ol.layer.Tile({
             title: label,
             baseLayer: true,
             displayInLayerSwitcher: false,
-            source: source
+            source: source,
+            opacity: opacity
         });
 
     }
@@ -81,16 +83,52 @@ export default class baseMap extends base {
      */
     initSource(theme) {
 
-        let source = undefined;
         let layers = [];
+        let source = undefined;
+
+        // source = new ol.source.OSM({
+        //     logo: false
+        // });
+        // layers.push(this.createTile(source, '', 0.5));
         if (typeof theme == 'object') {
 
-            var url = 'https://b.tiles.mapbox.com/v4/' + theme.mapId + '/{z}/{x}/{y}.png?access_token=' + theme.key
-            source = new ol.source.XYZ({
-                url: url
-                    // url: 'https://api.mapbox.com/v4/' + theme.mapId + '/{z}/{x}/{y}.png?access_token=' + theme.key
-            });
-            console.log(url)
+            if (theme.type == 'tile') {
+
+                let url = theme.url;
+                source = new ol.source.XYZ({
+                    wrapX: false,
+                    // tileSize: 512,
+                    tilePixelRatio: 2,
+                    tileGrid: ol.tilegrid.createXYZ({}),
+                    tileUrlFunction: (tileCoord) => {
+
+                        let z = 'L' + (this.zeroPad(tileCoord[0], 2, 10));
+                        let x = 'C' + this.zeroPad(tileCoord[1], 8, 16);
+                        let y = 'R' + this.zeroPad(-tileCoord[2] - 1, 8, 16);
+                        return url + '/' + z + '/' + x + '/' + y + '.png';
+                    }
+                });
+
+            } else if (theme.type == 'arcgis') {
+
+                let url = theme.url;
+                //'http://192.168.4.35:6080/arcgis/rest/services/test/test2/MapServer';
+                source = new ol.source.TileArcGISRest({
+                    ratio: 1,
+                    params: {},
+                    url: url
+                });
+
+
+            } else if (theme.type == 'mapbox') {
+
+                let url = 'https://b.tiles.mapbox.com/v4/' + theme.mapId + '/{z}/{x}/{y}.png?access_token=' + theme.key
+                source = new ol.source.XYZ({
+                    url: url
+                });
+
+            }
+
             const layer = this.createTile(source);
             layers.push(layer);
 
@@ -115,45 +153,9 @@ export default class baseMap extends base {
             const layer = this.createTile(source);
             layers.push(layer);
 
-        } else if (theme == 'tile') {
-
-            let url = 'http://localhost:8080/_alllayers/';
-            source = new ol.source.XYZ({
-                // projection: 'EPSG:3857',
-
-                tileGrid: ol.tilegrid.createXYZ({
-                    minZoom: 3,
-                    maxZoom: 7
-                }),
-                wrapX: false,
-                tileUrlFunction: (tileCoord) => {
-
-                    var x = 'C' + this.zeroPad(tileCoord[1], 8, 16);
-                    var y = 'R' + this.zeroPad(-tileCoord[2] - 1, 8, 16);
-                    var z = 'L' + this.zeroPad(tileCoord[0], 2, 10);
-                    return url + '/' + z + '/' + y + '/' + x + '.png';
-
-                }
-            });
-
-            const layer = this.createTile(source);
-            layers.push(layer);
-
-        } else if (theme == 'arcgis') {
-
-            var url = 'http://192.168.4.35:6080/arcgis/rest/services/test/test2/MapServer';
-            source = new ol.source.ImageArcGISRest({
-                ratio: 1,
-                params: {},
-                url: url
-            });
-
-            const layer = this.createTile(source);
-            layers.push(layer);
-
         } else if (theme == 'sougou') {
 
-            var r = [128e3, 64e3, 32e3, 16e3, 8000.000000000001, 4000.0000000000005, 2000.0000000000002, 1000.0000000000001, 500.00000000000006, 250.00000000000003, 125.00000000000001, 62.50000000000001, 31.250000000000004, 15.625, 7.812500000000001, 3.9062500000000004, 1.9531250000000002, .9765625000000001, .48828125000000006];
+            let r = [128e3, 64e3, 32e3, 16e3, 8000.000000000001, 4000.0000000000005, 2000.0000000000002, 1000.0000000000001, 500.00000000000006, 250.00000000000003, 125.00000000000001, 62.50000000000001, 31.250000000000004, 15.625, 7.812500000000001, 3.9062500000000004, 1.9531250000000002, .9765625000000001, .48828125000000006];
 
             let url = 'http://p{digit}.go2map.com/seamless1/0/174/{tile}.png?v=2016820';
             source = new ol.source.XYZ({
@@ -165,18 +167,18 @@ export default class baseMap extends base {
                 wrapX: false,
                 tileUrlFunction: (e, r) => {
 
-                    var t = url;
-                    var a = e[1],
+                    let t = url;
+                    let a = e[1],
                         n = e[2],
                         i = e[0],
                         l = t,
                         s = 728 - i;
                     710 == s && (s = 792);
-                    var c = s.toString() + '/',
+                    let c = s.toString() + '/',
                         u = Math.floor(Math.abs(a / 200));
                     a < 0 && (c += 'M'), c += u.toString(), c += '/';
 
-                    var p = Math.floor(Math.abs(n / 200));
+                    let p = Math.floor(Math.abs(n / 200));
                     n < 0 && (c += 'M'),
                         c += p.toString(),
                         c += '/',
@@ -201,7 +203,7 @@ export default class baseMap extends base {
             source = new ol.source.XYZ({
                 url: 'http://t0.tianditu.com/DataServer?T=vec_w&x={x}&y={y}&l={z}'
             });
-            // var tian_di_tu_satellite_layer = new ol.layer.Tile({
+            // let tian_di_tu_satellite_layer = new ol.layer.Tile({
             //     baseLayer: true,
             //     title: '卫星',
             //     visible: false,
@@ -212,7 +214,7 @@ export default class baseMap extends base {
             // });
 
             // this.map.addLayer(tian_di_tu_satellite_layer);
-            var laberSource = new ol.source.XYZ({
+            let laberSource = new ol.source.XYZ({
                 url: 'http://t0.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}'
             });
 
@@ -252,16 +254,16 @@ export default class baseMap extends base {
 
         } else if (theme == 'baidu') {
 
-            var resolutions = [];
-            var maxZoom = 18;
+            let resolutions = [];
+            let maxZoom = 18;
 
             // 计算百度使用的分辨率
-            for (var i = 0; i <= maxZoom; i++) {
+            for (let i = 0; i <= maxZoom; i++) {
 
                 resolutions[i] = Math.pow(2, maxZoom - i);
 
             }
-            var tilegrid = new ol.tilegrid.TileGrid({
+            let tilegrid = new ol.tilegrid.TileGrid({
                 origin: [0, 0], // 设置原点坐标
                 resolutions: resolutions // 设置分辨率
             });
@@ -270,9 +272,9 @@ export default class baseMap extends base {
                 tileGrid: tilegrid,
                 tileUrlFunction: function(tileCoord, pixelRatio, proj) {
 
-                    var z = tileCoord[0];
-                    var x = tileCoord[1];
-                    var y = tileCoord[2];
+                    let z = tileCoord[0];
+                    let x = tileCoord[1];
+                    let y = tileCoord[2];
 
                     // 百度瓦片服务url将负数使用M前缀来标识
                     if (x < 0) {
@@ -320,7 +322,7 @@ export default class baseMap extends base {
         // let l = new ol.layer.Tile({
         //     source: new ol.source.TileDebug({
         //         projection: 'EPSG:3857',
-        //         tileGrid: this.baseLayer.getLayer().getSource().getTileGrid()
+        //         tileGrid: layers[0].getSource().getTileGrid()
         //     })
         // })
         // this.map.addLayer(l)
@@ -330,8 +332,6 @@ export default class baseMap extends base {
 
     /**
      * 设置数据源
-     * @author WXQ
-     * @date   2017-07-07
      * @param  {(string|Object)}   type 设置数据源
      * @default blue
      * @example
@@ -351,13 +351,6 @@ export default class baseMap extends base {
 
     }
 
-    setLayer(layers) {
-
-        this.layerArray.clear();
-        this.layerArray.extend(layers);
-
-    }
-
     /**
      * 获取主题
      * @return {string} theme 获取主题
@@ -365,6 +358,18 @@ export default class baseMap extends base {
     getTheme() {
 
         return this.theme;
+
+    }
+
+    /**
+     * 设置图层
+     * @private
+     * @param {Array} layers 
+     */
+    setLayer(layers) {
+
+        this.layerArray.clear();
+        this.layerArray.extend(layers);
 
     }
 
@@ -378,7 +383,7 @@ export default class baseMap extends base {
      */
     zeroPad(num, len, radix) {
 
-        var str = num.toString(radix || 10);
+        let str = num.toString(radix || 10);
         while (str.length < len) {
 
             str = '0' + str;

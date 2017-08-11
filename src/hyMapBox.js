@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-08-02 17:50:57
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-02 18:15:19
+ * @Last Modified time: 2017-08-08 10:13:35
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\hyMapBox.js
  * @File Name: hyMapBox.js
@@ -17,9 +17,7 @@ export default class hyMapBox {
         this._init(options);
     }
 
-    setOption(options) {
-        console.log(options)
-    }
+    setOption(options) {}
     _init(dom) {
         var tileset = 'mapbox.streets';
         var map = new mapboxgl.Map({

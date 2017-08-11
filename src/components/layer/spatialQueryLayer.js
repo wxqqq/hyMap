@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-23 20:14:54
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-04 16:34:59
+ * @Last Modified time: 2017-08-11 18:25:47
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\spatialQueryLayer.js
  * @File Name: spatialQueryLayer.js
@@ -93,6 +93,22 @@ export default class spatialQueryLayer extends baseLayer {
      */
     initTranslate() {
 
+
+        let elemnt = document.createElement('div');
+        elemnt.innerHTML = '&times';
+        elemnt.className = 'hy_spql_close'
+        elemnt.addEventListener('click', () => {
+            this.clear();
+            this.closeMarker.setPosition();
+        })
+        this.closeMarker = new ol.Overlay({
+            offset: [75, -12],
+            position: 'center-center',
+            element: elemnt,
+            stopEvent: false,
+            id: 'h_cm' + new Date().getTime()
+        });
+        this.map.addOverlay(this.closeMarker)
         this.marker = new ol.Feature();
         this.marker.setStyle((feature, resolution) => {
 
@@ -172,6 +188,8 @@ export default class spatialQueryLayer extends baseLayer {
      */
     styleFun(feature, resolution) {
 
+
+        this.closeMarker.setPosition(feature.getGeometry().getCoordinates());
         let dis = feature.get('distance');
 
         if (dis < 3000) {
@@ -223,7 +241,6 @@ export default class spatialQueryLayer extends baseLayer {
         limitDistance = 20000
     } = {}) {
 
-        this.clear();
         this.time = time;
         this.limitDistance = limitDistance;
         this.showRadar = showRadar;
@@ -372,15 +389,17 @@ export default class spatialQueryLayer extends baseLayer {
 
         let result = {};
         for (let key in groupLayers) {
+
             let array = [];
             const group = groupLayers[key];
             const layers = group.getLayer();
 
             if (layers instanceof ol.Collection) {
 
-                result[group.get('id')] = array;
+                result[key] = array;
 
                 layers.forEach((layer) => {
+
                     let featureArray = [];
                     layer.getSource().forEachFeature((feature) => {
 
@@ -397,9 +416,7 @@ export default class spatialQueryLayer extends baseLayer {
                             feature.set('pixel', this.map.getPixelFromCoordinate(coords));
                             featureArray.push(feature);
 
-
                         }
-
 
                     });
                     featureArray = this.sortBy(featureArray, 'distance');
@@ -407,6 +424,7 @@ export default class spatialQueryLayer extends baseLayer {
                 });
 
             } else {
+
 
                 result[layers.get('id')] = array;
                 let featureArray1 = [];
@@ -433,8 +451,8 @@ export default class spatialQueryLayer extends baseLayer {
 
                 });
 
-
                 array.push(featureArray1);
+
             }
 
         }
@@ -556,26 +574,29 @@ export default class spatialQueryLayer extends baseLayer {
 
         this.draw.on('drawend', (evt) => {
 
-            let geometry = evt.feature.getGeometry();
-            let result = {};
+            this.feature = evt.feature;
+            let geometry = this.feature.getGeometry();
+            let result = {
+                geometry
+            };
+
             if (geometry instanceof ol.geom.Circle) {
 
                 let coords = geometry.getCenter();
                 let radius = Math.abs(Math.floor(geometry.getRadius()));
-                result = this.getCircleInfo(coords, radius);
-
+                Object.assign(result, this.getCircleInfo(coords, radius));
+                result.geometry = ol.geom.Polygon.fromCircle(geometry);
+                result.circle = geometry;
             }
-
-            this.feature = evt.feature;
-            // result = this.getCircleInfo(coords, radius);
 
             const data = this.areaQuery({
                 geometry,
                 groupLayers: this.queryLayers
             });
-            this.feature.set('queryResult', data);
+
             result.selected = data;
-            result.geometry = geometry;
+            this.feature.set('queryResult', data);
+
             this.queryFun && this.queryFun(result);
 
             evt.stopPropagation();

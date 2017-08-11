@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-14 10:39:57
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-04 20:40:39
+ * @Last Modified time: 2017-08-07 11:43:56
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\labelAnimate.js
  * @File Name: labelAnimate.js
@@ -100,7 +100,10 @@ class labelAnimate extends Component {
                     showPopup: false //显示气泡框
                 });
                 obj.setOption(options);
-                obj.addLayer(series);
+                obj.addLayer({
+                    id: 113,
+                    series: series
+                });
 
                 obj.setTooltip({
                     show: false,
@@ -266,7 +269,10 @@ class labelAnimate extends Component {
                         showPopup: false //显示气泡框
 
                     }];*/
-            obj.updateLayer(series);
+            obj.updateLayer({
+                id: 113,
+                series: series
+            });
 
             // window.setTimeout(function() {
 

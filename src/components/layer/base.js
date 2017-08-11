@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-07-26 11:22:13
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-01 11:43:51
+ * @Last Modified time: 2017-08-07 14:50:59
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\base.js
  * @File Name: base.js
@@ -27,6 +27,20 @@ export default class base {
         this.map = map;
         this.source;
         this.layer = undefined;
+
+    }
+
+    /**
+     * 获取layer的map
+     * @return {Map} 
+     */
+    getMap() {
+
+        if (this.map) {
+
+            return this.map;
+        }
+        return null;
 
     }
 

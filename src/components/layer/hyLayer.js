@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:02:10
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-04 15:54:40
+ * @Last Modified time: 2017-08-09 13:35:52
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\hyLayer.js
  * @File Name: hyLayer.js
@@ -197,8 +197,6 @@ export default class hylayer extends baseLayer {
                 //     extent: 4096,
                 //     debug: 0
                 // });
-                // // console.log(tileIndex);
-                // console.log(tileIndex.getTile(1, 1, 0))
                 // var tilePixels = new ol.proj.Projection({
                 //     code: 'TILE_PIXELS',
                 //     units: 'tile-pixels'
@@ -732,21 +730,6 @@ export default class hylayer extends baseLayer {
             source.set('minValue', value);
 
         }
-
-    }
-    dispose() {
-
-        this.map.removeLayer(this.layer);
-        let source = this.layer.getSource();
-        //聚合图层的source为两层，进行判断获取到最底层的source
-        if (source instanceof ol.layer.AnimatedCluster) {
-
-            source = source.getSource();
-
-        }
-        source.clear();
-        this.source = null;
-        this.layer = null;
 
     }
 }

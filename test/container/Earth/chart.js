@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-31 15:24:44
+ * @Last Modified time: 2017-08-07 20:13:33
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\test\container\Earth\chart.js
  * @File Name: chart.js
@@ -10,7 +10,9 @@
  */
 
 "use strict";
-import React, { Component } from "react";
+import React, {
+    Component
+} from "react";
 import map from "../../../src/index";
 
 class chart extends Component {
@@ -47,6 +49,8 @@ class chart extends Component {
                     obj.container = div;
                     obj.geoCoord = [obj.lon, obj.lat];
                     obj.showLine = true;
+                    // obj.lineDirection = 'left';
+
                     // obj.geoCoord = obj.lon + ',' + obj.lat
                 });
 

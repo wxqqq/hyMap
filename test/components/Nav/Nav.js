@@ -10,10 +10,19 @@
  */
 
 "use strict";
-import React, { Component } from "react";
-import { Menu, Icon } from "antd";
-const { SubMenu } = Menu;
-import { Link } from "react-router";
+import React, {
+    Component
+} from "react";
+import {
+    Menu,
+    Icon
+} from "antd";
+const {
+    SubMenu
+} = Menu;
+import {
+    Link
+} from "react-router";
 
 class Nav extends Component {
     constructor(props, context) {
@@ -89,6 +98,9 @@ class Nav extends Component {
                     </Menu.Item>
                     <Menu.Item key="gps">
                         <Link to="gps">gps</Link>
+                    </Menu.Item>
+                      <Menu.Item key="chart">
+                        <Link to="chart">chart</Link>
                     </Menu.Item>
                 </SubMenu>
                 <SubMenu

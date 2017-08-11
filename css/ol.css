@@ -259,3 +259,11 @@
 .ol-overviewmap .ol-overviewmap-box:hover {
   cursor: move;
 }
+
+
+.hy_spql_close{
+  color:red;
+  cursor: pointer;
+  font-size: 28px;
+  line-height: 16px;
+}

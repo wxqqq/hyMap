@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-07-26 11:31:30
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-31 15:38:24
+ * @Last Modified time: 2017-08-07 14:23:39
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\region.js
  * @File Name: region.js
@@ -102,7 +102,7 @@ class region extends Component {
                     fillColor: 'rgba(255,255,255,0.5)'
                 }
             }, //地图上每块区域的样式
-            special: [{
+            filter: [{
                 name: '山东省',
                 itemStyle: {
                     normal: {

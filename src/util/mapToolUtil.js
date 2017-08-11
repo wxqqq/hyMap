@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-27 14:37:24
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-04 15:28:17
+ * @Last Modified time: 2017-08-11 15:15:35
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\util\mapToolUtil.js
  * @File Name: mapToolUtil.js
@@ -88,9 +88,9 @@ function transform(coords, projection) {
  * 清除结尾的符号
  * @author WXQ
  * @date   2017-07-07
- * @param  {(string)}   str  [description]
- * @param  {(string)}   sign [description]
- * @return {(string)}        [description]
+ * @param  {(string)}   str  字符串
+ * @param  {(string)}   sign 符号
+ * @return {(string)}        字符串
  */
 function deleteEndSign(str, sign) {
 
@@ -100,9 +100,9 @@ function deleteEndSign(str, sign) {
 
 /**
  * 获取两点间的距离
- * @param  {[type]} first  [description]
- * @param  {[type]} second [description]
- * @return {[type]}        [description]
+ * @param  {Array} first  第一个点
+ * @param  {Array} second 第二个点
+ * @return {Number}        距离
  */
 function getDistance(first, second) {
 
