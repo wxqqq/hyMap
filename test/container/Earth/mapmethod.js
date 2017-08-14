@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-11 18:01:07
+ * @Last Modified time: 2017-08-14 17:09:10
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\test\container\Earth\mapmethod.js
  * @File Name: mapmethod.js
@@ -20,14 +20,13 @@ import {
     Switch,
     Icon,
     Radio,
-    Row,
-    Col
 } from 'antd';
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
-
-import Editor from '../App/editor';
+import {
+    EventEmitter
+} from '../event';
 
 class mapmethod extends Component {
     constructor(props) {
@@ -80,6 +79,11 @@ class mapmethod extends Component {
         });
 
         this.mapObj.setOption(options);
+        console.log(2, EventEmitter)
+        EventEmitter.dispatch('setOption', {
+            options,
+            mapObj: this.mapObj
+        });
 
         document.getElementById('loadLayer').addEventListener('click', () => {
 
@@ -186,13 +190,10 @@ class mapmethod extends Component {
     }
 
     render() {
-        // <Col span={8}><Editor mapObj={this.state.mapObj} options={this.state.options}/></Col>
         return (
-            <Row>
-                  
-                    <Col span={23}>
-                        <div>
-                           
+            <div style={{height:'100%'}}>                       
+                 <div className='map_button'>
+                 <div>
                              主题：<RadioGroup onChange={this.onChangeTheme} defaultValue='dark'>
                                 <RadioButton value='dark'>黑色</RadioButton>
                                 <RadioButton value='white'>白色</RadioButton>
@@ -217,9 +218,9 @@ class mapmethod extends Component {
                                  <input id='loadLayer' type='button' value='加载图层'/>
                             </div>
                              <br/>
+                             </div>
                             <div id = 'map' ></div>
-                    </Col>
-                </Row>
+                            </div>
         );
 
     }

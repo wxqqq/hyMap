@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-14 10:39:57
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-07 11:43:56
+ * @Last Modified time: 2017-08-14 16:39:31
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\labelAnimate.js
  * @File Name: labelAnimate.js
@@ -361,9 +361,11 @@ class labelAnimate extends Component {
 
     render() {
         return (
-            <div>
+            <div style={{height:'100%'}}>
+                <div style={{position:'absolute',top:'40px',zIndex:99}}>
                 <input id="update" type="button" value="整体更新数据" />
                 <input id="add" type="button" value="增加" />
+                </div>
                 <div id="map" />
             </div>
         );
