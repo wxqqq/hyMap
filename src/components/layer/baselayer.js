@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-08 20:09:53
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-07 11:19:44
+ * @Last Modified time: 2017-08-08 16:31:04
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\baselayer.js
  * @File Name: baselayer.js
@@ -14,6 +14,10 @@ import {
 } from '../tools/mixClass';
 import base from './base';
 import hyMapStyle from '../style/hyMapStyle';
+import {
+    getFilterFeature,
+    compileStyle
+} from '../../core/mapbox/FeatureFilter';
 const ol = require('ol');
 
 export default class baseLayer extends mix(base, hyMapStyle) {
@@ -27,7 +31,7 @@ export default class baseLayer extends mix(base, hyMapStyle) {
 
     }
 
-    /**
+    /**A
      * style回调方法
      * @param  {ol.feature} feature    [description]
      * @param  {array} resolution [description]

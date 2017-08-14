@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-26 17:13:23
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-17 13:55:36
+ * @Last Modified time: 2017-08-09 13:25:09
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\track.js
  * @File Name: track.js
@@ -189,7 +189,7 @@ export default class track {
 
         }).catch(function(e) {
 
-            console.log(e);
+            console.error(e);
 
         });
 

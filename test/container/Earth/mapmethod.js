@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-03 15:47:08
+ * @Last Modified time: 2017-08-14 17:09:10
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\test\container\Earth\mapmethod.js
  * @File Name: mapmethod.js
@@ -20,14 +20,13 @@ import {
     Switch,
     Icon,
     Radio,
-    Row,
-    Col
 } from 'antd';
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
-
-import Editor from '../App/editor';
+import {
+    EventEmitter
+} from '../event';
 
 class mapmethod extends Component {
     constructor(props) {
@@ -57,14 +56,21 @@ class mapmethod extends Component {
             show: true, //地图的显示状态 true为显示 false 为不显示
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
-            theme: 'tianditu', //地图风格
-            // center: [113.2759952545166, 23.117055306224895], //当前视角中心: [经度, 纬度]
+            // theme: {
+            // type: 'tile',
+            // url: 'http://mape.shanghai-map.net/ArcGIS/rest/services/SHMAP_DZJ/MapServer'
+            // url: 'http://192.168.4.35:6080/arcgis/rest/services/MZL/MapServer'
+            // url: 'http://localhost:8080/all'
+            // }, //地图风格
+            // center: [117.52359952545166, 49.52355306224895], //当前视角中心: [经度, 纬度]
             zoom: 5, //当前地图缩放比例
-            scaleLimit: [2, 12], //滚轮缩放的边界
-            // theme: { // string('dark'，'blue'，'white')|mapObjectr{mapId,key} 对应maobox中的mapid和access_token
-            // mapId: 'zhangyujie.a80cdc83',
-            // key: 'sk.eyJ1Ijoiemhhbmd5dWppZSIsImEiOiJkTEp6WDZrIn0.nY5bsQlZegBbb2uGgJ5jEA'
-            // }, //地图风格/地图风格
+            scaleLimit: [2, 18], //滚轮缩放的边界
+            theme: { // string('dark'，'blue'，'white')|mapObjectr{mapId,key} 对应maobox中的mapid和access_token
+                type: 'mapbox',
+                mapId: 'zhangyujie.a80cdc83',
+                key: 'sk.eyJ1Ijoiemhhbmd5dWppZSIsImEiOiJkTEp6WDZrIn0.nY5bsQlZegBbb2uGgJ5jEA'
+            }, //地图风格/地图风格
+            // theme: 'sougou',
             series: []
         };
 
@@ -73,6 +79,11 @@ class mapmethod extends Component {
         });
 
         this.mapObj.setOption(options);
+        console.log(2, EventEmitter)
+        EventEmitter.dispatch('setOption', {
+            options,
+            mapObj: this.mapObj
+        });
 
         document.getElementById('loadLayer').addEventListener('click', () => {
 
@@ -179,13 +190,10 @@ class mapmethod extends Component {
     }
 
     render() {
-        // <Col span={8}><Editor mapObj={this.state.mapObj} options={this.state.options}/></Col>
         return (
-            <Row>
-                  
-                    <Col span={23}>
-                        <div>
-                           
+            <div style={{height:'100%'}}>                       
+                 <div className='map_button'>
+                 <div>
                              主题：<RadioGroup onChange={this.onChangeTheme} defaultValue='dark'>
                                 <RadioButton value='dark'>黑色</RadioButton>
                                 <RadioButton value='white'>白色</RadioButton>
@@ -210,9 +218,9 @@ class mapmethod extends Component {
                                  <input id='loadLayer' type='button' value='加载图层'/>
                             </div>
                              <br/>
+                             </div>
                             <div id = 'map' ></div>
-                    </Col>
-                </Row>
+                            </div>
         );
 
     }

@@ -1,9 +1,11 @@
 #version
-
+##v0.2.7
+空间查询返回值增加circle参数。
 ##v0.2.1
-注意此版本部分与此前部分功能不兼容
+注意此版本部分与此前不兼容
 1.setoption 选项，移除map相关配置
 包括map,  drillDown, label, itemStyle,  region:selectedMode,
+包括event事件中的geoClick,geoUnClick.
 现在的geo更改为layer控制 使用 addLayer进行添加 配置项如下：
 ```
 serie={

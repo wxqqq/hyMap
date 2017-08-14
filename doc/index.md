@@ -20,11 +20,6 @@ options:
 
     show: true, //地图的显示状态 true为显示 false 为不显示  
 
-    map: '中国|山东省', //undefined|(string|string|string) 为空不加载地图边界，否则按传入参数最后一个为当前级别进行数据加载,
-    //目前测试数据包括3级，中国各个省，山东省，济南市的区域数据。
-
-    drillDown: true, // true|false 是否开启区域点击下钻功能。  
-
     roam: 'true', // true|false|drag(只拖拽)|scale(只缩放) 开启缩放、平移功能  
 
     center: [118.6277, 36.588921], //当前视角中心: [经度, 纬度]  
@@ -44,6 +39,7 @@ options:
               fillColor: 'rgba(255,255,255,0.5)'
           }
       }, 
+ 
 
     label: {//底图区域块文本样式
         'normal': { //默认正常样式
@@ -102,7 +98,7 @@ options:
         }
     }],
 
-    theme: { // 底图样式 'dark'|'blue'|'white'|mapObject{mapId,key} 对应maobox中的mapid和access_token
+    theme: { // 底图样式 'dark'|'blue'|'white'|mapObject{tpye,url,mapId,key} 对应maobox中的mapid和access_token
         mapId: 'zhangyujie.a80cdc83',
         key: 'sk.eyJ1Ijoiemhhbmd5dWppZSIsImEiOiJkTEp6WDZrIn0.nY5bsQlZegBbb2uGgJ5jEA'
     },
@@ -138,7 +134,6 @@ options:
     series: [   //数据对象数组
         {
           data: values,//数据
-
           cluster: {
               enable: false, //是否开启聚合
               distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
@@ -149,7 +144,7 @@ options:
 
           minZoom: 6, //数据显示最小级别
 
-          type: 'point',//'point'|'line'|'polygon'
+          type: 'point',//'point'|'line'|'polygon'|'track'|'gps'|'region'
 
           symbol: 'icon:test/data/jingli-1.png',//'circle'|'icon:url'|heatmap
 
@@ -195,6 +190,11 @@ options:
             },
           }
           contexmenu:false//设置图层是否响应自定义右键功能
+
+          map: '中国|山东省', //undefined|(string|string|string) 为空不加载地图边界，否则按传入参数最后一个为当前级别进行数据加载,
+    //目前测试数据包括3级，中国各个省，山东省，济南市的区域数据。
+
+    drillDown: true, // true|false 是否开启区域点击下钻功能。  
     ]
 
   }
@@ -217,16 +217,17 @@ options:
 ### 2.2 实例方法 <a name="instance.method"></a>
 
 2. 注册事件 
-eventName:'geoClick'|'geoUnclick'|'click'|'unClick'|'contexmenu'|'tooltipclick'
+eventName:''click'|'unClick'|'contexmenu'|'tooltipclick'|'mouseover'
 
 ```
 instance.on(eventName, handler)  
- eg:on('geoClick', fn)| on('click', (param, event) => {
+ eg:on('click', fn)| on('click', (param, event) => {
     console.log(param)
   }) | on('mouseover', fn) | on('zoom', fn)
 绑定对地图区域点击 地图上元素的点击
 ```
 
-测试用例 38个
 
+
+测试用例 38个
 外部调用方法接口共 52个 内部方法共287个

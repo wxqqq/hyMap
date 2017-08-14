@@ -2,7 +2,7 @@
  * @Author: zhangyujie
  * @Date:   2016-05-09 11:33:52
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-31 16:40:46
+ * @Last Modified time: 2017-08-14 16:28:57
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\test\container\App\App.js
  * @File Name: App.js
@@ -17,7 +17,9 @@ import React, {
 import Nav from '../../components/Nav/Nav';
 import {
     Layout,
-    Menu
+    Menu,
+    Row,
+    Col
 } from 'antd';
 const {
     SubMenu
@@ -27,7 +29,7 @@ const {
     Content,
     Sider
 } = Layout;
-
+import Editor from '../App/editor';
 class App extends Component {
     menuClick = e => {
 
@@ -54,17 +56,21 @@ class App extends Component {
                     <Sider
                         style={{
                             overflow: 'auto',
-                            height: '100vh',
-                            position: 'fixed',
-                            left: 0,
+                            height: '95vh',
                             background: '#fff'
                         }}>
                         <Nav location={this.props.location} />
                     </Sider> 
-                    <Layout style={{ marginLeft: 200, height: '100%' }}>
-                        <div className='content'>
-                            {this.props.children}
+                    <Layout>
+                        <Content>
+                        <div style={{flex:1}}>
+                        <Editor/>
                         </div>
+                        <div style={{flex:2}}>
+                         {this.props.children}
+                        </div>
+                         
+                        </Content>
                     </Layout>
                 </Content>
             </Layout>
