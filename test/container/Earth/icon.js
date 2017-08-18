@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-09 13:52:30
+ * @Last Modified time: 2017-08-17 14:14:29
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\icon.js
  * @File Name: icon.js
@@ -18,7 +18,7 @@ class icon extends Component {
     componentDidMount() {
         let mapObj = map.init(document.getElementById('map'));
         let options = {
-            serverUrl: 'http://192.168.11.50:8080/geoserver',
+            serverUrl: 'http://192.168.1.50:8080/geoserver',
             show: true, //地图的显示状态 true为显示 false 为不显示
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
@@ -51,22 +51,6 @@ class icon extends Component {
                     '<a id=1>sss</a>' + param.dataIndex + ': ' + param.value;
                 // return str;
             },
-            on: [{
-                type: 'click',
-                function(event) {
-                    console.log(event);
-                }
-            }, {
-                type: 'mouseover',
-                function(event) {
-                    console.log(event);
-                }
-            }, {
-                type: 'mouseout',
-                function(event) {
-                    console.log(event);
-                }
-            }],
             position: function() {
                 //相对于当前事件点的位置
 
@@ -358,7 +342,7 @@ class icon extends Component {
                                     .get('geoCoord');
                             }
                             mapObj.drawTrack(coord, coo, {
-                                isCustom: false,
+                                isCustom: true,
                                 tooltipFun: function(data, obj) {
                                     const length = (data.length / 1000).toFixed(
                                         1

@@ -15,6 +15,7 @@ export default class hytooltip extends hyMapStyle {
         super(options);
         this.tooltipShow = false;
         this.tooltipOverLay = undefined;
+        this.topOverlay = undefined;
         this.formatter = () => undefined;
         this.tooltipTriggeron = '';
         this.enterable = false;
@@ -107,7 +108,10 @@ export default class hytooltip extends hyMapStyle {
 
         let container = document.createElement('div');
         container.id = 'hy_popup_' + new Date().getTime();
+
+
         if (isCustom) {
+
             container.className = 'ol-popup';
             let closer = document.createElement('div');
             closer.id = 'popup-closer';
@@ -126,17 +130,6 @@ export default class hytooltip extends hyMapStyle {
 
             };
 
-            container.addEventListener('click', (e) => {
-
-                this.dispatchEvent({
-                    evt: e,
-                    type: 'tooltipClick',
-                    // data: properties,
-                    // feature: unSelFeatures
-                    select: e.target
-                });
-
-            });
         }
 
         return container;
@@ -185,7 +178,7 @@ export default class hytooltip extends hyMapStyle {
      * @param {Boolean} isCustomn 是否为默认样式
      * @return {Overlay}        
      */
-    _createOverlay(element, isCustom) {
+    createOverlay(element, isCustom) {
 
         element = element || this._createPopup(isCustom);
         let overlay = new ol.Overlay({
@@ -198,6 +191,25 @@ export default class hytooltip extends hyMapStyle {
             autoPanAnimation: {
                 duration: 250
             }
+        });
+        //注册事件响应
+        element.addEventListener('click', e => {
+
+            if (this.topOverlay) {
+
+                this.topOverlay.style.zIndex = '';
+
+            }
+            this.topOverlay = marker.getElement().parentNode;
+            this.topOverlay.style.zIndex = 999;
+            this.dispatchEvent({
+                evt: e,
+                type: 'tooltipClick',
+                // data: properties,
+                // feature: unSelFeatures
+                select: e.target
+            });
+
         });
         this.map.addOverlay(overlay);
         return overlay;

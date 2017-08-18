@@ -120,7 +120,7 @@ export default class hyMap extends hytooltip {
         this._dom = dom;
         this._createBasicLayer();
 
-        this.tooltipOverLay = this._createOverlay();
+        this.tooltipOverLay = this.createOverlay();
         this._createIntercation();
         this._createCircleQuery();
         this._createtrackLayer();
@@ -271,6 +271,7 @@ export default class hyMap extends hytooltip {
                 });
                 this.map.addLayer(layer.getLayer());
         }
+
         this._addLayerGroupArray[serie.id] = layer;
         return layer;
     }
@@ -407,58 +408,78 @@ export default class hyMap extends hytooltip {
                                 offset:[0,0],//偏移量
                                 positioning:'top-left'//top[center,bottom]-left[right];相对位置
      */
-    addOverlay(obj = {}) {
+    addOverlay({
+        id = '',
+        geoCoord = undefined,
+        container = document.createElement('div'),
+        showLine = false,
+        lineColor = 'white',
+        lineWidth = 80,
+        lineDirection = 'right',
+        offSet = [0, 0],
+        positioning = 'center-center'
+    } = {}) {
 
-
-        let marker = this._markerLayer[obj.id];
+        let marker = this._markerLayer[id];
 
         if (marker) {
 
-            marker.setPosition(mapTool.transform(obj.geoCoord));
-            marker.setElement(obj.container);
+            this.map.removeOverlay(marker)
 
-        } else {
+        }
 
-            if (obj.container) {
+        container.addEventListener('click', e => {
 
-                obj.container.style.position = 'static';
-                obj.container.style.float = 'left';
+            if (this.topOverlay) {
+
+                this.topOverlay.style.zIndex = '';
 
             }
-            marker = new ol.Overlay({
-                position: mapTool.transform(obj.geoCoord),
-                positioning: obj.positioning || 'center-center',
-                offset: obj.offset,
-                element: obj.container,
-                stopEvent: false,
-                id: obj.id
+            this.topOverlay = marker.getElement().parentNode;
+            this.topOverlay.style.zIndex = 999;
+            this.dispatchEvent({
+                evt: e,
+                type: 'tooltipClick',
+                // feature: unSelFeatures
+                select: e.target
             });
-            marker.set('geoCoord', obj.geoCoord);
-            this._markerLayer[obj.id] = marker;
-            this.map.addOverlay(marker);
-            if (obj.showLine) {
 
-                let lineWidth = obj.lineWidth || 80;
-                let canvas = document.createElement('canvas');
-                let ctx = canvas.getContext('2d');
-                canvas.width = lineWidth;
-                canvas.height = obj.container.offsetHeight;
-                ctx.strokeStyle = obj.lineColor ? obj.lineColor : 'white';
-                if (obj.lineDirection && obj.lineDirection == 'left') {
+        });
+        marker = new ol.Overlay({
+            id: id,
+            position: mapTool.transform(geoCoord),
+            positioning: positioning,
+            offset: offSet,
+            element: container,
+            stopEvent: false
 
-                    obj.container.style.float = 'right';
-                    ctx.translate(lineWidth, 0);
-                    ctx.scale(-1, 1);
+        });
+        marker.set('geoCoord', geoCoord);
+        this._markerLayer[id] = marker;
+        this.map.addOverlay(marker);
+        if (showLine) {
+            // container.style.position = 'static';
+            // container.style.float = 'left';
+            let lineWidth = lineWidth || 80;
+            let canvas = document.createElement('canvas');
+            let ctx = canvas.getContext('2d');
+            canvas.width = lineWidth;
+            canvas.height = container.offsetHeight;
+            ctx.strokeStyle = lineColor ? lineColor : 'white';
+            if (lineDirection && lineDirection == 'left') {
 
-                }
-                ctx.moveTo(lineWidth, canvas.height);
-                let tmpX = lineWidth / 2;
-                ctx.lineTo(tmpX, 6);
-                ctx.lineTo(0, 6);
-                ctx.stroke();
-                obj.container.parentNode.appendChild(canvas);
+                container.style.float = 'right';
+                ctx.translate(lineWidth, 0);
+                ctx.scale(-1, 1);
 
             }
+            ctx.moveTo(lineWidth, canvas.height);
+            let tmpX = lineWidth / 2;
+            ctx.lineTo(tmpX, 6);
+            ctx.lineTo(0, 6);
+            ctx.stroke();
+            container.parentNode.appendChild(canvas);
+
 
         }
         return marker;
@@ -470,8 +491,10 @@ export default class hyMap extends hytooltip {
      * @param  {String} id [description]
      */
     showOverlay(id) {
+
         const marker = this._markerLayer[id];
         marker && marker.setPosition(mapTool.transform(marker.get('geoCoord')));
+
     }
 
     /**
@@ -481,6 +504,7 @@ export default class hyMap extends hytooltip {
     hideOverlay(id) {
         const marker = this._markerLayer[id];
         marker && marker.setPosition();
+
     }
 
     /**
@@ -488,13 +512,18 @@ export default class hyMap extends hytooltip {
      * @param  {overlay|id} marker 覆盖物
      */
     removeOverlay(marker) {
+
         if (!(marker instanceof ol.Overlay)) {
+
             marker = this._markerLayer[marker];
         }
+
         if (marker) {
+
             this.map.removeOverlay(marker);
             delete this._markerLayer[marker.getId()];
         }
+
     }
 
     /**
@@ -911,7 +940,7 @@ export default class hyMap extends hytooltip {
     }
 
     _createTrackOverLay(coordinate, content, isCustom) {
-        let overlay = this._createOverlay(null, isCustom);
+        let overlay = this.createOverlay(null, isCustom);
         let div = overlay.getElement();
         if (baseUtil.isDom(content)) {
             div.appendChild(content);
@@ -958,7 +987,8 @@ export default class hyMap extends hytooltip {
 
     initTrackData(obj) {
         this.trck = new Layer.trackLayer({
-            map: this.map
+            map: this.map,
+            id: obj.id
         });
 
         this.trck.initTrackData(obj);

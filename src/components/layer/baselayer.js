@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-08 20:09:53
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-08 16:31:04
+ * @Last Modified time: 2017-08-18 14:47:27
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\baselayer.js
  * @File Name: baselayer.js
@@ -169,8 +169,8 @@ export default class baseLayer extends mix(base, hyMapStyle) {
 
         }
         source.clear();
-        this.source = null;
-        this.layer = null;
-
+        this.source = undefined;
+        this.layer = undefined;
+        this.map = undefined;
     }
 }
