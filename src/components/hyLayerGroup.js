@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-04 17:22:04
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-04 16:41:08
+ * @Last Modified time: 2017-08-19 14:50:42
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\hyLayerGroup.js
  * @File Name: hyLayerGroup.js
@@ -147,18 +147,19 @@ export default class hyLayerGroup extends hyMapStyle {
 
                     for (let k of Object.keys(data)) {
 
-                        strMap.set('serie|' + data[k].geoCoord, data[k]);
+                        let id = data[k].id || 'serie|' + data[k].geoCoord;
+                        strMap.set(id, data[k]);
 
                     }
                     //目标数据遍历，找到的更新，未找到的删除。
                     source.forEachFeature(function(feature) {
 
-                        const geoCoord = feature.getId();
-                        if (strMap.has(geoCoord)) {
+                        const id = feature.getId();
+                        if (strMap.has(id)) {
 
-                            const value = strMap.get(geoCoord);
+                            const value = strMap.get(id);
                             feature.setProperties(value);
-                            updateData.set('serie|' + value.geoCoord, value);
+                            updateData.set(id, value);
 
                         } else {
 
@@ -168,11 +169,11 @@ export default class hyLayerGroup extends hyMapStyle {
                         }
 
                     });
-                    //找到的数据进行更新，未找到的准备新增。
+                    //从更新数组中过滤，未找到的准备新增。
 
                     data.map((value) => {
 
-                        if (!updateData.has(value.geoCoord)) {
+                        if (!updateData.has(value.id)) {
 
                             addData.push(value);
 

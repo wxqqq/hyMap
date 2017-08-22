@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-22 13:37:27
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-18 17:14:56
+ * @Last Modified time: 2017-08-22 22:39:59
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\layer.js
  * @File Name: layer.js
@@ -10,8 +10,8 @@
  */
 'use strict';
 import baseLayer from './baselayer';
-
 import hyFeature from '../feature/hyFeature';
+import baseUtil from '../../util/baseUtil';
 
 const ol = require('ol');
 
@@ -31,7 +31,29 @@ export default class trackLayer extends baseLayer {
         this.lineWidth = 3;
         this.lineArrow = false;
         this.speed = 1;
-        this.lineColor = [237, 212, 0, 0.8]
+        this.lineColor = [237, 212, 0, 0.8];
+        this.lineStyle = {
+            normal: {
+                strokeWidth: 1,
+                strokeColor: 'red'
+            },
+            emphasis: {
+                strokeWidth: 1,
+                strokeColor: 'red'
+            }
+        };
+        this.nodeStyle = {
+            normal: {
+                strokeWidth: 1,
+                strokeColor: 'red',
+                fillColor: 'orange'
+            },
+            emphasis: {
+                strokeWidth: 1,
+                strokeColor: 'red',
+                fillColor: 'orange'
+            }
+        };
         this.trackStyles = {
             'route': new ol.style.Style({
                 stroke: new ol.style.Stroke({
@@ -51,12 +73,6 @@ export default class trackLayer extends baseLayer {
                     })
                 })
             }),
-            'icon': new ol.style.Style({
-                image: new ol.style.Icon({
-                    anchor: [0.5, 1],
-                    src: this.localImg
-                })
-            }),
             'geoMarker': new ol.style.Style({
                 image: new ol.style.Icon({
                     anchor: [0.5, 0.5],
@@ -70,12 +86,12 @@ export default class trackLayer extends baseLayer {
         this.source.on('addfeature', evt => {
 
             evt.feature.source = evt.target;
-        })
+        });
         this.layer = new ol.layer.Vector({
             source: this.source,
-            style: (feature) => {
+            style: (feature, resolution, type) => {
 
-                return this.styleFun(feature);
+                return this.styleFun(feature, resolution, type);
 
             },
             layerId: options.id,
@@ -85,7 +101,11 @@ export default class trackLayer extends baseLayer {
         this.map.addLayer(this.layer);
 
     }
-    styleFun(feature) {
+    styleFun(feature, resolution, type) {
+
+        if (!type) {
+            type = 'normal';
+        }
 
         if (feature.get('type') == 'route') {
 
@@ -93,8 +113,8 @@ export default class trackLayer extends baseLayer {
             var styles = [
                 new ol.style.Style({
                     stroke: new ol.style.Stroke({
-                        color: this.lineColor,
-                        width: this.lineWidth
+                        color: this.lineStyle[type].strokeColor,
+                        width: this.lineStyle[type].strokeWidth
                     })
                 })
             ];
@@ -124,9 +144,25 @@ export default class trackLayer extends baseLayer {
             }
             return styles;
 
+        } else if (feature.get('type') == 'node') {
+
+            return new ol.style.Style({
+                image: new ol.style.Circle({
+                    radius: this.nodeStyle[type].symbolSize,
+                    fill: new ol.style.Fill({
+                        color: this.nodeStyle[type].fillColor
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: this.nodeStyle[type].strokeColor,
+                        width: this.nodeStyle[type].strokeWidth
+                    })
+                })
+            });
+
         } else {
 
             return this.trackStyles[feature.get('type')];
+
         }
 
     }
@@ -155,17 +191,39 @@ export default class trackLayer extends baseLayer {
         data = '',
         lineWidth = 3,
         lineArrow = false,
+        lineColor = [237, 212, 0, 0.8],
+        lineStyle = {
+            normal: {
+                strokeWidth: 1,
+                strokeColor: 'red'
+            },
+            emphasis: {
+                strokeWidth: 3,
+                strokeColor: 'red'
+            }
+        },
+        nodeStyle = {
+            normal: {
+                strokeWidth: 1,
+                strokeColor: '#000',
+                fillColor: '#fff',
+                symbolSize: 3
+            },
+            emphasis: {
+                strokeWidth: 1,
+                strokeColor: 'red',
+                fillColor: 'green',
+                symbolSize: 5
+            }
+        },
         speed = 1,
         wrap = false,
         rotation = false,
         showNode = false,
-        nodeFillColor = 'green',
-        nodeStrokeColor = '',
         trackModel = '1',
         startDom,
         endDom,
-        moveDom,
-        lineColor = [237, 212, 0, 0.8]
+        moveDom
     } = {}) {
 
         if (data == '') {
@@ -173,7 +231,11 @@ export default class trackLayer extends baseLayer {
             return;
 
         }
+
         this.clearTrack();
+        this.lineStyle = baseUtil.merge(lineStyle, this.lineStyle);
+        this.nodeStyle = baseUtil.merge(nodeStyle, this.lineStyle);
+
         this.showNode = showNode;
         this.lineWidth = lineWidth;
         this.lineColor = lineColor;
@@ -189,7 +251,8 @@ export default class trackLayer extends baseLayer {
 
             data.type = 'node';
 
-        })
+        });
+
         let featuresObject = hyFeature.getFeatures(data, 'point');
         this.route = hyFeature.createLine(data);
         this.routeCoords = this.route.getCoordinates();
@@ -240,7 +303,7 @@ export default class trackLayer extends baseLayer {
             stopEvent: false,
             element: dom,
             position: geoCoord,
-            positioning: 'bottom-center',
+            positioning: 'bottom-center'
         });
         this.map.addOverlay(overlay);
         return overlay;
@@ -400,8 +463,8 @@ export default class trackLayer extends baseLayer {
     }
     dispose() {
 
-        this.map.removeOverlay(this.startMarker)
-        this.map.removeOverlay(this.endMarker)
+        this.map.removeOverlay(this.startMarker);
+        this.map.removeOverlay(this.endMarker);
         super.dispose();
     }
 }

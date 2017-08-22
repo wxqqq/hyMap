@@ -309,6 +309,7 @@ export default class hytooltip extends hyMapStyle {
                 return evt.type === 'pointermove' && !flag;
 
             },
+            hitTolerance: 2,
             layers: function(layer) {
 
                 if (layer.get('type')) {

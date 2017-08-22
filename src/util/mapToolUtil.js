@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-27 14:37:24
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-11 15:15:35
+ * @Last Modified time: 2017-08-21 16:17:13
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\util\mapToolUtil.js
  * @File Name: mapToolUtil.js

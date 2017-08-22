@@ -330,6 +330,64 @@ export default class hyMap extends hytooltip {
     }
 
     /**
+     * 获取图层
+     * @param  {String} id 唯一标识
+     * @return {Object}    layer对象
+     */
+    getSeries(id) {
+
+        let obj = [];
+        if (id) {
+
+            obj.push(this.getSerie(id));
+
+        } else {
+
+            for (let id in this._addLayerGroupArray) {
+
+                obj.push(this.getSerie(id));
+
+            }
+
+        }
+
+        return obj;
+
+    }
+
+    /**
+     * 获取图层信息
+     * @param  {[type]} id [description]
+     * @return {[type]}    [description]
+     */
+    getSerie(id) {
+
+        let serie = [];
+        let layer = this._addLayerGroupArray[id];
+
+        if (layer instanceof hyLayerGroup) {
+
+            let series = [];
+            layer.layersArray.forEach((layer) => {
+
+                series.push(layer.get('serie'));
+
+            });
+
+            serie = {
+                id: id,
+                series
+            };
+
+        } else {
+
+            serie = layer.layer.get('serie');
+
+        }
+        return serie;
+    }
+
+    /**
      * 显示图层
      * @param  {String} id 唯一标识
      */
@@ -394,9 +452,13 @@ export default class hyMap extends hytooltip {
      * @param {Object} data 数据
      */
     addMarkers(data) {
+
         data.forEach(obj => {
+
             this.addOverlay(obj);
+
         });
+
     }
 
     /**
@@ -424,7 +486,7 @@ export default class hyMap extends hytooltip {
 
         if (marker) {
 
-            this.map.removeOverlay(marker)
+            this.map.removeOverlay(marker);
 
         }
 
@@ -458,6 +520,7 @@ export default class hyMap extends hytooltip {
         this._markerLayer[id] = marker;
         this.map.addOverlay(marker);
         if (showLine) {
+
             // container.style.position = 'static';
             // container.style.float = 'left';
             let lineWidth = lineWidth || 80;
@@ -502,6 +565,7 @@ export default class hyMap extends hytooltip {
      * @param  {String} id [description]
      */
     hideOverlay(id) {
+
         const marker = this._markerLayer[id];
         marker && marker.setPosition();
 
@@ -516,12 +580,14 @@ export default class hyMap extends hytooltip {
         if (!(marker instanceof ol.Overlay)) {
 
             marker = this._markerLayer[marker];
+
         }
 
         if (marker) {
 
             this.map.removeOverlay(marker);
             delete this._markerLayer[marker.getId()];
+
         }
 
     }
@@ -530,10 +596,14 @@ export default class hyMap extends hytooltip {
      * 删除所有覆盖物
      */
     removeOverlays() {
+
         for (let id in this._markerLayer) {
+
             const marker = this._markerLayer[id];
             this.map.removeOverlay(marker);
+
         }
+
     }
 
     /**
@@ -542,65 +612,99 @@ export default class hyMap extends hytooltip {
      * @private
      */
     _removeSerie(id) {
+
         const marker = this._markerLayer[id];
         if (marker) {
+
             this.removeOverlay(marker);
+
         }
 
         for (let group in this._addLayerGroupArray) {
+
             this._addLayerGroupArray(group).forEach(obj => {
+
                 const key = obj.get('id');
                 if (key == id) {
+
                     group.remove(obj);
                     return;
+
                 }
+
             });
+
         }
+
     }
 
+    /**
+     * 获取当前地图信息
+     * @return {Object}
+     */
+    getMapOption() {
+
+        let option = baseUtil.clone(this._geo);
+        option.zoom = this.map.getView().getZoom();
+        option.center = this.map.getView().getCenter();
+        return option;
+
+    }
+
+
     removeSeries(id) {
+
         if (id) {
+
             if (baseUtil.isArray(id)) {
+
                 id.forEach(obj => {
+
                     this._removeSerie(obj);
+
                 });
+
             } else {
+
                 this._removeSerie(id);
+
             }
+
         } else {
+
             this.removeLayers();
+
         }
+
     }
 
     /**
      * 根据id获取feature
      * @param  {String} id 唯一标识
      * @return {object|null} feature feature    
+     * 
      */
-    getFeature(id) {
+    getFeatureById(id) {
+        //todo 没有进行聚合判断
         const layersGroup = this.map.getLayers();
-        let feature = null;
+        let features = [];
         layersGroup.forEach(group => {
             if (group instanceof ol.layer.Group) {
                 const layers = group.getLayers();
                 layers.forEach(function(element) {
                     if (element.getSource() instanceof ol.source.Vector) {
-                        feature = element.getSource().forEachFeature(feature => {
-                            feature.get('id') == id;
-                            return feature;
-                        });
+                        const feature = element.getSource().getFeatureById(id);
+                        feature && features.push(feature);
                     }
                 });
             } else {
                 if (group.getSource() instanceof ol.source.Vector) {
-                    feature = group.getSource().forEachFeature(feature => {
-                        feature.get('id') == id;
-                        return feature;
-                    });
+                    const feature = group.getSource().getFeatureById(id);
+                    feature && features.push(feature);
                 }
             }
         });
-        return feature;
+        return features;
     }
 
     /**
@@ -731,27 +835,34 @@ export default class hyMap extends hytooltip {
         }
     }
 
+
     /**
-         * 创建连接线
-         * @param  {object}   obj {id:123//唯一标识，默认为时间戳 
-      geoCoord:[]//经纬度坐标
-      end:[]//屏幕固定位置像素位置}
-         * @return {String}    对象内部id
-         */
-    drawCable(obj) {
+     * 创建连接线
+     * @param  {[type]} options.id       唯一标识，默认为时间戳 
+     * @param  {[type]} options.geoCoord 经纬度坐标
+     * @param  {Object} options.end       屏幕固定位置像素位置} 
+     * @return {[type]}                   对象内部id
+     */
+    drawCable({
+        id = new Date().getTime(),
+        geoCoord,
+        end,
+        color = 'red'
+    } = {}) {
+
         let listererObj = this.map.on('postcompose', evt => {
+
             let ctx = evt.context;
             let piex = this.map.getPixelFromCoordinate(
-                mapTool.transform(obj.geoCoord)
+                mapTool.transform(geoCoord)
             );
-            const tmpX = piex[0] > obj.end[0] ? piex[0] - 100 : piex[0] + 100;
-            ctx.strokeStyle = obj.color || 'red';
+            const tmpX = piex[0] > end[0] ? piex[0] - 100 : piex[0] + 100;
+            ctx.strokeStyle = color;
             ctx.moveTo(piex[0], piex[1]);
-            ctx.lineTo(tmpX, obj.end[1]);
-            ctx.lineTo(obj.end[0], obj.end[1]);
+            ctx.lineTo(tmpX, end[1]);
+            ctx.lineTo(end[0], end[1]);
             ctx.stroke();
         });
-        let id = obj.id || new Date().getTime();
         this.postListenerObj[id] = listererObj;
         return id;
     }
@@ -1029,20 +1140,31 @@ export default class hyMap extends hytooltip {
      * @param  {Function} callback 回调
      */
     draw(type, callback) {
+
+        this.clickSelect.getFeatures().clear();
         this.queryCircle.setQueryFun(result => {
+
             this.clearTrackInfo();
 
             for (let id in result.selected) {
+
                 const array = result.selected[id];
                 array.forEach(features => {
+
                     this.clickSelect.getFeatures().extend(features);
+
                 });
+
             }
 
             if (baseUtil.isFunction(callback)) {
+
                 callback(result);
+
             }
+
         });
+
         this.queryCircle.createDraw(type);
     }
 

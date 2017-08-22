@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-17 20:06:50
+ * @Last Modified time: 2017-08-22 19:40:35
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\test\container\Earth\mapmethod.js
  * @File Name: mapmethod.js
@@ -78,12 +78,13 @@ class mapmethod extends Component {
             options: options
         });
 
+
         this.mapObj.setOption(options);
         EventEmitter.dispatch('setOption', {
             options,
             mapObj: this.mapObj
         });
-
+        console.log(this.mapObj.getMapOption())
         document.getElementById('loadLayer').addEventListener('click', () => {
 
 

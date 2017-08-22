@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-18 09:42:20
+ * @Last Modified time: 2017-08-21 15:34:25
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\test\container\Earth\chart.js
  * @File Name: chart.js
@@ -35,27 +35,25 @@ class chart extends Component {
             series: []
         };
         obj.setOption(options);
-        fetch("../test/data/car_2012.json")
-            .then(response => response.json())
-            .then(function(values) {
-                values.forEach(obj => {
-                    let div = document.createElement("div");
-                    div.style.position = "absolute";
-                    div.id = "ccc";
-                    div.innerHTML =
-                        '<div style="background-color:#ccc;">' +
-                        obj.name +
-                        "</div>";
-                    obj.container = div;
-                    obj.geoCoord = [obj.lon, obj.lat];
-                    obj.showLine = true;
-                    obj.lineDirection = 'left';
-                    obj.positioning = 'bottom-left';
-                    // obj.geoCoord = obj.lon + ',' + obj.lat
-                });
-
-                obj.addMarkers(values);
+        fetch("../test/data/car_2012.json").then(response => response.json()).then(function(values) {
+            values.forEach(obj => {
+                let div = document.createElement("div");
+                div.style.position = "absolute";
+                div.id = "ccc";
+                div.innerHTML =
+                    '<div style="background-color:#ccc;">' +
+                    obj.name +
+                    "</div>";
+                obj.container = div;
+                obj.geoCoord = [obj.lon, obj.lat];
+                obj.showLine = true;
+                obj.lineDirection = 'left';
+                obj.positioning = 'bottom-left';
+                // obj.geoCoord = obj.lon + ',' + obj.lat
             });
+
+            obj.addMarkers(values);
+        });
 
         obj.on("geoSelect", function(data) {
             console.log("getdata:", data);

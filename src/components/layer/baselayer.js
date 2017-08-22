@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-08 20:09:53
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-18 14:47:27
+ * @Last Modified time: 2017-08-22 22:39:34
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\baselayer.js
  * @File Name: baselayer.js
@@ -44,7 +44,6 @@ export default class baseLayer extends mix(base, hyMapStyle) {
         const rStyle = style[type];
         const serie = feature.source.vector.get('serie');
         const symbolSize = serie && serie.symbolSize;
-        const serieType = serie && serie.type;
 
         //判断是否对图形大小进行动态设置
         if (symbolSize && symbolSize[0] != symbolSize[1]) {
@@ -149,6 +148,30 @@ export default class baseLayer extends mix(base, hyMapStyle) {
 
         }
 
+        // if (this.map.getView().getZoom() > 18 && feature.getGeometry() instanceof ol.geom.LineString) {
+
+        //     feature.getGeometry().forEachSegment((start, end) => {
+
+        //         const rotation = this.getAngel(start, end);
+        //         const line = new ol.geom.LineString([start, end]);
+        //         let style = new ol.style.Style({
+        //             geometry: new ol.geom.Point(line.getCoordinateAt(0.33)),
+        //             image: new ol.style.Icon({
+        //                 src: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAATCAMAAACTKxybAAAAA3NCSVQICAjb4U/gAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAHJQTFRF//////8A//8A/6pV/79A/8wz/9Ur/9Eu/8Q7/8wz/9It/8k2/9Eu/8o1/9Av/8o1/84x/8wz/8wz/8wz/8wz/8wz/8s0/8wz/8s0/8wz/8wz/8wz/8wz/8s0/8wz/8wz/8wz/8wz/8wz/8wz/8wz/8wzo2lg3QAAACV0Uk5TAAECAwQFBgsNDxETFhgbHUNGm6Ckqa2usrW+w8fLztLV1tnc9jtYQ+sAAABdSURBVAjXZc9HDsAwCARAp/fee+X/X8wesIQVbiMELEqVU6B0VS8tocZARGvE8Edoi1leD+0Jy+2gI2U5LXRmLLuB7pxl1dBT6N4Fzf+OnJHb5B2ZwMhmpDb+kZ9+tBQLxwwvvoMAAAAASUVORK5CYII=',
+        //                 anchor: [0.75, 0.5],
+        //                 rotateWithView: true,
+        //                 rotation: rotation
+        //             })
+        //         });
+
+        //         let style1 = style.clone();
+        //         style1.setGeometry(new ol.geom.Point(line.getCoordinateAt(0.66)));
+        //         rStyle.push(style);
+        //         rStyle.push(style1);
+
+        //     });
+
+        // }
         return rStyle;
 
     }
@@ -156,6 +179,21 @@ export default class baseLayer extends mix(base, hyMapStyle) {
 
         let a = symbolSize[1] - symbolSize[0] + 1;
         return max / a;
+
+    }
+    getAngel(start, end) {
+
+        var dx = end[0] - start[0];
+        var dy = end[1] - start[1];
+        var rotation = Math.atan2(dy, dx);
+        return -rotation;
+
+    }
+
+    getFeatureById(id) {
+
+        const feature = this.source.getFeatureById(id);
+        return feature;
 
     }
     dispose() {

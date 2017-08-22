@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-17 14:14:29
+ * @Last Modified time: 2017-08-22 22:42:51
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\icon.js
  * @File Name: icon.js
@@ -81,8 +81,8 @@ class icon extends Component {
                     // minZoom: 6, //数据显示最小级别
                     data: values,
                     type: 'point',
-                    symbol: 'icon:test/data/jingli-1.png',
-                    // symbol: 'circle',
+                    // symbol: 'icon:test/data/jingli-1.png',
+                    symbol: 'circle',
                     symbolSize: [20, 30],
                     symbolStyle: {
                         normal: {
@@ -132,7 +132,7 @@ class icon extends Component {
                     console.log('layer1', data);
                 });
                 // console.log(layer1);
-                // layer1.un('click');
+                mapObj.un('click');
                 // layer1.on('unClick', function(data) {
 
                 //     // console.log('layer1uc', data);
@@ -165,7 +165,7 @@ class icon extends Component {
                     },
                     data: values, //{x,y,value}
                     type: 'point', // point|line|polygon|chart|..
-                    symbol: 'circle', //circle|react|icon
+                    symbol: 'circle', //circle|rect|icon
                     symbolSize: '', //[min,max]
                     symbolStyle: {
                         normal: {
@@ -246,7 +246,8 @@ class icon extends Component {
         document.getElementById('filter').addEventListener('click', () => {
             //获取value=4468的feature
             //
-            const feature = mapObj.getFeaturesByProperty('name', '潍坊');
+            // const feature = mapObj.getFeaturesByProperty('name', '潍坊');
+            const feature = mapObj.getFeatureById(1);
             console.log(feature);
             // const xy = feature[0].properties.geoCoord;
             //对feature触发click
@@ -255,9 +256,9 @@ class icon extends Component {
             //     id: feature[0].properties.id
             // });
             //  console.log(mapObj.getPixelFromCoords(xy));
-            feature[0].properties.set(
+            feature[0].set(
                 'value',
-                feature[0].properties.get('value') + 1
+                feature[0].get('value') + 1
             );
         });
 
@@ -297,8 +298,12 @@ class icon extends Component {
         });
 
         document.getElementById('query1').addEventListener('click', () => {
-            mapObj.draw('Box', function(data) {
+            mapObj.draw('LineString', function(data) {
+
                 console.log(data);
+                // data.geometry.setCoordinates([]);
+                // data.selected[5][0][0].source.removeFeature(data.selected[5][0][0]);
+
             });
         });
         document.getElementById('query2').addEventListener('click', () => {
@@ -323,7 +328,7 @@ class icon extends Component {
                 zoom: 9,
                 callback: function() {
                     mapObj.spatialQuery(coo, 10000, queryCallback, {
-                        showRadar: false, //是否显示雷达
+                        showRadar: true, //是否显示雷达
                         // time: 2 //雷达扫描次数 1个圆周为1 默认为-1 即不会消失
                         limitDistance: 50000
                     });
@@ -359,6 +364,12 @@ class icon extends Component {
                 }
             };
         });
+
+        setTimeout(() => {
+            console.log(mapObj.getSeries(5));
+        }, 2000)
+
+
     }
 
     render() {

@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-20 15:55:23
+ * @Last Modified time: 2017-08-19 13:03:32
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\test\container\Earth\rect.js
  * @File Name: rect.js
@@ -30,6 +30,7 @@ class rect extends Component {
             selectedMode: '', //地图区域的选中模式
             theme: { // string('dark'，'blue'，'white')|mapObjectr{mapId,key} 对应maobox中的mapid和access_token
                 mapId: 'zhangyujie.a80cdc83',
+                type: 'mapbox',
                 key: 'sk.eyJ1Ijoiemhhbmd5dWppZSIsImEiOiJkTEp6WDZrIn0.nY5bsQlZegBbb2uGgJ5jEA'
             }, //地图风格 //地图风格
             regions: '', //  name: '',特殊区域的样式
