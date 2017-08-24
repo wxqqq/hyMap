@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-22 22:42:51
+ * @Last Modified time: 2017-08-24 18:25:35
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\icon.js
  * @File Name: icon.js
@@ -58,99 +58,103 @@ class icon extends Component {
                 // return [20, 10];
             }
         });
+        let a;
+        fetch('../test/data/series.json').then(response => response.json()).then(function(values) {
 
-        fetch('../test/data/car_2012.json')
-            .then(response => response.json())
-            .then(function(values) {
-                values.forEach(mapObj => {
-                    mapObj.geoCoord = [
-                        mapObj.lon.toString(),
-                        mapObj.lat.toString()
-                    ];
-                });
-                // values.splice(1,16);
+            a = values;
+            mapObj.addLayer(values)
 
-                const series1 = [{
-                    id: 3,
-                    cluster: {
-                        enable: false, //是否开启聚合
-                        distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
-                        animationDuration: 700 //聚合动画时间，默认为700毫秒
-                    },
-                    // maxZoom: 10, //数据显示最大级别
-                    // minZoom: 6, //数据显示最小级别
-                    data: values,
-                    type: 'point',
-                    // symbol: 'icon:test/data/jingli-1.png',
-                    symbol: 'circle',
-                    symbolSize: [20, 30],
-                    symbolStyle: {
-                        normal: {
-                            anchor: [0.5, 0.5], //图标偏移位置。
-                            // color: 'red'
-                            // symbolSize: [15, 15],
-                            fillColor: 'red', // 'rgb(140,0,140)',
-                            strokeWitdh: 1,
-                            strokeColor: 'rbg(140,0,140)'
-                        },
-                        emphasis: {
-                            strokeWitdh: 2,
-                            fillColor: 'red',
-
-                            symbolSize: [30, 30]
-                        }
-                    },
-                    labelColumn: 'value',
-                    labelSize: [15, 20],
-                    label: {
-                        normal: {
-                            show: false,
-                            textStyle: {
-                                color: '#fff',
-                                fontStyle: 'normal',
-                                fontWeight: 'bold',
-                                fontFamily: 'sans-serif',
-                                fontSize: '16px'
-                            }
-                        },
-                        emphasis: {
-                            show: true,
-                            textStyle: {
-                                fontSize: '16px'
-                            }
-                        }
-                    },
-                    showPopup: false //显示气泡框
-                }];
-
-                let layer1 = mapObj.addLayer({
-                    id: 5,
-                    series: series1
-                });
-
-                layer1.on('click', function(data) {
-                    console.log('layer1', data);
-                });
-                // console.log(layer1);
-                mapObj.un('click');
-                // layer1.on('unClick', function(data) {
-
-                //     // console.log('layer1uc', data);
-
-                // });
-                // layer1.on('hover', function(data) {
-
-                //     // console.log('layer1h', data);
-
-                // });
-                // layer1.on('unHover', function(data) {
-
-                //     // console.log('layer1uh', data);
-
-                // });
-
-                // layer1.un('click');
+        })
+        fetch('../test/data/car_2012.json').then(response => response.json()).then(function(values) {
+            values.forEach(mapObj => {
+                mapObj.geoCoord = [
+                    mapObj.lon.toString(),
+                    mapObj.lat.toString()
+                ];
             });
+            // values.splice(1,16);
+
+            const series1 = [{
+                id: 3,
+                cluster: {
+                    enable: false, //是否开启聚合
+                    distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
+                    animationDuration: 700 //聚合动画时间，默认为700毫秒
+                },
+                // maxZoom: 10, //数据显示最大级别
+                // minZoom: 6, //数据显示最小级别
+                data: values,
+                type: 'point',
+                // symbol: 'icon:test/data/jingli-1.png',
+                symbol: 'circle',
+                symbolSize: [20, 30],
+                symbolStyle: {
+                    normal: {
+                        anchor: [0.5, 0.5], //图标偏移位置。
+                        // color: 'red'
+                        // symbolSize: [15, 15],
+                        fillColor: 'red', // 'rgb(140,0,140)',
+                        strokeWitdh: 1,
+                        strokeColor: 'rbg(140,0,140)'
+                    },
+                    emphasis: {
+                        strokeWitdh: 2,
+                        fillColor: 'red',
+
+                        symbolSize: [30, 30]
+                    }
+                },
+                labelColumn: 'value',
+                labelSize: [15, 20],
+                label: {
+                    normal: {
+                        show: false,
+                        textStyle: {
+                            color: '#fff',
+                            fontStyle: 'normal',
+                            fontWeight: 'bold',
+                            fontFamily: 'sans-serif',
+                            fontSize: '16px'
+                        }
+                    },
+                    emphasis: {
+                        show: true,
+                        textStyle: {
+                            fontSize: '16px'
+                        }
+                    }
+                },
+                showPopup: false //显示气泡框
+            }];
+
+            let layer1 = mapObj.addLayer({
+                id: 5,
+                series: series1
+            });
+
+            layer1.on('click', function(data) {
+                console.log('layer1', data);
+            });
+            // console.log(layer1);
+            mapObj.un('click');
+            // layer1.on('unClick', function(data) {
+
+            //     // console.log('layer1uc', data);
+
+            // });
+            // layer1.on('hover', function(data) {
+
+            //     // console.log('layer1h', data);
+
+            // });
+            // layer1.on('unHover', function(data) {
+
+            //     // console.log('layer1uh', data);
+
+            // });
+
+            // layer1.un('click');
+        });
         fetch('../test/data/station.json')
             .then(response => response.json())
             .then(function(values) {
@@ -210,6 +214,9 @@ class icon extends Component {
             console.log('getdata:', data);
         });
         mapObj.on('drawClear', function(data) {
+            console.log('getdata:', data);
+        });
+        mapObj.on('drawStart', function(data) {
             console.log('getdata:', data);
         });
         // mapObj.on('unClick', function(data) {
@@ -293,6 +300,7 @@ class icon extends Component {
         });
         document.getElementById('query').addEventListener('click', () => {
             mapObj.draw('Circle', function(data) {
+                mapObj.updateLayer(a);
                 console.log(data);
             });
         });

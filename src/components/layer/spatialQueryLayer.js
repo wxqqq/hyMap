@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-23 20:14:54
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-22 23:45:22
+ * @Last Modified time: 2017-08-24 15:13:12
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\spatialQueryLayer.js
  * @File Name: spatialQueryLayer.js
@@ -116,7 +116,7 @@ export default class spatialQueryLayer extends baseLayer {
             stopEvent: false,
             id: 'h_cm' + new Date().getTime()
         });
-        this.map.addOverlay(this.closeMarker)
+        this.map.addOverlay(this.closeMarker);
         this.marker = new ol.Feature();
         this.marker.setStyle((feature, resolution) => {
 
@@ -132,9 +132,12 @@ export default class spatialQueryLayer extends baseLayer {
 
         translate.on('translatestart', (evt) => {
 
-
             this.map.un('postcompose', this.drawRender, this);
-
+            this.dispatchEvent({
+                type: 'drawStart',
+                selected: this.feature.get('queryResult'),
+                feature: this.feature
+            });
         });
 
         translate.on('translating', (evt) => {
@@ -292,7 +295,6 @@ export default class spatialQueryLayer extends baseLayer {
 
     drawRender(evt) {
 
-
         // ctx.clearRect()
         if (this.time > 0 && this.ra > this.time * this.rotate * 2) {
 
@@ -433,7 +435,6 @@ export default class spatialQueryLayer extends baseLayer {
 
             } else {
 
-
                 result[layers.get('id')] = array;
                 let featureArray1 = [];
                 layers.getSource().forEachFeature((feature) => {
@@ -450,7 +451,6 @@ export default class spatialQueryLayer extends baseLayer {
                         }
                         feature.set('pixel', this.map.getPixelFromCoordinate(coords));
                         featureArray1.push(feature);
-
 
                     }
 
@@ -534,6 +534,11 @@ export default class spatialQueryLayer extends baseLayer {
      */
     createDraw(type, fun) {
 
+        this.dispatchEvent({
+            type: 'drawStart',
+            selected: this.feature.get('queryResult'),
+            feature: this.feature
+        });
         this.clear();
         fun && this.setQueryFun(fun);
 
@@ -546,24 +551,9 @@ export default class spatialQueryLayer extends baseLayer {
 
         } else if (type === 'Box') {
 
-            type = 'LineString';
+            type = 'Circle';
             maxPoints = 2;
-            geometryFunction = function(coordinates, geometry) {
-
-                if (!geometry) {
-
-                    geometry = new ol.geom.Polygon(null);
-
-                }
-                var start = coordinates[0];
-                var end = coordinates[1];
-                geometry.setCoordinates([
-                    [start, [start[0], end[1]], end, [end[0], start[1]], start]
-                ]);
-                return geometry;
-
-            };
-
+            geometryFunction = ol.interaction.Draw.createBox();
         }
         this.draw = new ol.interaction.Draw({
             source: this.source,

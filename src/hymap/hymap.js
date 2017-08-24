@@ -1142,6 +1142,7 @@ export default class hyMap extends hytooltip {
     draw(type, callback) {
 
         this.clickSelect.getFeatures().clear();
+
         this.queryCircle.setQueryFun(result => {
 
             this.clearTrackInfo();
@@ -1174,6 +1175,7 @@ export default class hyMap extends hytooltip {
     name: '天津市和平区'
      */
     dispatchAction(evt) {
+
         let feature = this.getFeature(evt.id);
         const geoType = this.geoType_[evt.type]['arrayType'];
         let e = {
@@ -1188,6 +1190,7 @@ export default class hyMap extends hytooltip {
      * @return {null} [description]
      */
     dispose() {
+
         this._dom.innerHTML = '';
         this.removeLayers();
         this.removeOverlays();
