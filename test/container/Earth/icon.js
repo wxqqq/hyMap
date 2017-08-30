@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-09 13:52:30
+ * @Last Modified time: 2017-08-30 18:47:15
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\icon.js
  * @File Name: icon.js
@@ -16,15 +16,16 @@ import map from '../../../src/index';
 
 class icon extends Component {
     componentDidMount() {
+
         let mapObj = map.init(document.getElementById('map'));
         let options = {
-            serverUrl: 'http://192.168.11.50:8080/geoserver',
+            serverUrl: 'http://192.168.1.50:8080/geoserver',
             show: true, //地图的显示状态 true为显示 false 为不显示
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 6, //当前地图缩放比例
             scaleLimit: [3, 20], //滚轮缩放的边界
-            theme: 'white', //地图风格/地图风格
+            theme: 'dark', //地图风格/地图风格
             series: []
         };
         const series = [];
@@ -45,28 +46,10 @@ class icon extends Component {
             formatter: function(param, dom) {
                 //div内的内容
 
-                console.log(param, dom);
                 dom = document.createElement('div');
-                let str =
-                    '<a id=1>sss</a>' + param.dataIndex + ': ' + param.value;
+                let str = '<a id=1>sss</a>' + param.dataIndex + ': ' + param.value;
                 // return str;
             },
-            on: [{
-                type: 'click',
-                function(event) {
-                    console.log(event);
-                }
-            }, {
-                type: 'mouseover',
-                function(event) {
-                    console.log(event);
-                }
-            }, {
-                type: 'mouseout',
-                function(event) {
-                    console.log(event);
-                }
-            }],
             position: function() {
                 //相对于当前事件点的位置
 
@@ -74,143 +57,145 @@ class icon extends Component {
                 // return [20, 10];
             }
         });
+        let a;
+        fetch('../test/data/series.json').then(response => response.json()).then(function(values) {
 
-        fetch('../test/data/car_2012.json')
-            .then(response => response.json())
-            .then(function(values) {
-                values.forEach(mapObj => {
-                    mapObj.geoCoord = [
-                        mapObj.lon.toString(),
-                        mapObj.lat.toString()
-                    ];
-                });
-                // values.splice(1,16);
+            a = values;
+            mapObj.addLayer(values)
 
-                const series1 = [{
-                    id: 3,
-                    cluster: {
-                        enable: false, //是否开启聚合
-                        distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
-                        animationDuration: 700 //聚合动画时间，默认为700毫秒
-                    },
-                    // maxZoom: 10, //数据显示最大级别
-                    // minZoom: 6, //数据显示最小级别
-                    data: values,
-                    type: 'point',
-                    symbol: 'icon:test/data/jingli-1.png',
-                    // symbol: 'circle',
-                    symbolSize: [20, 30],
-                    symbolStyle: {
-                        normal: {
-                            anchor: [0.5, 0.5], //图标偏移位置。
-                            // color: 'red'
-                            // symbolSize: [15, 15],
-                            fillColor: 'red', // 'rgb(140,0,140)',
-                            strokeWitdh: 1,
-                            strokeColor: 'rbg(140,0,140)'
-                        },
-                        emphasis: {
-                            strokeWitdh: 2,
-                            fillColor: 'red',
-
-                            symbolSize: [30, 30]
-                        }
-                    },
-                    labelColumn: 'value',
-                    labelSize: [15, 20],
-                    label: {
-                        normal: {
-                            show: false,
-                            textStyle: {
-                                color: '#fff',
-                                fontStyle: 'normal',
-                                fontWeight: 'bold',
-                                fontFamily: 'sans-serif',
-                                fontSize: '16px'
-                            }
-                        },
-                        emphasis: {
-                            show: true,
-                            textStyle: {
-                                fontSize: '16px'
-                            }
-                        }
-                    },
-                    showPopup: false //显示气泡框
-                }];
-
-                let layer1 = mapObj.addLayer({
-                    id: 5,
-                    series: series1
-                });
-
-                layer1.on('click', function(data) {
-                    console.log('layer1', data);
-                });
-                // console.log(layer1);
-                // layer1.un('click');
-                // layer1.on('unClick', function(data) {
-
-                //     // console.log('layer1uc', data);
-
-                // });
-                // layer1.on('hover', function(data) {
-
-                //     // console.log('layer1h', data);
-
-                // });
-                // layer1.on('unHover', function(data) {
-
-                //     // console.log('layer1uh', data);
-
-                // });
-
-                // layer1.un('click');
+        })
+        fetch('../test/data/car_2012.json').then(response => response.json()).then(function(values) {
+            values.forEach(mapObj => {
+                mapObj.geoCoord = [
+                    mapObj.lon.toString(),
+                    mapObj.lat.toString()
+                ];
             });
-        fetch('../test/data/station.json')
-            .then(response => response.json())
-            .then(function(values) {
-                values.forEach(mapObj => {
-                    mapObj.geoCoord = [mapObj.lon, mapObj.lat];
-                });
-                series.push({
-                    cluster: {
-                        enable: false, //是否开启聚合
-                        distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
-                        animationDuration: 700 //聚合动画时间，默认为700毫秒
+            // values.splice(1,16);
+
+            const series1 = [{
+                id: 3,
+                cluster: {
+                    enable: false, //是否开启聚合
+                    distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
+                    animationDuration: 700 //聚合动画时间，默认为700毫秒
+                },
+                // maxZoom: 10, //数据显示最大级别
+                // minZoom: 6, //数据显示最小级别
+                data: values,
+                type: 'point',
+                // symbol: 'icon:test/data/jingli-1.png',
+                symbol: 'circle',
+                symbolSize: [10, 20],
+                symbolStyle: {
+                    normal: {
+                        anchor: [0.5, 0.5], //图标偏移位置。
+                        // color: 'red'
+                        // symbolSize: [15, 15],
+                        fillColor: 'red', // 'rgb(140,0,140)',
+                        strokeWitdh: 1,
+                        strokeColor: 'rbg(140,0,140)'
                     },
-                    data: values, //{x,y,value}
-                    type: 'point', // point|line|polygon|chart|..
-                    symbol: 'circle', //circle|react|icon
-                    symbolSize: '', //[min,max]
-                    symbolStyle: {
-                        normal: {
-                            symbolSize: [6, 6],
-                            strokeWidth: 1,
-                            strokeColor: 'black',
-                            fillColor: 'orange'
-                        },
-                        emphasis: {
-                            symbolSize: 7,
-                            strokeWidth: 1,
-                            strokeColor: '#fff',
-                            fillColor: 'blue'
+                    emphasis: {
+                        strokeWitdh: 2,
+                        fillColor: 'red',
+
+                        symbolSize: [30, 30]
+                    }
+                },
+                labelColumn: 'name',
+                labelSize: [10, 20],
+                label: {
+                    normal: {
+                        show: false,
+                        textStyle: {
+                            color: '#fff',
+                            fontStyle: 'normal',
+                            fontWeight: 'bold',
+                            fontFamily: 'sans-serif',
+                            fontSize: '55px'
                         }
                     },
-                    // maxZoom: 5,
-                    // minZoom: 3,
-                    contextmenu: true,
-                    showPopup: false
-                });
+                    emphasis: {
+                        show: true,
+                        textStyle: {
+                            fontSize: '16px'
+                        }
+                    }
+                },
+                showPopup: false //显示气泡框
+            }];
 
-                let layer2 = mapObj.addLayer(
-                    series: series
-                );
-
-                // layer2[0].on('click', function(data) {
-                //     console.log('layer2:', data);
-                // });
+            let layer1 = mapObj.addLayer({
+                id: 5,
+                series: series1
             });
+
+            layer1.on('click', function(data) {
+                console.log('layer1', data);
+            });
+            // console.log(layer1);
+            mapObj.un('click');
+            // layer1.on('unClick', function(data) {
+
+            //     // console.log('layer1uc', data);
+
+            // });
+            // layer1.on('hover', function(data) {
+
+            //     // console.log('layer1h', data);
+
+            // });
+            // layer1.on('unHover', function(data) {
+
+            //     // console.log('layer1uh', data);
+
+            // });
+
+            // layer1.un('click');
+        });
+        fetch('../test/data/station.json').then(response => response.json()).then(function(values) {
+            values.forEach(mapObj => {
+                mapObj.geoCoord = [mapObj.lon, mapObj.lat];
+            });
+            series.push({
+                cluster: {
+                    enable: false, //是否开启聚合
+                    distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
+                    animationDuration: 700 //聚合动画时间，默认为700毫秒
+                },
+                data: values, //{x,y,value}
+                type: 'point', // point|line|polygon|chart|..
+                symbol: 'circle', //circle|rect|icon
+                symbolSize: '', //[min,max]
+                symbolStyle: {
+                    normal: {
+                        symbolSize: [6, 6],
+                        strokeWidth: 1,
+                        strokeColor: 'black',
+                        fillColor: 'orange'
+                    },
+                    emphasis: {
+                        symbolSize: 7,
+                        strokeWidth: 1,
+                        strokeColor: '#fff',
+                        fillColor: 'blue'
+                    }
+                },
+                // maxZoom: 5,
+                // minZoom: 3,
+                contextmenu: true,
+                showPopup: false
+            });
+
+            // let layer2 = mapObj.addLayer(
+            //     series: series
+            // );
+
+            // layer2[0].on('click', function(data) {
+            //     console.log('layer2:', data);
+            // });
+        });
         // mapObj.on('geoSelect', function(data) {
 
         //     console.log('getdata:', data);
@@ -226,6 +211,9 @@ class icon extends Component {
             console.log('getdata:', data);
         });
         mapObj.on('drawClear', function(data) {
+            console.log('getdata:', data);
+        });
+        mapObj.on('drawStart', function(data) {
             console.log('getdata:', data);
         });
         // mapObj.on('unClick', function(data) {
@@ -262,7 +250,8 @@ class icon extends Component {
         document.getElementById('filter').addEventListener('click', () => {
             //获取value=4468的feature
             //
-            const feature = mapObj.getFeaturesByProperty('name', '潍坊');
+            // const feature = mapObj.getFeaturesByProperty('name', '潍坊');
+            const feature = mapObj.getFeatureById(1);
             console.log(feature);
             // const xy = feature[0].properties.geoCoord;
             //对feature触发click
@@ -271,9 +260,9 @@ class icon extends Component {
             //     id: feature[0].properties.id
             // });
             //  console.log(mapObj.getPixelFromCoords(xy));
-            feature[0].properties.set(
+            feature[0].set(
                 'value',
-                feature[0].properties.get('value') + 1
+                feature[0].get('value') + 1
             );
         });
 
@@ -308,13 +297,30 @@ class icon extends Component {
         });
         document.getElementById('query').addEventListener('click', () => {
             mapObj.draw('Circle', function(data) {
+
+                // mapObj.updateLayer(a);
                 console.log(data);
+
+
+                // 
+                // data.selected.forEach()
             });
+
+            setTimeout(() => {
+
+                // mapObj.changeRadius(50000);
+
+            }, 5000);
+
         });
 
         document.getElementById('query1').addEventListener('click', () => {
-            mapObj.draw('Box', function(data) {
+            mapObj.draw('LineString', function(data) {
+
                 console.log(data);
+                // data.geometry.setCoordinates([]);
+                // data.selected[5][0][0].source.removeFeature(data.selected[5][0][0]);
+
             });
         });
         document.getElementById('query2').addEventListener('click', () => {
@@ -339,7 +345,7 @@ class icon extends Component {
                 zoom: 9,
                 callback: function() {
                     mapObj.spatialQuery(coo, 10000, queryCallback, {
-                        showRadar: false, //是否显示雷达
+                        showRadar: true, //是否显示雷达
                         // time: 2 //雷达扫描次数 1个圆周为1 默认为-1 即不会消失
                         limitDistance: 50000
                     });
@@ -358,7 +364,7 @@ class icon extends Component {
                                     .get('geoCoord');
                             }
                             mapObj.drawTrack(coord, coo, {
-                                isCustom: false,
+                                isCustom: true,
                                 tooltipFun: function(data, obj) {
                                     const length = (data.length / 1000).toFixed(
                                         1
@@ -375,6 +381,12 @@ class icon extends Component {
                 }
             };
         });
+
+        setTimeout(() => {
+            console.log(mapObj.getSeries(5));
+        }, 2000)
+
+
     }
 
     render() {

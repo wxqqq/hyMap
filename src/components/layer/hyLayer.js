@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:02:10
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-09 13:35:52
+ * @Last Modified time: 2017-08-22 22:39:44
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\hyLayer.js
  * @File Name: hyLayer.js
@@ -37,73 +37,6 @@ export default class hylayer extends baseLayer {
 
     }
     remove() {
-
-    }
-    update(serie) {
-
-        let newserie = baseUtil.clone(serieModel);
-        baseUtil.merge(newserie, serie, true);
-        serie = newserie;
-        const style = this._createFeatureStyle(serie);
-        this.layer.set('fstyle', style);
-        this.layer.set('serie', serie);
-        const data = serie.data;
-        let source = this.layer.getSource();
-        //聚合图层的source为两层，进行判断获取到最底层的source
-        if (source instanceof ol.layer.AnimatedCluster) {
-
-            source = source.getSource();
-
-        }
-
-        let addData = [];
-        let updateData = new Map();
-        let strMap = new Map();
-
-        for (let k of Object.keys(data)) {
-
-            strMap.set('serie|' + data[k].geoCoord, data[k]);
-
-        }
-        //目标数据遍历，找到的更新，未找到的删除。
-        source.forEachFeature(function(feature) {
-
-            const geoCoord = feature.getId();
-            if (strMap.has(geoCoord)) {
-
-                const value = strMap.get(geoCoord);
-                feature.setProperties(value);
-                updateData.set('serie|' + value.geoCoord, value);
-
-            } else {
-
-                // console.info('update_rmData', feature);
-                source.removeFeature(feature);
-
-            }
-
-        });
-        //找到的数据进行更新，未找到的准备新增。
-
-        data.map((value) => {
-
-            if (!updateData.has(value.geoCoord)) {
-
-                addData.push(value);
-
-            }
-
-        });
-
-        //增加数据.
-        if (addData.length > 0) {
-
-            const featuresObj = hyFeature.getFeatures(addData, serie.type);
-            //获取feature数组
-            const array = featuresObj.features;
-            this.layer.getSource().addFeatures(array);
-
-        }
 
     }
 
@@ -286,6 +219,21 @@ export default class hylayer extends baseLayer {
         source.set('maxValue', featuresObj.max);
         source.set('minValue', featuresObj.min);
         source.set('data', serie.data);
+
+        source.on('removefeature', (evt) => {
+
+            let dataArray = evt.target.vector.get('serie').data;
+            dataArray.forEach((data, index) => {
+
+                if (data.id == evt.feature.get('id')) {
+
+                    dataArray.splice(index, 1);
+                    return
+                }
+
+            })
+
+        });
         source.on('addfeature', (evt) => {
 
             evt.feature.source = evt.target;
@@ -359,128 +307,6 @@ export default class hylayer extends baseLayer {
         //          },2000)
         // })
         return vector;
-
-    }
-
-    /**
-     * style回调方法
-     * @param  {ol.feature} feature    [description]
-     * @param  {array} resolution [description]
-     * @param  {String} type  样式类型     [description]
-     * @return {Style}  显示的定义样式
-     */
-    _geoStyleFn(feature, resolution, type = 'normal') {
-
-        const style = feature.get('style') || feature.source.vector.get('fstyle');
-        const rStyle = style[type];
-        const serie = feature.source.vector.get('serie');
-        const symbolSize = serie && serie.symbolSize;
-        const serieType = serie && serie.type;
-
-        //判断是否对图形大小进行动态设置
-        if (symbolSize && symbolSize[0] != symbolSize[1]) {
-
-            let geoScaleNum = this._scaleSize(symbolSize, feature.source.get('minValue'), feature.source.get('maxValue'));
-            let value = feature.get('value') || 0;
-            //对数据进行判断，
-            if (feature.source instanceof ol.source.Cluster) {
-
-                geoScaleNum = this._scaleSize(symbolSize, feature.source.getSource().get('minValue'), feature.source.getSource().get('maxValue'));
-
-                const features = feature.get('features');
-
-                if (features) {
-
-                    features.forEach((feature) => {
-
-                        let fValue = feature.get('value');
-                        if (fValue > value) {
-
-                            value = fValue;
-
-                        }
-
-                    });
-
-                } else {
-
-                    value = feature.get('value');
-
-                }
-
-            }
-            const scale = Math.floor(value / geoScaleNum);
-            const icon = rStyle[0].getImage();
-            if (icon) {
-
-                if (icon instanceof ol.style.Icon) {
-
-                    icon.setScale((symbolSize[0] + scale) / (symbolSize[0] / icon.relScale));
-
-                } else {
-
-                    icon.setRadius(scale + symbolSize[0]);
-
-                }
-
-            }
-
-        }
-
-        //判断是否需要进行文本标签显示
-        const text = rStyle[1].getText();
-        if (text && text.show) {
-
-            const textSize = serie && serie.labelSize;
-            const column = serie && serie.labelColumn || 'value';
-            let value = '';
-            let textScaleNum = this._scaleSize(textSize, feature.source.get('minValue'), feature.source.get('maxValue'));
-
-            if (feature.source instanceof ol.source.Cluster) {
-
-                textScaleNum = this._scaleSize(textSize, feature.source.getSource().get('minValue'), feature.source.getSource().get('maxValue'));
-
-                const features = feature.get('features');
-
-                if (features) {
-
-                    features.forEach((feature) => {
-
-                        let fValue = feature.get(column);
-                        if (fValue > value) {
-
-                            value = fValue;
-
-                        }
-
-                    });
-
-                } else {
-
-                    value = feature.get(column);
-
-                }
-
-            } else {
-
-                value = feature.get(column);
-
-            }
-            text.setText(value.toString());
-            if (textSize && textSize[0] != textSize[1]) {
-
-                const font = text.getFont().split(' ');
-                const value = feature.get(column);
-                const scale = Math.floor(value / textScaleNum);
-                const newFont = scale + textSize[0] - 1;
-                font[2] = newFont + 'pt';
-                text.setFont(font.join(' '));
-
-            }
-
-        }
-
-        return rStyle;
 
     }
 
@@ -728,6 +554,74 @@ export default class hylayer extends baseLayer {
         if (value < min) {
 
             source.set('minValue', value);
+
+        }
+
+    }
+    update(serie) {
+
+        let newserie = baseUtil.clone(serieModel);
+        baseUtil.merge(newserie, serie, true);
+        serie = newserie;
+        const style = this._createFeatureStyle(serie);
+        this.layer.set('fstyle', style);
+        this.layer.set('serie', serie);
+        const data = serie.data;
+        let source = this.layer.getSource();
+        //聚合图层的source为两层，进行判断获取到最底层的source
+        if (source instanceof ol.layer.AnimatedCluster) {
+
+            source = source.getSource();
+
+        }
+
+        let addData = [];
+        let updateData = new Map();
+        let strMap = new Map();
+
+        for (let k of Object.keys(data)) {
+
+            let id = data[k].id || 'serie|' + data[k].geoCoord;
+            strMap.set(id, data[k]);
+
+        }
+        //目标数据遍历，找到的更新，未找到的删除。
+        source.forEachFeature(function(feature) {
+
+            const id = feature.getId();
+            if (strMap.has(id)) {
+
+                const value = strMap.get(id);
+                feature.setProperties(value);
+                updateData.set(id, value);
+
+            } else {
+
+                // console.info('update_rmData', feature);
+                source.removeFeature(feature);
+
+            }
+
+        });
+        //找到的数据进行更新，未找到的准备新增。
+
+        data.map((value) => {
+
+            if (!updateData.has(value.geoCoord)) {
+
+                addData.push(value);
+
+            }
+
+        });
+
+        //增加数据.
+        if (addData.length > 0) {
+
+            const featuresObj = hyFeature.getFeatures(addData, serie.type);
+            //获取feature数组
+            const array = featuresObj.features;
+            this.layer.getSource().addFeatures(array);
 
         }
 

@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-18 09:51:02
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-07 11:48:57
+ * @Last Modified time: 2017-08-22 19:26:11
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\feature\hyFeature.js
  * @File Name: hyFeature.js
@@ -69,8 +69,8 @@ export default class hyFeature {
 
         });
         feature.setProperties(data);
-
-        feature.setId('serie|' + data.geoCoord);
+        let id = data.id || 'serie|' + data.geoCoord;
+        feature.setId(id);
         // const featurestyle = this._createGeoStyle(serie.itemStyle, serie.label);
         // feature.set('style', featurestyle);
         // 
@@ -112,7 +112,7 @@ export default class hyFeature {
 
         } else if (type == 'polygon') {
 
-            geometry = new ol.geom.Polygon(coords);
+            geometry = new ol.geom.Polygon([coords]);
 
         } else {
 

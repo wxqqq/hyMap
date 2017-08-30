@@ -217,7 +217,7 @@ options:
 ### 2.2 实例方法 <a name="instance.method"></a>
 
 2. 注册事件 
-eventName:''click'|'unClick'|'contexmenu'|'tooltipclick'|'mouseover'
+eventName:''click'|'unClick'|'contexmenu'|'tooltipclick'|'mouseover'|'drawStart'
 
 ```
 instance.on(eventName, handler)  

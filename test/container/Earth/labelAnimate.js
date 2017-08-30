@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-14 10:39:57
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-14 16:39:31
+ * @Last Modified time: 2017-08-29 18:27:15
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\labelAnimate.js
  * @File Name: labelAnimate.js
@@ -33,104 +33,145 @@ class labelAnimate extends Component {
             label: '', //文本标签样式
             series: []
         };
+        obj.setOption(options);
+        obj.setTooltip({
+            show: false,
+            trigger: ['item'], // item、map  ['item', 'geo']
+            triggeron: 'click', //'click', // click, mouseover, mousemove, dblclick , ['click'],
+            enterable: true, //true 鼠标是否可进入浮出泡泡框中
+            style: {
+                'border-color': '#cc0',
+                'border-radius': '5',
+                'border-width': '2',
+                'border-style': 'solid',
+                width: '80',
+                height: '30'
+            },
+            formatter: function(param) {
+                //div内的内容
+
+                return param.dataIndex + ': ' + param.value;
+            },
+            position: function() {
+                //相对于当前事件点的位置
+
+                return [0, 0];
+                // return [20, 10];
+            }
+        });
         let series = [];
-        fetch('../test/data/car_2012.json')
-            .then(response => response.json())
-            .then(function(values) {
-                values.forEach(obj => {
-                    obj.geoCoord = [obj.lon, obj.lat];
-                });
+        fetch('../test/data/car_2012.json').then(response => response.json()).then(function(values) {
+            values.forEach(obj => {
+                obj.geoCoord = [obj.lon, obj.lat];
+            });
 
-                series.push({
-                    id: 3,
-                    // cluster: {
-                    //     enable: false, //是否开启聚合
-                    //     distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
-                    //     animationDuration: 700 //聚合动画时间，默认为700毫秒
-                    // },
-                    // maxZoom: 10, //数据显示最大级别
-                    // minZoom: 6, //数据显示最小级别
-                    data: values,
-                    // type: 'point',
-                    // symbol: 'icon:test/data/test.png',
-                    // symbolSize: [10, 20],
-                    // symbolStyle: {
-                    // normal: {
-                    // symbolSize: [15, 15],
-                    // fillColor: 'rgb(140,0,140)',
-                    // strokeWitdh: 1,
-                    // strokeColor: 'rbg(140,0,140)'
-                    // },
-                    // emphasis: {
-                    // strokeWitdh: 2,
-                    // symbolSize: [20, 30],
-                    // }
-                    // },
-                    /******************新增属性**************************** */
-                    labelColumn: 'value', //显示的字段名称
-                    labelAnimate: {
-                        enable: 'true', //是否开启动画
-                        period: 1 //动画时间 单位 秒
-                    },
+            series.push({
+                id: 3,
+                data: values,
+                /******************新增属性**************************** */
+                labelColumn: 'value', //显示的字段名称
+                labelAnimate: {
+                    enable: 'true', //是否开启动画
+                    period: 1 //动画时间 单位 秒
+                },
 
-                    labelSize: [15, 40], //单位 pt
-                    /*******************新增属性*************************** */
-                    label: {
-                        normal: {
-                            show: true,
-                            textStyle: {
-                                color: 'red',
-                                textAlign: 'center', //文字对齐方式：'left', 'right', 'center', 'end' or 'start'
-                                offsetX: 0, //x轴偏移
-                                offsetY: 15, //y轴偏移
-                                rotation: 0, //旋转角度 360 顺时针 number
-                                fontStyle: 'normal',
-                                fontWeight: 'bold',
-                                fontFamily: 'sans-serif',
-                                fontSize: '30pt'
-                            }
-                        },
-                        emphasis: {
-                            show: true,
-                            textStyle: {
-                                color: 'green'
-                            }
+                labelSize: [15, 40], //单位 pt
+                /*******************新增属性*************************** */
+                label: {
+                    normal: {
+                        show: true,
+                        textStyle: {
+                            color: 'red',
+                            textAlign: 'center', //文字对齐方式：'left', 'right', 'center', 'end' or 'start'
+                            offsetX: 0, //x轴偏移
+                            offsetY: 15, //y轴偏移
+                            rotation: 0, //旋转角度 360 顺时针 number
+                            fontStyle: 'normal',
+                            fontWeight: 'bold',
+                            fontFamily: 'sans-serif',
+                            fontSize: '30pt'
                         }
                     },
-                    showPopup: false //显示气泡框
-                });
-                obj.setOption(options);
-                obj.addLayer({
-                    id: 113,
-                    series: series
-                });
-
-                obj.setTooltip({
-                    show: false,
-                    trigger: ['item'], // item、map  ['item', 'geo']
-                    triggeron: 'click', //'click', // click, mouseover, mousemove, dblclick , ['click'],
-                    enterable: true, //true 鼠标是否可进入浮出泡泡框中
-                    style: {
-                        'border-color': '#cc0',
-                        'border-radius': '5',
-                        'border-width': '2',
-                        'border-style': 'solid',
-                        width: '80',
-                        height: '30'
-                    },
-                    formatter: function(param) {
-                        //div内的内容
-
-                        return param.dataIndex + ': ' + param.value;
-                    },
-                    position: function() {
-                        //相对于当前事件点的位置
-
-                        return [0, 0];
-                        // return [20, 10];
+                    emphasis: {
+                        show: true,
+                        textStyle: {
+                            color: 'green'
+                        }
                     }
-                });
+                },
+                showPopup: false //显示气泡框
             });
+            const s1 = {
+                id: 31,
+                cluster: {
+                    enable: false, //是否开启聚合
+                    distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
+                    animationDuration: 700 //聚合动画时间，默认为700毫秒
+                },
+                // maxZoom: 10, //数据显示最大级别
+                // minZoom: 6, //数据显示最小级别
+                data: [{
+                    name: '潍坊',
+                    id: 1,
+                    lat: 37.6919,
+                    geoCoord: [119.17692, 36.6919],
+                    car: 4301821,
+                    driver: 3484586,
+                    value: value++
+                }],
+                type: 'point',
+                symbol: 'icon:test/data/jingli-1.png',
+                symbolSize: [0, 0],
+                symbolStyle: {
+                    normal: {
+                        symbolSize: [15, 15],
+                        fillColor: 'rgb(140,0,140)',
+                        strokeWitdh: 1,
+                        strokeColor: 'rbg(140,0,140)'
+                    },
+                    emphasis: {
+                        strokeWitdh: 2
+                    }
+                },
+                /******************新增属性**************************** */
+                labelColumn: 'value', //显示的字段名称
+                labelAnimate: {
+                    enable: 'true', //是否开启动画
+                    period: 1 //动画时间 单位 秒
+                },
+
+                labelSize: [12, 40], //单位 pt
+                /*******************新增属性*************************** */
+                label: {
+                    normal: {
+                        show: true,
+                        textStyle: {
+                            color: 'red',
+                            textAlign: 'center', //文字对齐方式：'left', 'right', 'center', 'end' or 'start'
+                            offsetX: 0, //x轴偏移
+                            offsetY: 15, //y轴偏移
+                            // rotation: 0, //旋转角度 360 顺时针 number
+                            // fontStyle: 'normal',
+                            // fontWeight: 'bold',
+                            // fontFamily: 'sans-serif',
+                            fontSize: '30pt'
+                        }
+                    },
+                    emphasis: {
+                        show: true,
+                        textStyle: {}
+                    }
+                },
+                showPopup: false //显示气泡框
+            };
+            series.push(s1);
+            obj.addLayer({
+                id: 113,
+                series: series
+            });
+
+
+        });
         obj.on('geoSelect', function(data) {
             console.log('getdata:', data);
         });
@@ -150,6 +191,7 @@ class labelAnimate extends Component {
         let y = 36.6919;
         let size = 11;
         //筛选
+
         document.getElementById('update').addEventListener('click', () => {
             value++;
 
@@ -179,7 +221,6 @@ class labelAnimate extends Component {
             //         strokeWitdh: 2
             //     }
             // };
-
             // series[0].label = {
             //     'normal': {
             //         show: true,
@@ -269,6 +310,7 @@ class labelAnimate extends Component {
                         showPopup: false //显示气泡框
 
                     }];*/
+
             obj.updateLayer({
                 id: 113,
                 series: series
@@ -283,6 +325,10 @@ class labelAnimate extends Component {
             //         series
             //     });
             // }, 100);
+
+
+            obj.addLayer(a);
+
         });
         document.getElementById('add').addEventListener('click', () => {
             value++;
@@ -363,7 +409,7 @@ class labelAnimate extends Component {
         return (
             <div style={{height:'100%'}}>
                 <div style={{position:'absolute',top:'40px',zIndex:99}}>
-                <input id="update" type="button" value="整体更新数据" />
+                <input id="update" type="button" value="更新数据" />
                 <input id="add" type="button" value="增加" />
                 </div>
                 <div id="map" />

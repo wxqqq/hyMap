@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-27 16:37:06
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-11 17:43:00
+ * @Last Modified time: 2017-08-30 18:05:16
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\view.js
  * @File Name: view.js
@@ -20,7 +20,7 @@ export default class view {
     constructor(geo, map) {
 
         this.map = map;
-        mapTool.map = map;
+
         this._panFunction = function(evt) {
 
             evt.preventDefault();
