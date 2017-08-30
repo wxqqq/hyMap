@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-22 19:40:35
+ * @Last Modified time: 2017-08-30 11:30:20
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\test\container\Earth\mapmethod.js
  * @File Name: mapmethod.js
@@ -63,13 +63,16 @@ class mapmethod extends Component {
             // url: 'http://localhost:8080/all'
             // }, //地图风格
             // center: [117.52359952545166, 49.52355306224895], //当前视角中心: [经度, 纬度]
-            zoom: 5, //当前地图缩放比例
+            zoom: 12, //当前地图缩放比例
             scaleLimit: [2, 18], //滚轮缩放的边界
-            theme: { // string('dark'，'blue'，'white')|mapObjectr{mapId,key} 对应maobox中的mapid和access_token
-                type: 'mapbox',
-                mapId: 'zhangyujie.a80cdc83',
-                key: 'sk.eyJ1Ijoiemhhbmd5dWppZSIsImEiOiJkTEp6WDZrIn0.nY5bsQlZegBbb2uGgJ5jEA'
-            }, //地图风格/地图风格
+            // string('dark'，'blue'，'white')|mapObjectr{mapId,key} 对应maobox中的mapid和access_token
+
+            theme: ['dark',
+                // {
+                // type: 'tile',
+                // url: 'http://192.168.4.35:8080/a/arcgisserver/directories/arcgiscache/TianJin/%E5%9B%BE%E5%B1%82/_alllayers'
+                // }
+            ], //地图风格
             // theme: 'sougou',
             series: []
         };
@@ -84,7 +87,7 @@ class mapmethod extends Component {
             options,
             mapObj: this.mapObj
         });
-        console.log(this.mapObj.getMapOption())
+        // console.log(this.mapObj.getMapOption());
         document.getElementById('loadLayer').addEventListener('click', () => {
 
 
@@ -132,8 +135,9 @@ class mapmethod extends Component {
 
         });
 
-
-
+        setTimeout(() => {
+            this.mapObj.panTo(-1);
+        }, 4000)
     }
 
     onChange(checked, type) {

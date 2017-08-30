@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-08 20:09:53
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-22 22:39:34
+ * @Last Modified time: 2017-08-30 18:03:05
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\baselayer.js
  * @File Name: baselayer.js
@@ -141,7 +141,7 @@ export default class baseLayer extends mix(base, hyMapStyle) {
                 const value = feature.get(column);
                 const scale = Math.floor(value / textScaleNum);
                 const newFont = scale + textSize[0] - 1;
-                font[2] = newFont + 'pt';
+                font[2] = newFont + 'px';
                 text.setFont(font.join(' '));
 
             }

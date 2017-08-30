@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-14 10:39:57
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-24 18:24:14
+ * @Last Modified time: 2017-08-29 18:27:15
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\labelAnimate.js
  * @File Name: labelAnimate.js

@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-21 15:34:25
+ * @Last Modified time: 2017-08-30 09:41:23
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\test\container\Earth\chart.js
  * @File Name: chart.js
@@ -53,8 +53,19 @@ class chart extends Component {
             });
 
             obj.addMarkers(values);
+
+
+
         });
 
+        setTimeout(() => {
+            obj.removeOverlay(1);
+        }, 2000)
+
+        obj.on('removeOverlay', function(data) {
+
+            console.log(data);
+        })
         obj.on("geoSelect", function(data) {
             console.log("getdata:", data);
         });

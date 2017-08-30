@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:03:05
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-18 10:10:27
+ * @Last Modified time: 2017-08-29 13:42:34
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\baseMap.js
  * @File Name: baseMap.js
@@ -76,12 +76,37 @@ export default class baseMap extends base {
 
     }
 
+    initSource(theme) {
+
+        let layers = [];
+
+        if (Array.isArray(theme)) {
+
+            theme.forEach(themeObj => {
+
+                let layer = this._initSource(themeObj);
+
+                layers = layers.concat(layer);
+                // layers = layer
+
+            });
+
+        } else {
+
+            layers = this._initSource(theme);
+
+        }
+
+        return layers;
+
+    }
+
     /**
      * 初始化数据源
      * @param  {string|object}  theme 主题类型
      * @return {source}        source 数据源
      */
-    initSource(theme) {
+    _initSource(theme) {
 
         let layers = [];
         let source = undefined;

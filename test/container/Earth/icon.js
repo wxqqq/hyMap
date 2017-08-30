@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-24 18:25:35
+ * @Last Modified time: 2017-08-30 18:47:15
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\icon.js
  * @File Name: icon.js
@@ -16,6 +16,7 @@ import map from '../../../src/index';
 
 class icon extends Component {
     componentDidMount() {
+
         let mapObj = map.init(document.getElementById('map'));
         let options = {
             serverUrl: 'http://192.168.1.50:8080/geoserver',
@@ -24,7 +25,7 @@ class icon extends Component {
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
             zoom: 6, //当前地图缩放比例
             scaleLimit: [3, 20], //滚轮缩放的边界
-            theme: 'white', //地图风格/地图风格
+            theme: 'dark', //地图风格/地图风格
             series: []
         };
         const series = [];
@@ -45,10 +46,8 @@ class icon extends Component {
             formatter: function(param, dom) {
                 //div内的内容
 
-                console.log(param, dom);
                 dom = document.createElement('div');
-                let str =
-                    '<a id=1>sss</a>' + param.dataIndex + ': ' + param.value;
+                let str = '<a id=1>sss</a>' + param.dataIndex + ': ' + param.value;
                 // return str;
             },
             position: function() {
@@ -87,7 +86,7 @@ class icon extends Component {
                 type: 'point',
                 // symbol: 'icon:test/data/jingli-1.png',
                 symbol: 'circle',
-                symbolSize: [20, 30],
+                symbolSize: [10, 20],
                 symbolStyle: {
                     normal: {
                         anchor: [0.5, 0.5], //图标偏移位置。
@@ -104,8 +103,8 @@ class icon extends Component {
                         symbolSize: [30, 30]
                     }
                 },
-                labelColumn: 'value',
-                labelSize: [15, 20],
+                labelColumn: 'name',
+                labelSize: [10, 20],
                 label: {
                     normal: {
                         show: false,
@@ -114,7 +113,7 @@ class icon extends Component {
                             fontStyle: 'normal',
                             fontWeight: 'bold',
                             fontFamily: 'sans-serif',
-                            fontSize: '16px'
+                            fontSize: '55px'
                         }
                     },
                     emphasis: {
@@ -155,50 +154,48 @@ class icon extends Component {
 
             // layer1.un('click');
         });
-        fetch('../test/data/station.json')
-            .then(response => response.json())
-            .then(function(values) {
-                values.forEach(mapObj => {
-                    mapObj.geoCoord = [mapObj.lon, mapObj.lat];
-                });
-                series.push({
-                    cluster: {
-                        enable: false, //是否开启聚合
-                        distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
-                        animationDuration: 700 //聚合动画时间，默认为700毫秒
-                    },
-                    data: values, //{x,y,value}
-                    type: 'point', // point|line|polygon|chart|..
-                    symbol: 'circle', //circle|rect|icon
-                    symbolSize: '', //[min,max]
-                    symbolStyle: {
-                        normal: {
-                            symbolSize: [6, 6],
-                            strokeWidth: 1,
-                            strokeColor: 'black',
-                            fillColor: 'orange'
-                        },
-                        emphasis: {
-                            symbolSize: 7,
-                            strokeWidth: 1,
-                            strokeColor: '#fff',
-                            fillColor: 'blue'
-                        }
-                    },
-                    // maxZoom: 5,
-                    // minZoom: 3,
-                    contextmenu: true,
-                    showPopup: false
-                });
-
-                let layer2 = mapObj.addLayer(
-                    series: series
-                );
-
-                // layer2[0].on('click', function(data) {
-                //     console.log('layer2:', data);
-                // });
+        fetch('../test/data/station.json').then(response => response.json()).then(function(values) {
+            values.forEach(mapObj => {
+                mapObj.geoCoord = [mapObj.lon, mapObj.lat];
             });
+            series.push({
+                cluster: {
+                    enable: false, //是否开启聚合
+                    distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
+                    animationDuration: 700 //聚合动画时间，默认为700毫秒
+                },
+                data: values, //{x,y,value}
+                type: 'point', // point|line|polygon|chart|..
+                symbol: 'circle', //circle|rect|icon
+                symbolSize: '', //[min,max]
+                symbolStyle: {
+                    normal: {
+                        symbolSize: [6, 6],
+                        strokeWidth: 1,
+                        strokeColor: 'black',
+                        fillColor: 'orange'
+                    },
+                    emphasis: {
+                        symbolSize: 7,
+                        strokeWidth: 1,
+                        strokeColor: '#fff',
+                        fillColor: 'blue'
+                    }
+                },
+                // maxZoom: 5,
+                // minZoom: 3,
+                contextmenu: true,
+                showPopup: false
+            });
+
+            // let layer2 = mapObj.addLayer(
+            //     series: series
+            // );
+
+            // layer2[0].on('click', function(data) {
+            //     console.log('layer2:', data);
+            // });
+        });
         // mapObj.on('geoSelect', function(data) {
 
         //     console.log('getdata:', data);
@@ -300,9 +297,21 @@ class icon extends Component {
         });
         document.getElementById('query').addEventListener('click', () => {
             mapObj.draw('Circle', function(data) {
-                mapObj.updateLayer(a);
+
+                // mapObj.updateLayer(a);
                 console.log(data);
+
+
+                // 
+                // data.selected.forEach()
             });
+
+            setTimeout(() => {
+
+                // mapObj.changeRadius(50000);
+
+            }, 5000);
+
         });
 
         document.getElementById('query1').addEventListener('click', () => {
