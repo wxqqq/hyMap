@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-07-26 11:31:30
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-07 14:23:39
+ * @Last Modified time: 2017-08-31 19:04:54
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\region.js
  * @File Name: region.js
@@ -106,9 +106,41 @@ class region extends Component {
                 name: '山东省',
                 itemStyle: {
                     normal: {
-                        strokeWidth: 1, //边框宽度
+                        strokeWidth: 0, //边框宽度
                         strokeColor: 'blue', //边框颜色
-                        fillColor: '#2a333d'
+                        fillColor: '#006cff'
+                    },
+                    emphasis: {
+                        strokeWidth: 1, //边框宽度
+                        strokeColor: '#B5FF91', //边框颜色
+                        fillColor: 'blue'
+                    }
+                },
+                label: {
+                    normal: {
+                        show: false,
+                        textStyle: {
+                            color: 'red'
+                        }
+                    },
+                    emphasis: {
+                        show: true,
+                        textStyle: {
+                            color: '#B5FF91',
+                            fontStyle: 'italic',
+                            fontWeight: 'bold',
+                            fontFamily: 'sans-serif',
+                            fontSize: '16px'
+                        }
+                    }
+                }
+            }, {
+                name: '北京市',
+                itemStyle: {
+                    normal: {
+                        strokeWidth: 0, //边框宽度
+                        strokeColor: 'blue', //边框颜色
+                        fillColor: '#f42929'
                     },
                     emphasis: {
                         strokeWidth: 1, //边框宽度

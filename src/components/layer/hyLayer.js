@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:02:10
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-22 22:39:44
+ * @Last Modified time: 2017-09-01 15:32:28
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\hyLayer.js
  * @File Name: hyLayer.js
@@ -28,9 +28,9 @@ export default class hylayer extends baseLayer {
     constructor(options) {
 
         super(options);
-        this.map = options.map;
         this.view = this.map.getView();
         this.layer = this.init(options.serie);
+
     }
 
     add() {

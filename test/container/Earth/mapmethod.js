@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-30 11:30:20
+ * @Last Modified time: 2017-08-31 18:44:28
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\test\container\Earth\mapmethod.js
  * @File Name: mapmethod.js
@@ -63,16 +63,17 @@ class mapmethod extends Component {
             // url: 'http://localhost:8080/all'
             // }, //地图风格
             // center: [117.52359952545166, 49.52355306224895], //当前视角中心: [经度, 纬度]
-            zoom: 12, //当前地图缩放比例
+            zoom: 5, //当前地图缩放比例
             scaleLimit: [2, 18], //滚轮缩放的边界
             // string('dark'，'blue'，'white')|mapObjectr{mapId,key} 对应maobox中的mapid和access_token
 
-            theme: ['dark',
-                // {
+            theme: [{
                 // type: 'tile',
                 // url: 'http://192.168.4.35:8080/a/arcgisserver/directories/arcgiscache/TianJin/%E5%9B%BE%E5%B1%82/_alllayers'
-                // }
-            ], //地图风格
+                type: 'mapbox',
+                mapId: 'zhangyujie.a80cdc83',
+                key: 'sk.eyJ1Ijoiemhhbmd5dWppZSIsImEiOiJkTEp6WDZrIn0.nY5bsQlZegBbb2uGgJ5jEA'
+            }], //地图风格
             // theme: 'sougou',
             series: []
         };
@@ -135,9 +136,9 @@ class mapmethod extends Component {
 
         });
 
-        setTimeout(() => {
-            this.mapObj.panTo(-1);
-        }, 4000)
+        // setTimeout(() => {
+        //     this.mapObj.panTo(-1);
+        // }, 4000)
     }
 
     onChange(checked, type) {
@@ -194,8 +195,8 @@ class mapmethod extends Component {
     }
 
     render() {
-        return (
-            <div style={{height:'100%'}}>                       
+            return (
+                    <div style={{height:'100%'}}>                       
                  <div className='map_button'>
                  <div>
                              主题：<RadioGroup onChange={this.onChangeTheme} defaultValue='dark'>
@@ -222,9 +223,7 @@ class mapmethod extends Component {
                                  <input id='loadLayer' type='button' value='加载图层'/>
                             </div>
                              <br/>
-                             </div>
-                            <div id = 'map' ></div>
-                            </div>
+                             </div> < div id = 'map' > < /div> < /div>
         );
 
     }

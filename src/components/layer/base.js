@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-07-26 11:22:13
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-07 14:50:59
+ * @Last Modified time: 2017-09-01 14:02:19
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\base.js
  * @File Name: base.js

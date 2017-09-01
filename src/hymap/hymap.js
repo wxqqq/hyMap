@@ -137,9 +137,9 @@ export default class hyMap extends hytooltip {
         this._createIntercation();
         this._createCircleQuery();
         this._createtrackLayer();
-        // this.hymeasure = new hyMeasure({
-        // map: this.map
-        // });
+        this.hymeasure = new hyMeasure({
+            map: this.map
+        });
 
     }
 
@@ -888,7 +888,6 @@ export default class hyMap extends hytooltip {
             center: newCenter,
             duration: 2000
         });
-        console.log(center, newCenter, moscow);
 
     }
 
@@ -993,7 +992,6 @@ export default class hyMap extends hytooltip {
     }
 
 
-
     /**
      * 绘制轨迹（依赖路网数据,目前仅提供济南市的测试数据。）
      * @param  {Array} start             起始点
@@ -1011,6 +1009,7 @@ export default class hyMap extends hytooltip {
         } = {}
     ) {
         if (!start || !end) {
+
             return;
         }
         //起始点一致，不进行查询
@@ -1038,84 +1037,80 @@ export default class hyMap extends hytooltip {
         // start: start,
         // end: new ol.format.WKT().writeGeometry(end.getGeometry().clone().transform('EPSG:3857', "EPSG:4326"))
         // });
-        fetch(
-                url, {
-                    // mode: "cors",
-                    // headers: {
-                    // "Content-Type": "application/x-www-form-urlencoded",
-                    // 'Content-Type': 'application/json'
-                    // },
-                    // method: 'POST',
-                    // body: data
-                }
-            )
-            .then(response => {
-                return response.json();
-            })
-            .then(data => {
-                let features = new ol.format.GeoJSON().readFeatures(data, {
-                    featureProjection: 'EPSG:3857'
-                });
+        fetch(url, {
+            // mode: "cors",
+            // headers: {
+            // "Content-Type": "application/x-www-form-urlencoded",
+            // 'Content-Type': 'application/json'
+            // },
+            // method: 'POST',
+            // body: data
+        }).then(response => {
+            return response.json();
+        }).then(data => {
+            let features = new ol.format.GeoJSON().readFeatures(data, {
+                featureProjection: 'EPSG:3857'
+            });
 
-                let feature = features[0];
+            let feature = features[0];
 
-                var wgs84Sphere = new ol.Sphere(6378137);
-                let first = ol.proj.transform(
-                    feature.getGeometry().getFirstCoordinate(),
-                    'EPSG:3857',
-                    'EPSG:4326'
+            var wgs84Sphere = new ol.Sphere(6378137);
+            let first = ol.proj.transform(
+                feature.getGeometry().getFirstCoordinate(),
+                'EPSG:3857',
+                'EPSG:4326'
+            );
+            let last = ol.proj.transform(
+                feature.getGeometry().getLastCoordinate(),
+                'EPSG:3857',
+                'EPSG:4326'
+            );
+            const dis1 = wgs84Sphere.haversineDistance(start, first);
+            const dis2 = wgs84Sphere.haversineDistance(start, last);
+            let coords = feature.getGeometry().getCoordinates();
+            dis1 > dis2 && coords.reverse(); //反向的路径进行坐标翻转
+            coords.splice(0, 0, mapTool.transform(start)); //加入开始节点
+            coords.push(mapTool.transform(end)); //加入最后节点
+            feature.getGeometry().setCoordinates(coords);
+            if (baseUtil.isFunction(callback)) {
+                callback(features[0]);
+            }
+
+            this.trackLayer.getSource().addFeatures(features);
+
+            if (tooltipFun) {
+
+                const geometry = features[0].getGeometry().clone();
+                const length = geometry.getLength();
+
+                const time = Math.ceil(length / 1000 * 60 / 60);
+                let overlay = this._createTrackOverLay(
+                    start,
+                    null,
+                    isCustom
                 );
-                let last = ol.proj.transform(
-                    feature.getGeometry().getLastCoordinate(),
-                    'EPSG:3857',
-                    'EPSG:4326'
-                );
-                const dis1 = wgs84Sphere.haversineDistance(start, first);
-                const dis2 = wgs84Sphere.haversineDistance(start, last);
-                let coords = feature.getGeometry().getCoordinates();
-                dis1 > dis2 && coords.reverse(); //反向的路径进行坐标翻转
-                coords.splice(0, 0, mapTool.transform(start)); //加入开始节点
-                coords.push(mapTool.transform(end)); //加入最后节点
-                feature.getGeometry().setCoordinates(coords);
-                if (baseUtil.isFunction(callback)) {
-                    callback(features[0]);
-                }
-
-                this.trackLayer.getSource().addFeatures(features);
-
-                if (tooltipFun) {
-                    const geometry = features[0].getGeometry().clone();
-                    const length = geometry.getLength();
-
-                    const time = Math.ceil(length / 1000 * 60 / 60);
-                    let overlay = this._createTrackOverLay(
-                        start,
-                        null,
-                        isCustom
-                    );
-                    let element = overlay.getElement();
-
-                    let str = baseUtil.isFunction(tooltipFun) ? tooltipFun({
-                            length,
-                            time,
-                            element
-                        },
-                        overlay.getElement()
-                    ) : tooltipFun;
-                }
-            })
-            .catch((e) => {
-                let overlay = this._createTrackOverLay(start, null, isCustom);
                 let element = overlay.getElement();
-                baseUtil.isFunction(tooltipFun) ? tooltipFun({
-                        length: 0,
-                        time: 0,
+
+                let str = baseUtil.isFunction(tooltipFun) ? tooltipFun({
+                        length,
+                        time,
                         element
                     },
                     overlay.getElement()
                 ) : tooltipFun;
-                console.info(e);
-            });
+            }
+        }).catch((e) => {
+            let overlay = this._createTrackOverLay(start, null, isCustom);
+            let element = overlay.getElement();
+            baseUtil.isFunction(tooltipFun) ? tooltipFun({
+                    length: 0,
+                    time: 0,
+                    element
+                },
+                overlay.getElement()
+            ) : tooltipFun;
+            console.info(e);
+        });
     }
 
     _createTrackOverLay(coordinate, content, isCustom) {
@@ -1147,7 +1142,6 @@ export default class hyMap extends hytooltip {
 
     }
     _createtrackLayer() {
-        this.queryCircleLayer = this.queryCircle.layer;
 
         let group = new hyLayerGroup({
             map: this.map,
@@ -1194,10 +1188,12 @@ export default class hyMap extends hytooltip {
     }
 
     initgpslayer(options) {
+
         this.gpslayer = new Layer.gpsLayer({
             map: this.map,
             options
         });
+
     }
 
     /**
@@ -1243,11 +1239,13 @@ export default class hyMap extends hytooltip {
         });
 
         this.queryCircle.createDraw(type);
+
     }
 
-    changeRadius(radius) {
+    setRadius(radius) {
 
         this.queryCircle.changeRadius(radius);
+
     }
 
     /**

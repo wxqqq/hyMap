@@ -36,14 +36,14 @@ class line extends Component {
         });
 
 
-        // fetch('../test/data/traffic_lines.json').then(response => response.json()).then(function(values) {
+        fetch('../test/data/traffic_lines.json').then(response => response.json()).then(function(values) {
 
-        //     // values[1].data = [values[1].data[0], values[1].data[1]];
-        //     console.log(values[1])
-        //     options.series = [values[1]];
-        //     obj.setOption(options);
+            // values[1].data = [values[1].data[0], values[1].data[1]];
+            // console.log(values[1])
+            options.series = values;
+            obj.setOption(options);
 
-        // });
+        });
 
 
     }

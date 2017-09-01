@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:03:05
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-29 13:42:34
+ * @Last Modified time: 2017-09-01 14:03:13
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\baseMap.js
  * @File Name: baseMap.js
@@ -237,7 +237,7 @@ export default class baseMap extends base {
         } else if (theme == 'tianditu') {
 
             source = new ol.source.XYZ({
-                url: 'http://t0.tianditu.com/DataServer?T=vec_w&x={x}&y={y}&l={z}'
+                url: 'http://t0.tianditu.com/DataServer?T=img_w&x={x}&y={y}&l={z}'
             });
             // let tian_di_tu_satellite_layer = new ol.layer.Tile({
             //     baseLayer: true,

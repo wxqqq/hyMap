@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-30 09:41:23
+ * @Last Modified time: 2017-08-31 10:27:08
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\test\container\Earth\chart.js
  * @File Name: chart.js
@@ -53,8 +53,6 @@ class chart extends Component {
             });
 
             obj.addMarkers(values);
-
-
 
         });
 

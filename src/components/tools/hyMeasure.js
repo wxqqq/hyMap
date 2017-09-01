@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-15 10:48:02
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-20 10:51:55
+ * @Last Modified time: 2017-08-31 18:45:36
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\tools\hyMeasure.js
  * @File Name: hyMeasure.js
@@ -247,7 +247,7 @@ export default class hyMeasure {
                 color: 'rgba(255, 255, 255, 0.2)'
             }),
             stroke: new ol.style.Stroke({
-                color: 'rgba(0, 0, 0, 0.5)',
+                color: 'green',
                 lineDash: [10, 10],
                 width: 2
             }),
