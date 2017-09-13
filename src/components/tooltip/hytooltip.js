@@ -437,7 +437,7 @@ export default class hytooltip extends hyMapStyle {
 
             unSelFeature.source.vector.dispatchEvent(event);
 
-            // this.dispatchEvent(event);
+            this.dispatchEvent(event);
 
         }
         if (selFeatures && selFeatures.length > 0) {
