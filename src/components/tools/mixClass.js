@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-07-13 09:53:04
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-13 13:59:14
+ * @Last Modified time: 2017-09-05 14:45:38
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\tools\mixClass.js
  * @File Name: mixClass.js
@@ -10,25 +10,46 @@
  */
 'use strict';
 
-function mix(...mixins) {
-    class Mix {}
+let mix = (baseClass, ...mixins) => {
 
-    for (let mixin of mixins) {
-        copyProperties(Mix, mixin);
-        copyProperties(Mix.prototype, mixin.prototype);
-    }
+    let base = class _Combined extends baseClass {
+        constructor(...args) {
 
-    return Mix;
-}
+            super(...args);
 
-function copyProperties(target, source) {
-    for (let key of Reflect.ownKeys(source)) {
-        if (key !== "constructor" && key !== "prototype" && key !== "name") {
-            let desc = Object.getOwnPropertyDescriptor(source, key);
-            Object.defineProperty(target, key, desc);
+            // mixins.forEach((mixin) => {
+            //     mixin.prototype.constructor.call(this)
+            // })
+
         }
-    }
-}
+    };
+
+    let copyProps = (target, source) => {
+
+        Object.getOwnPropertyNames(source)
+            .concat(Object.getOwnPropertySymbols(source))
+            .forEach((prop) => {
+
+                if (prop.match(/^(?:constructor|prototype|arguments|caller|name|bind|call|apply|toString|length)$/))
+                    return;
+
+                Object.defineProperty(target, prop, Object.getOwnPropertyDescriptor(source, prop));
+
+            });
+
+    };
+
+    mixins.forEach((mixin) => {
+
+        copyProps(base.prototype, mixin.prototype);
+        copyProps(base, mixin);
+
+    });
+
+    return base;
+
+};
+
 
 export {
     mix
