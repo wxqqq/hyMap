@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-04 17:22:04
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-19 14:50:42
+ * @Last Modified time: 2017-09-19 20:25:51
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\hyLayerGroup.js
  * @File Name: hyLayerGroup.js
@@ -26,11 +26,13 @@ export default class hyLayerGroup extends hyMapStyle {
     constructor(options) {
 
         super(options);
+        this.id = 'layerGroup_' + new Date().getTime();
         this.map = options.map;
         this.layersArray = new ol.Collection();
-        this.layerGroup = this._createGroup(options.id, options.name);
+        this.layerGroup = this._createGroup(options);
         this.addSeries(options.series);
         this.map.addLayer(this.layerGroup);
+
 
     }
 
@@ -51,7 +53,7 @@ export default class hyLayerGroup extends hyMapStyle {
      */
     get(id) {
 
-        return this.layersArray.get(id);
+        return this.id;
 
     }
 
@@ -72,14 +74,21 @@ export default class hyLayerGroup extends hyMapStyle {
      * @return  {Object} layerGroup 图层组
      * @private
      */
-    _createGroup(id, name) {
+    _createGroup({
+        id = this.id,
+        name = id,
+        opacity = 1,
+        visible = true
+    } = {}) {
 
+        this.id = id;
         this.layersArray.set('layerId', id);
-
         let layerGroup = new ol.layer.Group({
             layers: this.layersArray,
             id: id,
-            name: name || id
+            name: name,
+            opacity: opacity,
+            visible: visible
         });
         this.layersArray.parent = layerGroup;
         this.layersArray.on('add', (evt) => {
@@ -250,10 +259,14 @@ export default class hyLayerGroup extends hyMapStyle {
     }
 
     show() {
-        this.setVisible(true)
+
+        this.setVisible(true);
+
     }
     hide() {
-        this.setVisible(false)
+
+        this.setVisible(false);
+
     }
 
     /**

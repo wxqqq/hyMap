@@ -1,6 +1,7 @@
 #version
 ##v0.2.39
-panTo上下修改为up,down
+1.panTo上下修改为up,down,
+2.layerGroup增加visible，opacity参数。优化group id创建流程.
 ##v0.2.38
 1.增加zoomTo(num,relative)接口
 2.增加PanTo(num,direction)接口

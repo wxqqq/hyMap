@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-18 17:11:30
+ * @Last Modified time: 2017-09-19 20:26:42
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\icon.js
  * @File Name: icon.js
@@ -134,6 +134,8 @@ class icon extends Component {
 
             let layer1 = mapObj.addLayer({
                 id: 5,
+                visible: false,
+                opacity: 1,
                 series: series1
             });
 
@@ -414,6 +416,8 @@ class icon extends Component {
         });
 
         setTimeout(() => {
+
+            mapObj.showLayer(5)
             console.log(mapObj.getSeries(5));
         }, 2000)
 

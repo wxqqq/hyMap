@@ -53,7 +53,7 @@ export default class hyMap extends hytooltip {
 
     /**
      * 初始化hymap对象
-     * @param  {Element} dom [description]
+     * @param  {Element} dom 
      */
     init(dom) {
         this.setDom(dom);
@@ -255,10 +255,9 @@ export default class hyMap extends hytooltip {
             });
         } else {
 
-            arrays.id = arrays.id || new Date().getTime();
             arrays.map = this.map;
             layers = new hyLayerGroup(arrays);
-            this._addLayerGroupArray[arrays.id] = layers;
+            this._addLayerGroupArray[layers.id] = layers;
 
         }
 
@@ -352,7 +351,7 @@ export default class hyMap extends hytooltip {
 
     /**
      * 获取图层
-     * @param  {String} id 唯一标识
+     * @param  {String|undefined} id 唯一标识
      * @return {Object}    layer对象
      */
     getSeries(id) {
@@ -406,6 +405,7 @@ export default class hyMap extends hytooltip {
 
         }
         return serie;
+
     }
 
     /**
@@ -413,10 +413,10 @@ export default class hyMap extends hytooltip {
      * @param  {String} id 唯一标识
      */
     showLayer(id) {
+
         const layer = this._addLayerGroupArray[id];
-        if (layer) {
-            layer.show(true);
-        }
+        layer && layer.show(true);
+
     }
 
     /**
@@ -426,11 +426,7 @@ export default class hyMap extends hytooltip {
     hideLayer(id) {
 
         const layer = this._addLayerGroupArray[id];
-        if (layer) {
-
-            layer.hide(false);
-
-        }
+        layer && layer.hide(false);
 
     }
 
@@ -484,12 +480,15 @@ export default class hyMap extends hytooltip {
 
     /**
      * 增加覆盖物
-     * @param  {Object}  object {id:id,   container:dom,  geoCoord:[],//坐标
-                                showLine:true|false,//显示连线,
-                                lineColor:'white'
-                                linewidth:80//线的偏移长度。
-                                offset:[0,0],//偏移量
-                                positioning:'top-left'//top[center,bottom]-left[right];相对位置
+     * @param {String}  options.id            id 唯一标识
+     * @param {Array}  options.geoCoord      坐标
+     * @param {Element}  options.container     内容
+     * @param {Boolean} options.showLine      显示连线
+     * @param {String}  options.lineColor     线颜色
+     * @param {Number}  options.lineWidth     线的偏移长度
+     * @param {String}  options.lineDirection right,left 方向
+     * @param {Array}   options.offSet        [0,0] 偏移量
+     * @param {String}  options.positioning   top-left' top[center,bottom]-left[right];相对位置
      */
     addOverlay({
         id = '',
@@ -545,7 +544,6 @@ export default class hyMap extends hytooltip {
 
             container.style.position = 'static';
             container.style.float = 'left';
-            let lineWidth = lineWidth || 80;
             let canvas = document.createElement('canvas');
             let ctx = canvas.getContext('2d');
             canvas.width = lineWidth;
@@ -564,7 +562,6 @@ export default class hyMap extends hytooltip {
             ctx.lineTo(0, 6);
             ctx.stroke();
             container.parentNode.appendChild(canvas);
-
 
         }
         return marker;
