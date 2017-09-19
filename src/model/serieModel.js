@@ -3,6 +3,8 @@
  */
 export default {
     id: new Date().getTime(),
+    visible: true,//是否可见
+    opacity: 1,//透明度
     cluster: {
         enable: false, //是否开启聚合
         distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）

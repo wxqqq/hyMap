@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:03:05
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-29 13:42:34
+ * @Last Modified time: 2017-09-05 14:41:54
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\baseMap.js
  * @File Name: baseMap.js
@@ -87,7 +87,6 @@ export default class baseMap extends base {
                 let layer = this._initSource(themeObj);
 
                 layers = layers.concat(layer);
-                // layers = layer
 
             });
 
@@ -137,7 +136,6 @@ export default class baseMap extends base {
             } else if (theme.type == 'arcgis') {
 
                 let url = theme.url;
-                //'http://192.168.4.35:6080/arcgis/rest/services/test/test2/MapServer';
                 source = new ol.source.TileArcGISRest({
                     ratio: 1,
                     params: {},

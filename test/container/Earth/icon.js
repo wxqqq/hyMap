@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-30 18:47:15
+ * @Last Modified time: 2017-09-18 17:11:30
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\icon.js
  * @File Name: icon.js
@@ -66,10 +66,12 @@ class icon extends Component {
         })
         fetch('../test/data/car_2012.json').then(response => response.json()).then(function(values) {
             values.forEach(mapObj => {
+
                 mapObj.geoCoord = [
                     mapObj.lon.toString(),
                     mapObj.lat.toString()
                 ];
+
             });
             // values.splice(1,16);
 
@@ -84,9 +86,11 @@ class icon extends Component {
                 // minZoom: 6, //数据显示最小级别
                 data: values,
                 type: 'point',
-                // symbol: 'icon:test/data/jingli-1.png',
-                symbol: 'circle',
-                symbolSize: [10, 20],
+                visible: true,
+                opacity: 0.2,
+                symbol: 'icon:test/data/jingli-1.png',
+                // symbol: 'circle',
+                symbolSize: [15, 20],
                 symbolStyle: {
                     normal: {
                         anchor: [0.5, 0.5], //图标偏移位置。
@@ -100,7 +104,7 @@ class icon extends Component {
                         strokeWitdh: 2,
                         fillColor: 'red',
 
-                        symbolSize: [30, 30]
+                        symbolSize: [17, 22]
                     }
                 },
                 labelColumn: 'name',
@@ -113,7 +117,9 @@ class icon extends Component {
                             fontStyle: 'normal',
                             fontWeight: 'bold',
                             fontFamily: 'sans-serif',
-                            fontSize: '55px'
+                            fontSize: '55px',
+                            offsetY: 10,
+                            offsetX: -15
                         }
                     },
                     emphasis: {
@@ -167,30 +173,50 @@ class icon extends Component {
                 data: values, //{x,y,value}
                 type: 'point', // point|line|polygon|chart|..
                 symbol: 'circle', //circle|rect|icon
-                symbolSize: '', //[min,max]
+                // symbolSize: [15, 15], //[min,max]
                 symbolStyle: {
                     normal: {
-                        symbolSize: [6, 6],
+                        symbolSize: [3, 3],
                         strokeWidth: 1,
                         strokeColor: 'black',
-                        fillColor: 'orange'
+                        fillColor: 'red'
                     },
                     emphasis: {
                         symbolSize: 7,
                         strokeWidth: 1,
                         strokeColor: '#fff',
-                        fillColor: 'blue'
+                        fillColor: 'green'
                     }
                 },
                 // maxZoom: 5,
                 // minZoom: 3,
                 contextmenu: true,
-                showPopup: false
+                // labelColumn: 'weight',
+                label: {
+                    normal: {
+                        show: false,
+                        textStyle: {
+                            color: '#fff',
+                            fontStyle: 'normal',
+                            fontWeight: 'bold',
+                            fontFamily: 'sans-serif',
+                            fontSize: '15px',
+
+                        }
+                    },
+                    emphasis: {
+                        // show: true,
+                        textStyle: {
+                            fontSize: '16px'
+                        }
+                    }
+                },
+                showPopup: false //显示气泡框
             });
 
-            // let layer2 = mapObj.addLayer(
-            //     series: series
-            // );
+            let layer2 = mapObj.addLayer(
+                series: series
+            );
 
             // layer2[0].on('click', function(data) {
             //     console.log('layer2:', data);
@@ -306,22 +332,27 @@ class icon extends Component {
                 // data.selected.forEach()
             });
 
-            setTimeout(() => {
+            // setTimeout(() => {
 
-                // mapObj.changeRadius(50000);
+            //     mapObj.setRadius(50000);
 
-            }, 5000);
+            // }, 5000);
 
         });
 
         document.getElementById('query1').addEventListener('click', () => {
-            mapObj.draw('LineString', function(data) {
+            mapObj.draw('Box', function(data) {
 
                 console.log(data);
                 // data.geometry.setCoordinates([]);
                 // data.selected[5][0][0].source.removeFeature(data.selected[5][0][0]);
 
             });
+            // setTimeout(() => {
+
+            //     mapObj.setRadius(50000);
+
+            // }, 5000);
         });
         document.getElementById('query2').addEventListener('click', () => {
             mapObj.draw('Polygon', function(data) {

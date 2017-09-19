@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-27 16:37:00
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-11 17:42:53
+ * @Last Modified time: 2017-09-06 14:47:23
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\map.js
  * @File Name: map.js
@@ -51,7 +51,9 @@ export default class map {
                 // }),
                 // new ol.control.LayerSwitcherImage(),
                 // new ol.control.FullScreen(),
-                // new ol.control.MousePosition(), //鼠标位置
+                // new ol.control.MousePosition({
+                //     projection: "EPSG:4326"
+                // }), //鼠标位置
                 // new ol.control.OverviewMap({
                 // layers: this._basicLayersArray
                 // }), //鹰眼

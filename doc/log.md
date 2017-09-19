@@ -1,4 +1,15 @@
 #version
+##v0.2.39
+panTo上下修改为up,down
+##v0.2.38
+1.增加zoomTo(num,relative)接口
+2.增加PanTo(num,direction)接口
+3.setRadius接口增加参数提供相对数据获取绝对数值的判断。
+4.serie增加visible,opacity参数
+##v0.2.29
+trackLayer修改initRoute为update，统一接口。完善clear方法。
+##v0.2.26
+空间查询增加changeRadius方法，支持动态修改绘制的圆和线buff的半径修改。
 ##v0.2.25
 theme增加多图层配置使用数组进行配置。
 ##v0.2.19
@@ -18,7 +29,7 @@ addoverlay默认container为空div.可以用getElemnt进行获取.
 包括event事件中的geoClick,geoUnClick.
 现在的geo更改为layer控制 使用 addLayer进行添加 配置项如下：
 ```
-serie={
+serie={W
     type: 'region',
             location: '中国', //当前地图显示哪个地图
             drillDown: true, //是否开启区域点击下钻功能。

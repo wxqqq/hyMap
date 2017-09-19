@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:02:10
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-22 22:39:44
+ * @Last Modified time: 2017-09-18 18:28:56
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\hyLayer.js
  * @File Name: hyLayer.js
@@ -28,9 +28,9 @@ export default class hylayer extends baseLayer {
     constructor(options) {
 
         super(options);
-        this.map = options.map;
         this.view = this.map.getView();
         this.layer = this.init(options.serie);
+
     }
 
     add() {
@@ -77,7 +77,6 @@ export default class hylayer extends baseLayer {
                         return this._geoStyleFn(feature, resolution, type);
 
                     },
-
                     minResolution: mapTool.getResolutionByZoom(serie.maxZoom, this.view),
                     maxResolution: mapTool.getResolutionByZoom(serie.minZoom, this.view)
                 });
@@ -223,15 +222,16 @@ export default class hylayer extends baseLayer {
         source.on('removefeature', (evt) => {
 
             let dataArray = evt.target.vector.get('serie').data;
-            dataArray.forEach((data, index) => {
+            dataArray && dataArray.forEach((data, index) => {
 
                 if (data.id == evt.feature.get('id')) {
 
                     dataArray.splice(index, 1);
-                    return
+                    return;
+
                 }
 
-            })
+            });
 
         });
         source.on('addfeature', (evt) => {
@@ -274,7 +274,8 @@ export default class hylayer extends baseLayer {
 
         let vector = this.createLayer(serie, source, array);
         const style = this._createFeatureStyle(serie);
-
+        vector.setVisible(serie.visible);
+        vector.setOpacity(serie.opacity);
         vector.set('name', serie.name || new Date().getTime());
         vector.set('serie', serie);
         vector.set('interior', serie.interior);

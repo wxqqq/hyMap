@@ -5,11 +5,8 @@ import baseUtil from '../../util/baseUtil';
 const ol = require('ol');
 
 export default class hyMapStyle {
-
     /**
-     * [_createTextStyle description]
-     * @author WXQ
-     * @date    2017-06-15
+     * 创建文本样式
      * @param   {String}   options.fontStyle    [description]
      * @param   {String}   options.fontWeight   [description]
      * @param   {String}   options.fontSize     [description]
@@ -26,7 +23,7 @@ export default class hyMapStyle {
      * @return  {Object}                        [description]
      * @private
      */
-    _createTextStyle({
+    createTextStyle({
         fontStyle = '',
         fontWeight = '',
         fontSize = '',
@@ -39,7 +36,8 @@ export default class hyMapStyle {
         textBaseline,
         color,
         strokeColor,
-        strokeWidth
+        strokeWidth,
+        lineDash
     } = {}, show = false) {
 
         if (rotation) {
@@ -55,8 +53,8 @@ export default class hyMapStyle {
             rotation: rotation,
             textAlign: textAlign,
             textBaseline: textBaseline,
-            fill: this._createFill(color),
-            stroke: this._createStroke(strokeWidth, strokeColor)
+            fill: this.createFill(color),
+            stroke: this.createStroke(strokeWidth, strokeColor, lineDash)
 
         });
         text.show = show;
@@ -66,7 +64,7 @@ export default class hyMapStyle {
 
 
 
-    _createFill(color = 'rgba(0,0,0,0)') {
+    createFill(color = 'rgba(0,0,0,0)') {
 
         return new ol.style.Fill({
             color: color //'rgba(0,255,255,0.3)'
@@ -74,7 +72,8 @@ export default class hyMapStyle {
 
     }
 
-    _createStroke(width, color = 'rgba(0,0,0,0)', lineDash = undefined) {
+
+    createStroke(width, color = 'rgba(0,0,0,0)', lineDash = []) {
 
         if (width == 0 || isNaN(width)) {
 
@@ -150,7 +149,7 @@ export default class hyMapStyle {
             // });
             icon.relScale = iconScale;
             icon.setScale(iconScale);
-            callback(icon)
+            callback(icon);
 
         } else {
 
@@ -174,9 +173,10 @@ export default class hyMapStyle {
                 // });
                 icon.relScale = iconScale;
                 icon.setScale(iconScale);
-                callback(icon)
+                callback(icon);
 
             };
+
         }
 
         // canvas.setAttribute('width', width);
@@ -189,8 +189,8 @@ export default class hyMapStyle {
 
         let image = undefined;
         const symbol = styleModel.symbol;
-        const stroke = this._createStroke(styleModel.strokeWidth, styleModel.strokeColor);
-        const fill = this._createFill(styleModel.fillColor);
+        const stroke = this.createStroke(styleModel.strokeWidth, styleModel.strokeColor, styleModel.lineDash);
+        const fill = this.createFill(styleModel.fillColor);
         if (symbol == 'circle') {
 
             image = this._createCircleStyle(styleModel.symbolSize, fill, stroke);
@@ -272,11 +272,12 @@ export default class hyMapStyle {
         };
 
     }
+
     _createDataStyle(style, label = {}) {
 
-        const stroke = this._createStroke(style.strokeWidth, style.strokeColor);
-        const fill = this._createFill(style.fillColor);
-        const text = this._createTextStyle(label.textStyle, label.show);
+        const stroke = this.createStroke(style.strokeWidth, style.strokeColor, style.lineDash);
+        const fill = this.createFill(style.fillColor);
+        const text = this.createTextStyle(label.textStyle, label.show);
         const image = this._createImageStyle(style);
         let styles = [
             new ol.style.Style({ //icon

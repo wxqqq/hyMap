@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-23 20:14:54
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-30 18:52:12
+ * @Last Modified time: 2017-09-19 15:35:54
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\spatialQueryLayer.js
  * @File Name: spatialQueryLayer.js
@@ -33,7 +33,7 @@ export default class spatialQueryLayer extends baseLayer {
         this.showRadar = false;
         this.time = -1;
         this.limitDistance = 20000;
-        this.radius = 50; //meter
+        this.radius = 20000; //meter
         this.queryLayers = options.queryLayer;
         this.init();
 
@@ -47,6 +47,7 @@ export default class spatialQueryLayer extends baseLayer {
         this.initLayer();
         this.initAreaFeature();
         this.initTranslate();
+        this.scale = this.detectZoom();
 
     }
 
@@ -144,7 +145,6 @@ export default class spatialQueryLayer extends baseLayer {
             let fea = evt.features.getArray()[0];
             let newCoord = fea.getGeometry().getCoordinates();
             let center = fea.get('center');
-            let oldCoord = fea.get('oldCoord');
             let dis = Math.floor(newCoord[0] - center[0]);
             if (dis > this.limitDistance) {
 
@@ -168,7 +168,7 @@ export default class spatialQueryLayer extends baseLayer {
         });
         translate.on('translateend', (evt) => {
 
-            this.changeRadius();
+            this.setRadius();
 
         });
 
@@ -176,10 +176,24 @@ export default class spatialQueryLayer extends baseLayer {
 
     }
 
-    changeRadius(radius) {
+    /**
+     * 改变半径
+     * @param  {number|undefined}  radius  半径
+     * @param  {Boolean} relative  是否相对半径
+     */
+    setRadius(radius, relative = false) {
 
+        if (relative) {
 
-        this.coords = this.feature.getGeometry().getCenter();
+            radius = this.radius + radius;
+
+        }
+        if (radius < 0) {
+
+            console.info('半径不能小于0');
+            return;
+        }
+
         this.map.un('postcompose', this.drawRender, this);
         if (this.showRadar) {
 
@@ -187,28 +201,59 @@ export default class spatialQueryLayer extends baseLayer {
 
         }
 
+        let geometry;
         if (radius) {
 
-            const geometry = new ol.geom.Circle(this.coords, radius);
-            this.feature.setGeometry(geometry);
+            // const oldGeometry = this.feature.getGeometry();
+            const type = this.feature.get('drawType');
+            if (type == 'LineString') {
+
+                geometry = this.getBufferGeometry(this._lineFeature, radius);
+
+                this.feature.setGeometry(geometry);
+
+            } else {
+
+                this.coords = this.feature.getGeometry().getCenter();
+                geometry = new ol.geom.Circle(this.coords, radius);
+                this.feature.setGeometry(geometry);
+
+            }
+            this.radius = radius;
+
+        } else {
+
+            this.coords = this.feature.getGeometry().getCenter();
+            geometry = this.feature.getGeometry();
+            this.radius = geometry.getRadius();
 
         }
-        let geometry = this.feature.getGeometry();
-        this.radius = geometry.getRadius();
-        let result = this.getCircleInfo(geometry.getCenter(), this.radius);
-        result.geometry = geometry;
-        this._query(geometry, result);
+
+        this._query(geometry);
 
     }
 
-    _query(geometry, result) {
+    _query(geometry) {
 
+        let result = {
+            geometry
+        };
+
+        if (geometry instanceof ol.geom.Circle) {
+
+            let coords = geometry.getCenter();
+            let radius = Math.abs(Math.floor(geometry.getRadius()));
+            Object.assign(result, this.getCircleInfo(coords, radius));
+            result.geometry = ol.geom.Polygon.fromCircle(geometry);
+            result.circle = geometry;
+
+        }
         const data = this.areaQuery({
             geometry,
             groupLayers: this.queryLayers
         });
-        this.feature.set('queryResult', data);
         result.selected = data;
+        this.feature.set('queryResult', data);
         this.queryFun && this.queryFun(result);
 
     }
@@ -220,7 +265,6 @@ export default class spatialQueryLayer extends baseLayer {
      * @return {style}    style    样式
      */
     styleFun(feature, resolution) {
-
 
         this.closeMarker.setPosition(feature.getGeometry().getCoordinates());
         let dis = feature.get('distance');
@@ -265,38 +309,48 @@ export default class spatialQueryLayer extends baseLayer {
      * @param  {string}  radius              半径
      * @param  {Number}  options.time          动画播放次数 默认为-1 无限次
      * @param  {Boolean} options.showRadar     是否显示雷达 默认为true
-     * @param  {Number}  options.limitDistance 拖拽最大范围
+     * @param  {Number}  options.limitDistance 拖拽最大范围 单位米
      * @return {object}                        查询结果: { }
      */
     load(geoCoord, radius, {
         time = -1,
         showRadar = true,
-        limitDistance = 20000
+        limitDistance = 20000,
+        showMoveSign = true
     } = {}) {
 
+        this.showRadar = showRadar;
         this.time = time;
         this.limitDistance = limitDistance;
-        this.showRadar = showRadar;
-        this.geoCoord = geoCoord;
         this.radius = radius;
-        this.coords = mapTool.transform(geoCoord);
-        const geometry = new ol.geom.Circle(this.coords, radius);
-        this.feature.setGeometry(geometry);
-        this.setMarker(geometry);
+        this.geoCoord = geoCoord;
 
-        this.changeRadius();
+
+        this.coords = mapTool.transform(geoCoord);
+
+        this.feature.set('drawType', "Circle");
+        const circle = new ol.geom.Circle(this.coords, radius);
+        this.feature.setGeometry(circle);
+
+        if (showMoveSign) {
+
+            this.setMarker(circle);
+
+        }
+        this.setRadius();
 
     }
 
-    setMarker(geometry) {
+    /**
+     * 设置拖动标识
+     * @param {geometry} circle 圆对象
+     */
+    setMarker(circle) {
 
-        const circle = ol.geom.Polygon.fromCircle(geometry, 36);
         //拖动标识的位置
-        let markerCoord = circle.getCoordinates()[0][0];
-        this.marker.setGeometry(new ol.geom.Point(markerCoord));
-        this.marker.set('distance', Math.abs(Math.floor(geometry.getRadius())));
-        this.marker.set('oldCoord', markerCoord);
-        this.marker.set('center', geometry.getCenter());
+        this.marker.setGeometry(new ol.geom.Point(circle.getLastCoordinate()));
+        this.marker.set('distance', Math.floor(circle.getRadius()));
+        this.marker.set('center', circle.getCenter());
 
     }
 
@@ -318,7 +372,7 @@ export default class spatialQueryLayer extends baseLayer {
 
         var grd = ctx.createRadialGradient(piex[0], piex[1], 0, piex[0], piex[1], radius);
         grd.addColorStop(0.8, 'rgba(160,16,17,0)');
-        grd.addColorStop(1, 'rgba(160,16,17,0.8)');
+        grd.addColorStop(1, 'rgba(160,16,17,0.6)');
         ctx.fillStyle = grd;
         ctx.beginPath();
         ctx.arc(piex[0], piex[1], radius, 0, Math.PI * 2);
@@ -326,7 +380,7 @@ export default class spatialQueryLayer extends baseLayer {
 
         ctx.moveTo(piex[0], piex[1]);
         // ctx.globalCompositeOperation = 'lighter';
-        ctx.strokeStyle = 'rgba(255,0,0,0.3)';
+        ctx.strokeStyle = 'rgba(255,0,0,0.1)';
         for (let i = 0; i < 3; i++) {
 
             ctx.beginPath();
@@ -350,7 +404,6 @@ export default class spatialQueryLayer extends baseLayer {
      */
     drawRadar(iDeg, ctx, obj) {
 
-
         ctx.save();
         let piex = obj.piex_center;
         let radius = obj.piex_radius;
@@ -373,6 +426,31 @@ export default class spatialQueryLayer extends baseLayer {
     }
 
     /**
+     * 计算屏幕缩放范围
+     * @return {[type]} [description]
+     */
+    detectZoom() {
+        var ratio = 0,
+            screen = window.screen,
+            ua = navigator.userAgent.toLowerCase();
+
+        if (window.devicePixelRatio !== undefined) {
+            ratio = window.devicePixelRatio;
+        } else if (~ua.indexOf('msie')) {
+            if (screen.deviceXDPI && screen.logicalXDPI) {
+                ratio = screen.deviceXDPI / screen.logicalXDPI;
+            }
+        } else if (window.outerWidth !== undefined && window.innerWidth !== undefined) {
+            ratio = window.outerWidth / window.innerWidth;
+        }
+
+        if (ratio) {
+            ratio = Math.round(ratio * 100);
+        }
+
+        return ratio;
+    };
+    /**
      * 查询信息
      * @param  {array}   coords [description]
      * @param  {number}   radius [description]
@@ -381,10 +459,13 @@ export default class spatialQueryLayer extends baseLayer {
     getCircleInfo(coords, radius) {
 
         const geom_temp = [coords[0] + radius, coords[1]];
-        const piex_center = this.map.getPixelFromCoordinate(coords);
-        const piex_radius = this.map.getPixelFromCoordinate(geom_temp)[0] - piex_center[0];
-
-
+        let piex_center = this.map.getPixelFromCoordinate(coords);
+        let piex_radius = this.map.getPixelFromCoordinate(geom_temp)[0] - piex_center[0];
+        if (this.scale != 100) {
+            let scale = this.scale;
+            piex_center = [piex_center[0] * scale / 100, piex_center[1] * scale / 100];
+            piex_radius = piex_radius * scale / 100;
+        }
         let circleObj = {
             radius: radius,
             center: coords,
@@ -440,6 +521,7 @@ export default class spatialQueryLayer extends baseLayer {
                     });
                     featureArray = this.sortBy(featureArray, 'distance');
                     array.push(featureArray);
+
                 });
 
             } else {
@@ -462,7 +544,6 @@ export default class spatialQueryLayer extends baseLayer {
                         featureArray1.push(feature);
 
                     }
-
 
                     featureArray1 = this.sortBy(featureArray1, 'distance');
 
@@ -517,25 +598,6 @@ export default class spatialQueryLayer extends baseLayer {
     }
 
     /**
-     * 清空
-     */
-    clear() {
-
-        this.dispatchEvent({
-            type: 'drawClear',
-            selected: this.feature.get('queryResult'),
-            feature: this.feature
-        });
-        this.map.un('postcompose', this.drawRender, this);
-        this.feature.setGeometry();
-        this._lineFeature && this._lineFeature.setGeometry();
-        this.marker.setGeometry();
-        this.closeMarker.setPosition();
-        this.removeDraw();
-
-    }
-
-    /**
      * 创建绘制查询
      * @param  {String} value 查询类型 Square:正方形 Box：矩形 Polygon：多边形 Circle：圆形 ,LineString
      * @param  {Function} fun   查询结果回调
@@ -543,6 +605,7 @@ export default class spatialQueryLayer extends baseLayer {
      */
     createDraw(type, fun) {
 
+        this.showRadar = false;
         this.dispatchEvent({
             type: 'drawStart',
             selected: this.feature.get('queryResult'),
@@ -563,6 +626,7 @@ export default class spatialQueryLayer extends baseLayer {
             type = 'Circle';
             maxPoints = 2;
             geometryFunction = ol.interaction.Draw.createBox();
+
         }
         this.draw = new ol.interaction.Draw({
             source: this.source,
@@ -578,44 +642,20 @@ export default class spatialQueryLayer extends baseLayer {
 
         this.draw.on('drawend', (evt) => {
 
-            let format = new ol.format.GeoJSON();
+            //线周边
             if (type == 'LineString') {
 
                 this._lineFeature.setGeometry(evt.feature.getGeometry());
-
-                let str = format.writeFeatureObject(evt.feature, {
-                    dataProjection: 'EPSG:4326',
-                    featureProjection: 'EPSG:3857'
-
-                });
-
-                let buffered = turf.buffer(str, this.radius, 'meters');
-
-                let bufferFeature = format.readFeature(buffered, {
-                    dataProjection: 'EPSG:4326',
-                    featureProjection: 'EPSG:3857'
-
-                });
-                evt.feature.setGeometry(bufferFeature.getGeometry());
+                let geometry = this.getBufferGeometry(evt.feature, this.radius);
+                evt.feature.setGeometry(geometry);
 
             }
+
             this.feature = evt.feature;
+            this.feature.set('drawType', type);
             let geometry = this.feature.getGeometry();
-            let result = {
-                geometry
-            };
 
-            if (geometry instanceof ol.geom.Circle) {
-
-                let coords = geometry.getCenter();
-                let radius = Math.abs(Math.floor(geometry.getRadius()));
-                Object.assign(result, this.getCircleInfo(coords, radius));
-                result.geometry = ol.geom.Polygon.fromCircle(geometry);
-                result.circle = geometry;
-
-            }
-
-            this._query(geometry, result);
+            this._query(geometry);
             evt.stopPropagation();
 
             //延迟移除避免事件冲突
@@ -637,6 +677,51 @@ export default class spatialQueryLayer extends baseLayer {
 
     }
 
+    /**
+     * 获取缓冲对象
+     * @param  {feature} feature feature对象
+     * @param  {Number} radius  半径 米
+     * @return {geometry}         geometry
+     */
+    getBufferGeometry(feature, radius = 0) {
+
+        let format = new ol.format.GeoJSON();
+        let str = format.writeGeometryObject(feature.getGeometry(), {
+            dataProjection: 'EPSG:4326',
+            featureProjection: 'EPSG:3857'
+
+        });
+
+        let buffered = turf.buffer(str, radius, 'meters');
+
+        let bufferFeature = format.readFeature(buffered, {
+            dataProjection: 'EPSG:4326',
+            featureProjection: 'EPSG:3857'
+
+        });
+
+        return bufferFeature.getGeometry();
+
+    }
+
+    /**
+     * 清空
+     */
+    clear() {
+
+        this.dispatchEvent({
+            type: 'drawClear',
+            selected: this.feature.get('queryResult'),
+            feature: this.feature
+        });
+        this.map.un('postcompose', this.drawRender, this);
+        this.feature.setGeometry();
+        this._lineFeature && this._lineFeature.setGeometry();
+        this.marker.setGeometry();
+        this.closeMarker.setPosition();
+        this.removeDraw();
+
+    }
 
     /**
      * 设置点击控件响应状态

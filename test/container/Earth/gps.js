@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-22 23:43:11
+ * @Last Modified time: 2017-09-12 15:12:27
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\test\container\Earth\gps.js
  * @File Name: gps.js
@@ -196,45 +196,44 @@ class gps extends Component {
         let img1 = document.createElement('img');
         img1.src = localImg;
         element1.appendChild(img1);
-        const trackObj =
-
-            obj.addLayer([{
-                id: 899,
-                type: 'track', //heatmap,
-                data: line,
-                lineArrow: false,
-                lineColor: 'green',
-                lineWidth: 13,
-                speed: 1,
-                wrap: false,
-                lineStyle: {
-                    normal: {
-                        strokeWidth: 3,
-                        strokeColor: 'red'
-                    },
-                    emphasis: {
-                        strokeWidth: 5,
-                        strokeColor: 'green'
-                    }
+        let serie = {
+            id: 899,
+            type: 'track', //heatmap,
+            data: line,
+            lineArrow: false,
+            lineColor: 'green',
+            lineWidth: 13,
+            speed: 1,
+            wrap: false,
+            lineStyle: {
+                normal: {
+                    strokeWidth: 3,
+                    strokeColor: 'red'
                 },
-                nodeStyle: {
-                    normal: {
-                        strokeWidth: 1,
-                        strokeColor: 'black',
-                        fillColor: '#fff',
-                        symbolSize: 5
-                    },
-                    emphasis: {
-                        strokeWidth: 1,
-                        strokeColor: '#ccc',
-                        fillColor: 'orange',
-                        symbolSize: 7
-                    }
+                emphasis: {
+                    strokeWidth: 5,
+                    strokeColor: 'green'
+                }
+            },
+            nodeStyle: {
+                normal: {
+                    strokeWidth: 1,
+                    strokeColor: 'black',
+                    fillColor: '#fff',
+                    symbolSize: 5
                 },
-                // trackModel: '2', //1,2,3
-                startDom: element,
-                endDom: element1
-            }]);
+                emphasis: {
+                    strokeWidth: 1,
+                    strokeColor: '#ccc',
+                    fillColor: 'orange',
+                    symbolSize: 7
+                }
+            },
+            // trackModel: '2', //1,2,3
+            startDom: element,
+            endDom: element1
+        }
+        const trackObj = obj.addLayer([serie]);
 
         // obj.removeLayer(899)
         obj.on('trackPlayPoint', evt => {
@@ -250,10 +249,17 @@ class gps extends Component {
             // console.log(2, evt);
         });
 
-        // setTimeout(() => {
-        //     console.log(1)
-        //     obj.removeLayer(899)
-        // }, 5000)
+        setTimeout(() => {
+            console.log(1)
+            serie.data = [{
+                id: 1,
+                geoCoord: '119.17692,36.6919'
+            }, {
+                id: 2,
+                geoCoord: ' 118.03983,36.81824'
+            }]
+            obj.updateLayer(serie)
+        }, 5000)
         document.getElementById('play').addEventListener('click', () => {
             trackObj[0].execute('start');
         });

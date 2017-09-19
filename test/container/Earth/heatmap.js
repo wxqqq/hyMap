@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-03-16 13:33:33
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-25 09:54:26
+ * @Last Modified time: 2017-09-13 14:43:49
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\heatmap.js
  * @File Name: heatmap.js
@@ -10,7 +10,9 @@
  */
 
 'use strict';
-import React, { Component } from 'react';
+import React, {
+    Component
+} from 'react';
 import map from '../../../src/index';
 
 class heatmap extends Component {
@@ -72,6 +74,56 @@ class heatmap extends Component {
             obj.setOption(options);
 
         });
+
+        fetch('../test/data/heatmap.json').then(response => response.json()).then(function(values) {
+
+            let qhserie = [];
+            values.features.forEach(data => {
+
+                    qhserie.push({
+                        geoCoord: data.geometry.coordinates,
+                        id: data.properties.OBJECTID
+                    })
+
+                })
+                // console.log(qhserie)
+                // console.log(values.features);
+                // 
+            obj.addLayer({
+                id: 'hy',
+                series: [{
+                    data: qhserie, //{x,y,value}
+                    type: 'heatmap', // point|line|polygon|chart|heatmap..
+                    heatOption: { //type为heatmap时该参数生效。
+                        //     gradient: ['#00f', '#0ff', '#0f0', '#ff0', '#f00'], //array<string>|undefined 颜色数组 该值为默认
+                        blur: 5, //number|undefined 模糊 单位：像素 默认15
+                        radius: 1, //number|undefined 半径 单位：像素 默认8
+                        //     shadow: 100 //number|undef 阴影大小 单位：像素 默认250
+                    },
+                    symbolSize: [5, 5], //[min,max]
+                    symbolStyle: { //type为heatmap时，normal样式不生效，emphasis依然有效果
+                        'normal': {
+                            strokeWidth: 1,
+                            strokeColor: 'blue',
+                            fillColor: 'orange'
+                        },
+                        'emphasis': {
+                            symbolSize: 3
+                        }
+                    },
+                    label: { //type为heatmap时，normal样式不生效，emphasis依然有效果
+                        'normal': {
+                            show: false,
+                            textStyle: {
+                                color: 'red'
+                            }
+                        }
+                    },
+                    showPopup: false
+
+                }]
+            })
+        })
 
         obj.on('click', function(data) {
 

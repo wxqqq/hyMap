@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-22 13:37:27
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-22 22:39:59
+ * @Last Modified time: 2017-09-12 16:42:41
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\layer.js
  * @File Name: layer.js
@@ -86,6 +86,7 @@ export default class trackLayer extends baseLayer {
         this.source.on('addfeature', evt => {
 
             evt.feature.source = evt.target;
+
         });
         this.layer = new ol.layer.Vector({
             source: this.source,
@@ -104,10 +105,12 @@ export default class trackLayer extends baseLayer {
     styleFun(feature, resolution, type) {
 
         if (!type) {
+
             type = 'normal';
+
         }
 
-        if (feature.get('type') == 'route') {
+        if (feature.get('styleType') == 'route') {
 
             var geometry = feature.getGeometry();
             var styles = [
@@ -144,7 +147,7 @@ export default class trackLayer extends baseLayer {
             }
             return styles;
 
-        } else if (feature.get('type') == 'node') {
+        } else if (feature.get('styleType') == 'node') {
 
             return new ol.style.Style({
                 image: new ol.style.Circle({
@@ -161,14 +164,17 @@ export default class trackLayer extends baseLayer {
 
         } else {
 
-            return this.trackStyles[feature.get('type')];
+            return this.trackStyles[feature.get('styleType')];
 
         }
 
     }
 
-    clearTrack() {
+    clear() {
 
+        this.execute('stop');
+        this.map.removeOverlay(this.startMarker);
+        this.map.removeOverlay(this.endMarker);
         var source = this.layer.getSource();
         source.clear();
 
@@ -187,7 +193,7 @@ export default class trackLayer extends baseLayer {
      * @param  {Object}  options.endDom                     } [description]
      * @return {[type]}                     [description]
      */
-    initTrackData({
+    update({
         data = '',
         lineWidth = 3,
         lineArrow = false,
@@ -226,13 +232,14 @@ export default class trackLayer extends baseLayer {
         moveDom
     } = {}) {
 
+
+        this.clear();
+
         if (data == '') {
 
             return;
 
         }
-
-        this.clearTrack();
         this.lineStyle = baseUtil.merge(lineStyle, this.lineStyle);
         this.nodeStyle = baseUtil.merge(nodeStyle, this.lineStyle);
 
@@ -241,7 +248,6 @@ export default class trackLayer extends baseLayer {
         this.lineColor = lineColor;
         this.lineArrow = lineArrow;
         this.speed = speed;
-        this.showNode = showNode;
         this.wrap = wrap;
         this.trackModel = trackModel;
 
@@ -249,7 +255,7 @@ export default class trackLayer extends baseLayer {
 
         data.forEach((data, index) => {
 
-            data.type = 'node';
+            data.styleType = 'node';
 
         });
 
@@ -260,29 +266,33 @@ export default class trackLayer extends baseLayer {
         var start = this.routeCoords[0];
 
         this.routeFeature = new ol.Feature({
-            type: 'route',
+            styleType: 'route',
             geometry: this.route
         });
 
         this.geoMarker = new ol.Feature({
-            type: 'geoMarker',
+            styleType: 'geoMarker'
         });
 
         if (showNode) {
-            this.geoMarker.setGeometry(new ol.geom.Point(this.routeCoords[0]))
+
+            this.geoMarker.setGeometry(new ol.geom.Point(this.routeCoords[0]));
+
         }
         source.addFeatures([this.routeFeature, this.geoMarker]);
         source.addFeatures(featuresObject.features);
-        this.startMarker = this.createMarker(this.routeCoords[0], startDom)
-        this.endMarker = this.createMarker(this.routeCoords[this.routeLength - 1], endDom)
+        this.startMarker = this.createMarker(this.routeCoords[0], startDom);
+        this.endMarker = this.createMarker(this.routeCoords[this.routeLength - 1], endDom);
 
         var end = this.routeCoords[1];
 
         this.angel = this.getAngel(start, end);
         this.trackStyles.geoMarker.getImage().setRotation(this.angel);
+
     }
 
     getAngel(start, end) {
+
         var dx = end[0] - start[0];
         var dy = end[1] - start[1];
         var rotation = Math.atan2(dy, dx);
@@ -290,12 +300,15 @@ export default class trackLayer extends baseLayer {
 
     }
     getDom() {
+
         let element = document.createElement('div');
         let img = document.createElement('img');
         img.src = this.localImg;
         element.appendChild(img);
         return element;
+
     }
+
     createMarker(geoCoord, dom = this.getDom()) {
 
         let overlay = new ol.Overlay({
@@ -307,7 +320,9 @@ export default class trackLayer extends baseLayer {
         });
         this.map.addOverlay(overlay);
         return overlay;
+
     }
+
     moveFeature(event) {
 
         var frameState = event.frameState;
@@ -317,6 +332,7 @@ export default class trackLayer extends baseLayer {
             //增加延迟处理，当前事件达到speed*1000后执行下1个轨迹点移动
 
             if (this.geoMarker.now == 0 && elapsedTime < 10) {
+
                 this.dispatchEvent({
                     evt: event,
                     type: 'trackPlayPoint',
@@ -327,6 +343,7 @@ export default class trackLayer extends baseLayer {
                     }
 
                 });
+
             }
 
             if (this.geoMarker.now >= this.routeLength - 1) {
@@ -381,6 +398,7 @@ export default class trackLayer extends baseLayer {
                     },
                     feature: this.route
                 });
+
             }
 
 
@@ -466,5 +484,6 @@ export default class trackLayer extends baseLayer {
         this.map.removeOverlay(this.startMarker);
         this.map.removeOverlay(this.endMarker);
         super.dispose();
+
     }
 }

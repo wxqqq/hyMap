@@ -302,12 +302,7 @@ export default class hyMap extends hytooltip {
      */
     updateLayer(arrays) {
 
-        let collect = this.clickSelect.getFeatures();
-        if (collect.getLength() > 0) {
-
-            collect.clear();
-
-        }
+        this.clearSelect();
 
         if (Array.isArray(arrays)) {
 
@@ -383,8 +378,8 @@ export default class hyMap extends hytooltip {
 
     /**
      * 获取图层信息
-     * @param  {[type]} id [description]
-     * @return {[type]}    [description]
+     * @param  {String} id 唯一标识
+     * @return {Object}    数据对象
      */
     getSerie(id) {
 
@@ -548,8 +543,8 @@ export default class hyMap extends hytooltip {
 
         if (showLine) {
 
-            // container.style.position = 'static';
-            // container.style.float = 'left';
+            container.style.position = 'static';
+            container.style.float = 'left';
             let lineWidth = lineWidth || 80;
             let canvas = document.createElement('canvas');
             let ctx = canvas.getContext('2d');
@@ -869,35 +864,79 @@ export default class hyMap extends hytooltip {
 
     /**
      * 缩放到指定级别
-     * @param  {Number} num 级别
+     * @param  {Number}  num      级别
+     * @param  {Boolean} relative 是否相对级别
      */
-    zoomTo(num = 1) {
+    zoomTo(num = 1, relative = false) {
+
+        let zoom = this.view.getZoom();
+
+
+
+        if (relative) {
+
+            zoom += num;
+
+        } else {
+
+            zoom = num;
+            let minZoom = this.view.getMinZoom();
+
+            if (num < minZoom) {
+
+                zoom = minZoom;
+
+            }
+
+        }
 
         this.view.animate({
-            zoom: this.view.getZoom() + num
+            zoom: zoom
         });
 
     }
 
-    panTo(direction, meter) {
+    /**
+     * 平移
+     * @param  {String}  up,down,left,right上下左右
+     * @param  {Number} meter    距离 单位 米
+     */
+    panTo(meter = 0, direction = 'right') {
 
         let center = this.view.getCenter();
-        var newCenter = [center[0] + 30000, center[1]]
-        var moscow = ol.proj.fromLonLat([37.6178, 55.7517])
+        let x = center[0];
+        let y = center[1];
+        switch (direction) {
+
+            case 'up':
+                y += meter;
+                break;
+            case 'down':
+                y -= meter;
+                break;
+            case 'left':
+                x -= meter;
+                break;
+            case 'right':
+                x += meter;
+                break;
+        }
+
+        const newCenter = [x, y];
         this.view.animate({
             center: newCenter,
             duration: 2000
         });
-        console.log(center, newCenter, moscow);
 
     }
 
     /**
      * 创建连接线
-     * @param  {[type]} options.id       唯一标识，默认为时间戳 
-     * @param  {[type]} options.geoCoord 经纬度坐标
-     * @param  {Object} options.end       屏幕固定位置像素位置} 
-     * @return {[type]}                   对象内部id
+     * @param  {Date}   options.id       唯一标识，默认为时间戳 
+     * @param  {Array} options.geoCoord 经纬度坐标
+     * @param  {Array} options.end      屏幕固定位置像素位置} 
+     * @param  {String} options.color    颜色
+     * @return {String}                 对象内部id
      */
     drawCable({
         id = new Date().getTime(),
@@ -923,12 +962,11 @@ export default class hyMap extends hytooltip {
         return id;
     }
 
+
     /**
-         * 更新连接线
-         * @param  {object}   obj {id:123//唯一标识，默认为时间戳 
-      geoCoord:[]//经纬度坐标
-      end:[]//屏幕固定位置像素位置}
-         */
+     * 更新连接线
+     * @param  {object}   obj {id:123//唯一标识，默认为时间戳       geoCoord:[]//经纬度坐标      end:[]//屏幕固定位置像素位置}
+     */
     updateCable(obj) {
         this.removeCable(obj.id);
         this.drawCable(obj);
@@ -936,7 +974,7 @@ export default class hyMap extends hytooltip {
 
     /**
      * 删除连接线
-     * @param  {String}   id [description]
+     * @param  {String}   id 唯一标识
      */
     removeCable(id) {
         const listererObj = this.postListenerObj[id];
@@ -949,15 +987,14 @@ export default class hyMap extends hytooltip {
      * @param  {Array}   geoCoord 中心点坐标
      * @param  {Number}   radius   距离
      * @param  {Function} callback 查询结果回调
-     * @param {Object} Object { showRandar:true,//显示雷达 默认true
-    time:-1 //雷达扫描次数， 默认-1 扫描动画开启后不会消失} 
+     * @param {Object} Object { showRandar:true,//显示雷达 默认true     time:-1 //雷达扫描次数， 默认-1 扫描动画开启后不会消失} 
      */
     spatialQuery(geoCoord, radius, callback, options) {
 
         this.queryCircle.setQueryFun(result => {
 
             this.clearTrackInfo(); //该方法进行对查询到的所有轨迹和tooltip进行移除操作。
-            this.clickSelect.getFeatures().clear();
+            this.clearSelect();
             for (let id in result.selected) {
 
                 const array = result.selected[id];
@@ -988,11 +1025,23 @@ export default class hyMap extends hytooltip {
     clearSpatial() {
 
         this.queryCircle.clear();
-        this.clickSelect.getFeatures().clear();
+        this.clearSelect();
 
     }
 
+    /**
+     * 清空选中结果
+     */
+    clearSelect() {
 
+        let collect = this.clickSelect.getFeatures();
+        if (collect.getLength() > 0) {
+
+            collect.clear();
+
+        }
+
+    }
 
     /**
      * 绘制轨迹（依赖路网数据,目前仅提供济南市的测试数据。）
@@ -1005,9 +1054,11 @@ export default class hyMap extends hytooltip {
     drawTrack(
         start,
         end, {
+            dataUrl,
             callback = undefined,
             tooltipFun = undefined,
-            isCustom = false
+            isCustom = false,
+            tbname = "road_jining"
         } = {}
     ) {
         if (!start || !end) {
@@ -1018,7 +1069,7 @@ export default class hyMap extends hytooltip {
             return;
         }
         const viewparams = [
-            'tbname:' + "'road_jining'",
+            'tbname:' + "\'" + tbname + "\'",
             'x1:' + start[0],
             'y1:' + start[1],
             'x2:' + end[0],
@@ -1029,7 +1080,11 @@ export default class hyMap extends hytooltip {
             this._serverUrl +
             '/hygis/wfs?sversion=1.0.0&request=GetFeature&outputFormat=application%2Fjson';
         url += '&typeName=' + 'Route' + '&viewparams=' + viewparams.join(';');
+        if (dataUrl) {
 
+            url = dataUrl; //tjc修改
+
+        }
         // let formData = new FormData();
         // formData.append("start", start);
         // formData.append("end", new ol.format.WKT().writeGeometry(end.getGeometry()));
@@ -1085,7 +1140,7 @@ export default class hyMap extends hytooltip {
 
                 if (tooltipFun) {
                     const geometry = features[0].getGeometry().clone();
-                    const length = geometry.getLength();
+                    const length = geometry.getLength() ? geometry.getLength() : feature.get("length"); //; //tjc 修改
 
                     const time = Math.ceil(length / 1000 * 60 / 60);
                     let overlay = this._createTrackOverLay(
@@ -1105,11 +1160,12 @@ export default class hyMap extends hytooltip {
                 }
             })
             .catch((e) => {
+
                 let overlay = this._createTrackOverLay(start, null, isCustom);
                 let element = overlay.getElement();
                 baseUtil.isFunction(tooltipFun) ? tooltipFun({
-                        length: 0,
-                        time: 0,
+                        length: Math.random() * 100 + 1000, //0,
+                        time: Math.random() * 100,
                         element
                     },
                     overlay.getElement()
@@ -1171,13 +1227,15 @@ export default class hyMap extends hytooltip {
     }
 
     initTrackData(obj) {
-        this.trck = new Layer.trackLayer({
+
+        let trck = new Layer.trackLayer({
             map: this.map,
             id: obj.id
         });
 
-        this.trck.initTrackData(obj);
-        return this.trck;
+        trck.update(obj);
+        return trck;
+
     }
 
     /**
@@ -1216,11 +1274,11 @@ export default class hyMap extends hytooltip {
      */
     draw(type, callback) {
 
-        this.clickSelect.getFeatures().clear();
+        this.clearSelect();
 
         this.queryCircle.setQueryFun(result => {
 
-            this.clickSelect.getFeatures().clear();
+            this.clearSelect();
             this.clearTrackInfo();
 
             for (let id in result.selected) {
@@ -1245,15 +1303,16 @@ export default class hyMap extends hytooltip {
         this.queryCircle.createDraw(type);
     }
 
-    changeRadius(radius) {
+    setRadius(radius, relative) {
 
-        this.queryCircle.changeRadius(radius);
+        this.queryCircle.setRadius(radius, relative);
     }
+
+
 
     /**
      * 触发事件
-     * @param  {Event} evt   type: 'geoSelect', || 'geoUnSelect' || 'geoToggleSelect'
-    name: '天津市和平区'
+     * @param  {Event} evt   type: 'geoSelect', || 'geoUnSelect' || 'geoToggleSelect'    name: '天津市和平区'
      */
     dispatchAction(evt) {
 
@@ -1268,7 +1327,7 @@ export default class hyMap extends hytooltip {
 
     /**
      * 销毁对象
-     * @return {null} [description]
+     * @return {null} 
      */
     dispose() {
 

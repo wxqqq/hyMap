@@ -36,12 +36,12 @@
     "description": "> 仅限海云公司内部使用",
     "scripts": {
         "dev": "cross-env NODE_ENV=DEVELOPMENT webpack-dev-server  --devtool --progress --colors --hot --content-base",
-        "prepublish": "webpack --config lib.config.dev.js & webpack --config lib.config.js ",
+        "prepublish": "webpack --config lib.config.dev.js --progress --color & webpack --config lib.config.js --progress --color",
         "build:dll": "webpack --config webpack.dll.js",
         "start": "webpack-dev-server --hot . --history-api-fallback --content-base",
         "api": "jsdoc -c doc/conf.json"
     },
-    "version": "0.2.25",
+    "version": "0.2.39",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/FunctionRun/FEscaffold.git"
