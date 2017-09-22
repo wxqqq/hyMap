@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-26 17:13:23
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-14 17:55:47
+ * @Last Modified time: 2017-09-22 16:35:17
  */
 
 'use strict';
@@ -17,35 +17,23 @@ export default class routeLayer extends baseLayer {
     constructor(options) {
 
         super(options);
+        this.minLength = 10e6;
         this.trackOverlayArray = [];
         this.url = 'http://192.168.11.50:8080/geoserver/hygis/wfs?sversion=1.0.0&request=GetFeature&outputFormat=application%2Fjson';
         this.tooltipFun = () => undefined;
         this.init();
         this.initLabel();
-        this.minLength = 10e6;
 
     }
 
 
     init() {
 
-        CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
-            var min_size = Math.min(w, h);
-            if (r > min_size / 2) r = min_size / 2;
-            // 开始绘制
-            this.beginPath();
-            this.moveTo(x + r, y);
-            this.arcTo(x + w, y, x + w, y + h, r);
-            this.arcTo(x + w, y + h, x, y + h, r);
-            this.arcTo(x, y + h, x, y, r);
-            this.arcTo(x, y, x + w, y, r);
-            this.closePath();
-            return this;
-        }
         this.source = new ol.source.Vector();
         this.source.on('addfeature', evt => {
 
             evt.feature.source = evt.target;
+
         });
         this.layer = new ol.layer.Vector({
             source: this.source,
@@ -59,35 +47,19 @@ export default class routeLayer extends baseLayer {
         });
         this.source.vector = this.layer;
         this.map.addLayer(this.layer);
-        // let group = new hyLayerGroup({
-        //     map: this.map,
-        //     series: [{
-        //         interior: true,
-        //         symbolStyle: {
-        //             normal: {
-        //                 strokeColor: '#40dacb',
-        //                 strokeWidth: 3
-        //             },
-        //             emphasis: {
-        //                 strokeColor: 'green',
-        //                 strokeWidth: 4
-        //             }
-        //         }
-        //     }, {}]
-        // });
-        // this.layer = group.layerGroup.getLayers().getArray()[0];
 
     }
+
     initLabel() {
 
         let width = 70;
         let height = 20;
-        var c = document.createElement("canvas");
-        var ctx = c.getContext("2d");
+        var c = document.createElement('canvas');
+        var ctx = c.getContext('2d');
 
         var grd = ctx.createLinearGradient(0, height, width, height);
-        grd.addColorStop(0, "red");
-        grd.addColorStop(1, "yellow");
+        grd.addColorStop(0, 'red');
+        grd.addColorStop(1, 'yellow');
 
         ctx.fillStyle = grd;
         ctx.roundRect(0, 0, width, height, 5);
@@ -98,10 +70,10 @@ export default class routeLayer extends baseLayer {
             imgSize: [width, height]
         });
 
-        var d = document.createElement("canvas");
-        var ctxd = d.getContext("2d");
+        var d = document.createElement('canvas');
+        var ctxd = d.getContext('2d');
 
-        ctxd.strokeStyle = '#fff'
+        ctxd.strokeStyle = '#fff';
         ctxd.fillStyle = '#000';
         ctxd.roundRect(0, 0, width, height, 5);
         ctxd.fill();
@@ -112,13 +84,13 @@ export default class routeLayer extends baseLayer {
         });
 
     }
-    styleFun(feature, resolution, type) {
 
+    styleFun(feature, resolution, type) {
 
         // ctx.fillRect(0, 0, width, height);
         let length = feature.get('length');
         let icon = this.icon;
-        let lineDash = [5, 10];
+        let lineDash = [10, 4];
         let color = 'yellow';
         if (length == this.minLength) {
 
@@ -160,6 +132,7 @@ export default class routeLayer extends baseLayer {
         //         rotation: -rotation
         //     })
         // });
+
     }
 
     /**
@@ -174,18 +147,13 @@ export default class routeLayer extends baseLayer {
     createOverlay(coordinate, str = '') {
 
         let overlay = this._createOverlay();
-        let div = overlay.getElement();
 
-        div.innerHTML = str;
-        overlay.setPosition(this.transform(coordinate));
-        this.trackOverlayArray.push(overlay);
 
     }
 
     _createTrackOverLay(coordinate, content, isCustom) {
 
-        return null
-        let overlay = this.createOverlay(null, isCustom);
+        // let overlay = baseUtil.clone(this.trackOverlay);
         let div = overlay.getElement();
         if (baseUtil.isDom(content)) {
 
@@ -236,9 +204,11 @@ export default class routeLayer extends baseLayer {
     drawTrack(
         start,
         end, {
+            dataUrl,
             callback = undefined,
             tooltipFun = undefined,
-            isCustom = false
+            isCustom = false,
+            tbname = 'road_jining'
         } = {}
     ) {
 
@@ -255,7 +225,7 @@ export default class routeLayer extends baseLayer {
         }
 
         const viewparams = [
-            'tbname:' + "'road_jining'",
+            'tbname:' + "\'" + tbname + "\'",
             'x1:' + start[0],
             'y1:' + start[1],
             'x2:' + end[0],
@@ -264,7 +234,11 @@ export default class routeLayer extends baseLayer {
         let url = this.url +
             '/hygis/wfs?sversion=1.0.0&request=GetFeature&outputFormat=application%2Fjson';
         url += '&typeName=' + 'Route' + '&viewparams=' + viewparams.join(';');
+        if (dataUrl) {
 
+            url = dataUrl; //tjc修改
+
+        }
         // let formData = new FormData();
         // formData.append("start", start);
         // formData.append("end", new ol.format.WKT().writeGeometry(end.getGeometry()));
@@ -309,10 +283,13 @@ export default class routeLayer extends baseLayer {
             coords.push(mapTool.transform(end)); //加入最后节点
             feature.getGeometry().setCoordinates(coords);
             if (baseUtil.isFunction(callback)) {
+
                 callback(features[0]);
+
             }
             const geometry = features[0].getGeometry().clone();
-            const length = geometry.getLength();
+            const length = geometry.getLength() ? geometry.getLength() : feature.get("length"); //; //tjc 修改
+
             features[0].set('length', length);
             this.minLength = length < this.minLength ? length : this.minLength;
             const time = Math.ceil(length / 1000 * 60 / 60);
@@ -321,34 +298,23 @@ export default class routeLayer extends baseLayer {
 
             if (tooltipFun) {
 
-                let overlay = this._createTrackOverLay(
-                    start,
-                    null,
-                    isCustom
-                );
-                // let element = overlay.getElement();
+                tooltipFun({
+                    length,
+                    time
+                });
 
-                // let str = baseUtil.isFunction(tooltipFun) ? tooltipFun({
-                //         length,
-                //         time,
-                //         element
-                //     },
-                //     overlay.getElement()
-                // ) : tooltipFun;
             }
 
         }).catch((e) => {
 
-            // let overlay = this._createTrackOverLay(start, null, isCustom);
-            // let element = overlay.getElement();
-            // baseUtil.isFunction(tooltipFun) ? tooltipFun({
-            //         length: 0,
-            //         time: 0,
-            //         element
-            //     },
-            //     overlay.getElement()
-            // ) : tooltipFun;
-            console.info(e);
+            if (tooltipFun) {
+                tooltipFun({
+                    length: Math.random() * 100 + 1000, //0,
+                    time: Math.random() * 100
+                });
+                console.info(e);
+            }
+
         });
     }
 
@@ -367,4 +333,18 @@ export default class routeLayer extends baseLayer {
         this.layer.getSource().addFeatures(features);
 
     }
+}
+
+CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    var min_size = Math.min(w, h);
+    if (r > min_size / 2) r = min_size / 2;
+    // 开始绘制
+    this.beginPath();
+    this.moveTo(x + r, y);
+    this.arcTo(x + w, y, x + w, y + h, r);
+    this.arcTo(x + w, y + h, x, y + h, r);
+    this.arcTo(x, y + h, x, y, r);
+    this.arcTo(x, y, x + w, y, r);
+    this.closePath();
+    return this;
 }

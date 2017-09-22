@@ -2,7 +2,7 @@
  * @Author: zhangyujie
  * @Date:   2016-05-09 11:33:52
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-14 16:28:57
+ * @Last Modified time: 2017-09-20 18:21:17
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\test\container\App\App.js
  * @File Name: App.js
@@ -18,6 +18,8 @@ import Nav from '../../components/Nav/Nav';
 import {
     Layout,
     Menu,
+    Icon,
+    Button,
     Row,
     Col
 } from 'antd';
@@ -36,9 +38,19 @@ class App extends Component {
         window.location.hash = e.key;
 
     }
+    state = {
+        collapsed: false,
+    };
+    onCollapse = (collapsed) => {
+        console.log(collapsed);
+        this.setState({
+            collapsed
+        });
+    }
     render() {
+
         return (
-            <Layout className='layout'>
+            <Layout >
                 <Header style={{ height: '40px' }}>
                     <div className='logo' />
                     <Menu
@@ -53,11 +65,12 @@ class App extends Component {
                     </Menu>
                 </Header>
                 <Content>
-                    <Sider
+                    <Sider 
+                    collapsible
+                    collapsed={this.state.collapsed}
+                    onCollapse={this.onCollapse} 
                         style={{
-                            overflow: 'auto',
-                            height: '95vh',
-                            background: '#fff'
+                            overflow: 'auto', height: '96vh', left: 0
                         }}>
                         <Nav location={this.props.location} />
                     </Sider> 
@@ -65,6 +78,11 @@ class App extends Component {
                         <Content>
                         <div style={{flex:1}}>
                         <Editor/>
+                        <div className="ant-button-fullmap">
+                            <Button type='left'>
+                                <Icon type='left' />
+                            </Button>
+                        </div>
                         </div>
                         <div style={{flex:2}}>
                          {this.props.children}

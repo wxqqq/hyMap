@@ -1,4 +1,7 @@
 #version
+##v0.2.40
+1.增加zoomToSeries（{}）方法
+2. 路径查询代码分离到单独文件中。
 ##v0.2.39
 1.panTo上下修改为up,down,
 2.layerGroup增加visible，opacity参数。优化group id创建流程.

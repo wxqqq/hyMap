@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-04 17:22:04
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-19 20:25:51
+ * @Last Modified time: 2017-09-22 11:47:00
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\hyLayerGroup.js
  * @File Name: hyLayerGroup.js
@@ -43,6 +43,23 @@ export default class hyLayerGroup extends hyMapStyle {
     getLayer() {
 
         return this.layerGroup.getLayers();
+
+    }
+
+    getExtent() {
+
+        let extent = ol.extent.createEmpty();
+
+        this.layersArray.forEach(layer => {
+
+            let source = layer.getSource();
+            let layerExtent = source.getExtent();
+
+            !ol.extent.isEmpty(layerExtent) && ol.extent.extend(extent, layerExtent);
+
+        });
+
+        return extent;
 
     }
 
@@ -250,6 +267,7 @@ export default class hyLayerGroup extends hyMapStyle {
      */
     addSerie(serie) {
 
+        serie.id = serie.id || this.id + '_layer_' + new Date().getTime();
         const vector = new hyLayer({
             map: this.map,
             serie: serie

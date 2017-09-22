@@ -101,9 +101,9 @@ export default class hytooltip extends hyMapStyle {
     /**
      * 创建popup
      * @param {Boolean}  isCustom 默认气泡框
-     * @return {Element} [description]
+     * @return {Element} 返回dom
      */
-    _createPopup(isCustom) {
+    _createPopup(isCustom = true) {
 
 
         let container = document.createElement('div');
@@ -178,7 +178,7 @@ export default class hytooltip extends hyMapStyle {
      * @param {Boolean} isCustomn 是否为默认样式
      * @return {Overlay}        
      */
-    createOverlay(element, isCustom) {
+    createOverlay(element, isCustom = true) {
 
         element = element || this._createPopup(isCustom);
         let overlay = new ol.Overlay({
@@ -200,7 +200,7 @@ export default class hytooltip extends hyMapStyle {
                 this.topOverlay.style.zIndex = '';
 
             }
-            this.topOverlay = marker.getElement().parentNode;
+            this.topOverlay = overlay.getElement().parentNode;
             this.topOverlay.style.zIndex = 999;
             this.dispatchEvent({
                 evt: e,

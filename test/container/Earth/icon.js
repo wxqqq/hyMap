@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-19 20:26:42
+ * @Last Modified time: 2017-09-22 16:33:12
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\icon.js
  * @File Name: icon.js
@@ -87,7 +87,7 @@ class icon extends Component {
                 data: values,
                 type: 'point',
                 visible: true,
-                opacity: 0.2,
+                // opacity: 0.2,
                 symbol: 'icon:test/data/jingli-1.png',
                 // symbol: 'circle',
                 symbolSize: [15, 20],
@@ -134,7 +134,7 @@ class icon extends Component {
 
             let layer1 = mapObj.addLayer({
                 id: 5,
-                visible: false,
+                visible: true,
                 opacity: 1,
                 series: series1
             });
@@ -219,7 +219,6 @@ class icon extends Component {
             let layer2 = mapObj.addLayer(
                 series: series
             );
-
             // layer2[0].on('click', function(data) {
             //     console.log('layer2:', data);
             // });
@@ -417,8 +416,9 @@ class icon extends Component {
 
         setTimeout(() => {
 
-            mapObj.showLayer(5)
-            console.log(mapObj.getSeries(5));
+            // mapObj.showLayer(5)
+            // mapObj.zoomToSeries();
+            // console.log(mapObj.getSeries(5));
         }, 2000)
 
 

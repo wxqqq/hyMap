@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-23 20:14:54
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-19 15:35:54
+ * @Last Modified time: 2017-09-22 16:41:40
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\spatialQueryLayer.js
  * @File Name: spatialQueryLayer.js
@@ -714,14 +714,21 @@ export default class spatialQueryLayer extends baseLayer {
             selected: this.feature.get('queryResult'),
             feature: this.feature
         });
+
         this.map.un('postcompose', this.drawRender, this);
         this.feature.setGeometry();
         this._lineFeature && this._lineFeature.setGeometry();
         this.marker.setGeometry();
         this.closeMarker.setPosition();
         this.removeDraw();
+        this.dispatchEvent({
+            type: 'afterClear',
+            selected: this.feature.get('queryResult'),
+            feature: this.feature
+        });
 
     }
+
 
     /**
      * 设置点击控件响应状态

@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-07-26 11:22:13
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-05 14:50:54
+ * @Last Modified time: 2017-09-22 10:46:45
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\base.js
  * @File Name: base.js
@@ -51,6 +51,16 @@ export default class base {
     getLayer() {
 
         return this.layer;
+
+    }
+
+    /**
+     * 获取范围i
+     * @return {extent} 范围
+     */
+    getExtent() {
+
+        return this.getSource().getExtent();
 
     }
 
