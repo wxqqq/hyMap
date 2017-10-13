@@ -2,13 +2,14 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:02:10
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-18 18:28:56
+ * @Last Modified time: 2017-09-28 15:01:29
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\hyLayer.js
  * @File Name: hyLayer.js
  * @Descript: 
  */
 'use strict';
+
 
 import baseLayer from './baselayer';
 import hyFeature from '../feature/hyFeature';
@@ -23,6 +24,7 @@ const ol = require('ol');
 export default class hylayer extends baseLayer {
     /**
      * 初始化
+     * @private
      * @param  {Object}   options 参数
      */
     constructor(options) {
@@ -200,6 +202,7 @@ export default class hylayer extends baseLayer {
 
         }
         return vector;
+    
     }
 
     init(serie) {

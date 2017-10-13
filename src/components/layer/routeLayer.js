@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-26 17:13:23
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-22 16:35:17
+ * @Last Modified time: 2017-09-28 15:01:59
  */
 
 'use strict';
@@ -14,6 +14,11 @@ import baseLayer from './baselayer';
 const ol = require('ol');
 
 export default class routeLayer extends baseLayer {
+    /**
+     *初始化
+     * @private
+     * @param  {Object} options 参数
+     */
     constructor(options) {
 
         super(options);
@@ -225,7 +230,7 @@ export default class routeLayer extends baseLayer {
         }
 
         const viewparams = [
-            'tbname:' + "\'" + tbname + "\'",
+            'tbname:' + '\'' + tbname + '\'',
             'x1:' + start[0],
             'y1:' + start[1],
             'x2:' + end[0],
@@ -256,8 +261,11 @@ export default class routeLayer extends baseLayer {
             // method: 'POST',
             // body: data
         }).then(response => {
+
             return response.json();
+        
         }).then(data => {
+
             let features = new ol.format.GeoJSON().readFeatures(data, {
                 featureProjection: 'EPSG:3857'
             });
@@ -288,7 +296,7 @@ export default class routeLayer extends baseLayer {
 
             }
             const geometry = features[0].getGeometry().clone();
-            const length = geometry.getLength() ? geometry.getLength() : feature.get("length"); //; //tjc 修改
+            const length = geometry.getLength() ? geometry.getLength() : feature.get('length'); //; //tjc 修改
 
             features[0].set('length', length);
             this.minLength = length < this.minLength ? length : this.minLength;
@@ -308,24 +316,31 @@ export default class routeLayer extends baseLayer {
         }).catch((e) => {
 
             if (tooltipFun) {
+
                 tooltipFun({
                     length: Math.random() * 100 + 1000, //0,
                     time: Math.random() * 100
                 });
                 console.info(e);
+            
             }
 
         });
+    
     }
 
     clearTrackInfo() {
+
         //清空轨迹线
         this.layer.getSource().clear();
         //清空轨迹tooltip
         this.trackOverlayArray.forEach(overlay => {
+
             this.map.removeOverlay(overlay);
+        
         });
         this.trackOverlayArray = [];
+    
     }
 
     drawCallback(features, start, end) {
@@ -336,6 +351,7 @@ export default class routeLayer extends baseLayer {
 }
 
 CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+
     var min_size = Math.min(w, h);
     if (r > min_size / 2) r = min_size / 2;
     // 开始绘制
@@ -347,4 +363,5 @@ CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
     this.arcTo(x, y, x + w, y, r);
     this.closePath();
     return this;
-}
+
+};

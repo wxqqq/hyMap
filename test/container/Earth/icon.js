@@ -40,31 +40,36 @@ class icon extends Component {
                 'border-radius': '5',
                 'border-width': '2',
                 'border-style': 'solid',
-                width: '80',
-                height: '30'
+                'width': '80',
+                'height': '30'
             },
-            formatter: function(param, dom) {
+            formatter: function (param, dom) {
+
                 //div内的内容
 
                 dom = document.createElement('div');
                 let str = '<a id=1>sss</a>' + param.dataIndex + ': ' + param.value;
                 // return str;
+            
             },
-            position: function() {
+            position: function () {
+
                 //相对于当前事件点的位置
 
                 return [0, 0];
                 // return [20, 10];
+            
             }
         });
         let a;
-        fetch('../test/data/series.json').then(response => response.json()).then(function(values) {
+        fetch('../test/data/series.json').then(response => response.json()).then(function (values) {
 
             a = values;
-            mapObj.addLayer(values)
+            mapObj.addLayer(values);
 
-        })
-        fetch('../test/data/car_2012.json').then(response => response.json()).then(function(values) {
+        });
+        fetch('../test/data/car_2012.json').then(response => response.json()).then(function (values) {
+
             values.forEach(mapObj => {
 
                 mapObj.geoCoord = [
@@ -139,8 +144,10 @@ class icon extends Component {
                 series: series1
             });
 
-            layer1.on('click', function(data) {
+            layer1.on('click', function (data) {
+
                 console.log('layer1', data);
+            
             });
             // console.log(layer1);
             mapObj.un('click');
@@ -161,10 +168,14 @@ class icon extends Component {
             // });
 
             // layer1.un('click');
+        
         });
-        fetch('../test/data/station.json').then(response => response.json()).then(function(values) {
+        fetch('../test/data/station.json').then(response => response.json()).then(function (values) {
+
             values.forEach(mapObj => {
+
                 mapObj.geoCoord = [mapObj.lon, mapObj.lat];
+            
             });
             series.push({
                 cluster: {
@@ -202,7 +213,7 @@ class icon extends Component {
                             fontStyle: 'normal',
                             fontWeight: 'bold',
                             fontFamily: 'sans-serif',
-                            fontSize: '15px',
+                            fontSize: '15px'
 
                         }
                     },
@@ -217,11 +228,15 @@ class icon extends Component {
             });
 
             let layer2 = mapObj.addLayer(
-                series: series
-            );
+                series
+            :
+            series
+            )
+            ;
             // layer2[0].on('click', function(data) {
             //     console.log('layer2:', data);
             // });
+        
         });
         // mapObj.on('geoSelect', function(data) {
 
@@ -234,14 +249,20 @@ class icon extends Component {
         //     console.log('getundata:', data);
 
         // });
-        mapObj.on('click', function(data) {
+        mapObj.on('click', function (data) {
+
             console.log('getdata:', data);
+        
         });
-        mapObj.on('drawClear', function(data) {
+        mapObj.on('drawClear', function (data) {
+
             console.log('getdata:', data);
+        
         });
-        mapObj.on('drawStart', function(data) {
+        mapObj.on('drawStart', function (data) {
+
             console.log('getdata:', data);
+        
         });
         // mapObj.on('unClick', function(data) {
 
@@ -249,32 +270,41 @@ class icon extends Component {
 
         // });
 
-        mapObj.on('tooltipClick', function(event) {
+        mapObj.on('tooltipClick', function (event) {
+
             console.log('tooltip', event);
+        
         });
 
-        mapObj.on('contextmenu', function(e) {
+        mapObj.on('contextmenu', function (e) {
+
             console.log(e);
             e.element.innerHTML =
                 '<a onclick="javascript:alert();" id=1>sss</a><a id=1>sss</a><a id=1>sss</a><a id=1>sss</a><a id=1>sss</a><a id=1>sss</a>';
+        
         });
         //选中
         document.getElementById('select').addEventListener('click', () => {
+
             mapObj.dispatchAction({
                 type: 'click',
                 id: 1
             });
+        
         });
         //取消选中
         document.getElementById('unselect').addEventListener('click', () => {
+
             mapObj.dispatchAction({
                 type: 'unClick',
                 id: 1
             });
+        
         });
 
         //筛选
         document.getElementById('filter').addEventListener('click', () => {
+
             //获取value=4468的feature
             //
             // const feature = mapObj.getFeaturesByProperty('name', '潍坊');
@@ -291,13 +321,16 @@ class icon extends Component {
                 'value',
                 feature[0].get('value') + 1
             );
+        
         });
 
         document.getElementById('remove').addEventListener('click', () => {
+
             mapObj.removeLayer(5);
             // mapObj.removeSeries(); //清空所有
             // mapObj.removeSeries('id');//清空单个
             // mapObj.removeSeries(['id','id1']);//清空多个
+        
         });
 
         document.getElementById('add').addEventListener('click', () => {
@@ -306,24 +339,34 @@ class icon extends Component {
                 id: 5,
                 series: series
             });
+        
         });
 
         document.getElementById('showlayer').addEventListener('click', () => {
+
             mapObj.showLayer(5);
+        
         });
         document.getElementById('hidelayer').addEventListener('click', () => {
+
             mapObj.hideLayer(5);
+        
         });
 
         document.getElementById('hasLayer').addEventListener('click', () => {
+
             alert(mapObj.hasLayer(5));
+        
         });
         document.getElementById('clear').addEventListener('click', () => {
+
             mapObj.clearTrackInfo(); //清空轨迹
             mapObj.clearSpatial(); //清空空间查询
+        
         });
         document.getElementById('query').addEventListener('click', () => {
-            mapObj.draw('Circle', function(data) {
+
+            mapObj.draw('Circle', function (data) {
 
                 // mapObj.updateLayer(a);
                 console.log(data);
@@ -331,6 +374,7 @@ class icon extends Component {
 
                 // 
                 // data.selected.forEach()
+            
             });
 
             // setTimeout(() => {
@@ -342,7 +386,8 @@ class icon extends Component {
         });
 
         document.getElementById('query1').addEventListener('click', () => {
-            mapObj.draw('Box', function(data) {
+
+            mapObj.draw('Box', function (data) {
 
                 console.log(data);
                 // data.geometry.setCoordinates([]);
@@ -354,13 +399,19 @@ class icon extends Component {
             //     mapObj.setRadius(50000);
 
             // }, 5000);
+        
         });
         document.getElementById('query2').addEventListener('click', () => {
-            mapObj.draw('Polygon', function(data) {
+
+            mapObj.draw('Polygon', function (data) {
+
                 console.log(data);
+            
             });
+        
         });
         document.getElementById('areaQuery').addEventListener('click', () => {
+
             mapObj.clearTrackInfo();
             mapObj.clearSpatial();
             //获取周边查询的结果 参数：1.中心点坐标 经纬度 2.半径 单位为米
@@ -372,32 +423,41 @@ class icon extends Component {
             var coo = [
                 116.60062,
                 35.45594
-            ]; /*[116.98612837827636, 36.6650505841216]*/
+            ];
+            /*[116.98612837827636, 36.6650505841216]*/
             mapObj.flyTo(coo, {
                 zoom: 9,
-                callback: function() {
+                callback: function () {
+
                     mapObj.spatialQuery(coo, 10000, queryCallback, {
                         showRadar: true, //是否显示雷达
                         // time: 2 //雷达扫描次数 1个圆周为1 默认为-1 即不会消失
                         limitDistance: 50000
                     });
+                
                 }
             });
-            let queryCallback = function(features) {
+            let queryCallback = function (features) {
 
                 for (let key in features.selected) {
+
                     const feaArray = features.selected[key];
                     feaArray.forEach(fea => {
+
                         fea.forEach(feature => {
+
                             let coord = feature.get('geoCoord');
                             if (feature.get('features')) {
+
                                 coord = feature
                                     .get('features')[0]
                                     .get('geoCoord');
+                            
                             }
                             mapObj.drawTrack(coord, coo, {
                                 isCustom: true,
-                                tooltipFun: function(data, obj) {
+                                tooltipFun: function (data, obj) {
+
                                     const length = (data.length / 1000).toFixed(
                                         1
                                     );
@@ -406,12 +466,18 @@ class icon extends Component {
                                     str += '预计到达时间：' + data.time + '分钟';
                                     obj.innerHTML = str;
                                     return str;
+                                
                                 }
                             });
+                        
                         });
+                    
                     });
+                
                 }
+            
             };
+        
         });
 
         setTimeout(() => {
@@ -419,31 +485,33 @@ class icon extends Component {
             // mapObj.showLayer(5)
             // mapObj.zoomToSeries();
             // console.log(mapObj.getSeries(5));
-        }, 2000)
+        }, 2000);
 
 
     }
 
     render() {
+
         return (
             <div>
-                <input id="select" type="button" value="选中" />
-                <input id="unselect" type="button" value="取消选中" />
-                <input id="filter" type="button" value="筛选" />
-                <input id="remove" type="button" value="移除数据" />
-                <input id="add" type="button" value="增加数据" />
-                <input id="showlayer" type="button" value="显示数据" />
-                <input id="hidelayer" type="button" value="隐藏数据" />
-                <input id="return" type="button" value="返回" />
-                <input id="areaQuery" type="button" value="周边范围查询" />
-                <input id="query" type="button" value="画圆查询" />
-                <input id="query1" type="button" value="画框查询" />
-                <input id="query2" type="button" value="画多边形查询" />
-                <input id="hasLayer" type="button" value="存在图层" />
-                <input id="clear" type="button" value="清空查询结果" />
-                <div id="map" />
+                <input id='select' type='button' value='选中'/>
+                <input id='unselect' type='button' value='取消选中'/>
+                <input id='filter' type='button' value='筛选'/>
+                <input id='remove' type='button' value='移除数据'/>
+                <input id='add' type='button' value='增加数据'/>
+                <input id='showlayer' type='button' value='显示数据'/>
+                <input id='hidelayer' type='button' value='隐藏数据'/>
+                <input id='return' type='button' value='返回'/>
+                <input id='areaQuery' type='button' value='周边范围查询'/>
+                <input id='query' type='button' value='画圆查询'/>
+                <input id='query1' type='button' value='画框查询'/>
+                <input id='query2' type='button' value='画多边形查询'/>
+                <input id='hasLayer' type='button' value='存在图层'/>
+                <input id='clear' type='button' value='清空查询结果'/>
+                <div id='map'/>
             </div>
         );
+    
     }
 }
 export default icon;

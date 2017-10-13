@@ -1,6 +1,7 @@
 'use strict';
 
 /**
+ * 地图原型
  * @module mapModel
  */
 export default {

@@ -2,11 +2,11 @@
  * @Author: wxq
  * @Date:   2017-05-23 20:14:54
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-22 16:41:40
+ * @Last Modified time: 2017-10-12 17:02:39
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\spatialQueryLayer.js
  * @File Name: spatialQueryLayer.js
- * @Descript: 
+ * @Description:
  */
 'use strict';
 import baseLayer from './baselayer';
@@ -19,6 +19,7 @@ const ol = require('ol');
 export default class spatialQueryLayer extends baseLayer {
     /**
      * 初始化
+     * @private
      * @param  {Object}   options 参数
      * @extends baseLayer
      */
@@ -33,6 +34,7 @@ export default class spatialQueryLayer extends baseLayer {
         this.showRadar = false;
         this.time = -1;
         this.limitDistance = 20000;
+        this.minDistance = 0;
         this.radius = 20000; //meter
         this.queryLayers = options.queryLayer;
         this.init();
@@ -99,11 +101,10 @@ export default class spatialQueryLayer extends baseLayer {
      */
     initTranslate() {
 
-
-        let elemnt = document.createElement('div');
-        elemnt.innerHTML = '&times';
-        elemnt.className = 'hy_spql_close';
-        elemnt.addEventListener('click', () => {
+        let element = document.createElement('div');
+        element.innerHTML = '&times';
+        element.className = 'hy_spql_close';
+        element.addEventListener('click', () => {
 
             this.clear();
 
@@ -111,7 +112,7 @@ export default class spatialQueryLayer extends baseLayer {
         this.closeMarker = new ol.Overlay({
             offset: [72, -12],
             position: 'center-center',
-            element: elemnt,
+            element: element,
             stopEvent: false,
             id: 'h_cm' + new Date().getTime()
         });
@@ -143,27 +144,8 @@ export default class spatialQueryLayer extends baseLayer {
         translate.on('translating', (evt) => {
 
             let fea = evt.features.getArray()[0];
-            let newCoord = fea.getGeometry().getCoordinates();
-            let center = fea.get('center');
-            let dis = Math.floor(newCoord[0] - center[0]);
-            if (dis > this.limitDistance) {
+            this.setCoords(fea);
 
-                dis = this.limitDistance;
-                fea.setGeometry(new ol.geom.Point([center[0] + this.limitDistance, center[1]]));
-
-            } else if (dis < 0) {
-
-                dis = 0;
-                fea.setGeometry(new ol.geom.Point([center[0], center[1]]));
-
-            } else {
-
-                fea.setGeometry(new ol.geom.Point([newCoord[0], center[1]]));
-
-            }
-
-            fea.set('distance', dis);
-            this.feature.setGeometry(new ol.geom.Circle(center, dis));
 
         });
         translate.on('translateend', (evt) => {
@@ -176,6 +158,33 @@ export default class spatialQueryLayer extends baseLayer {
 
     }
 
+    setCoords(fea) {
+
+        let newCoord = fea.getGeometry().getCoordinates();
+        let center = fea.get('center');
+        let dis = Math.floor(newCoord[0] - center[0]);
+        //边界判断
+        if (dis > this.limitDistance) {
+
+            dis = this.limitDistance;
+            fea.setGeometry(new ol.geom.Point([center[0] + this.limitDistance, center[1]]));
+
+        } else if (dis < this.minDistance) {
+
+            dis = this.minDistance;
+            fea.setGeometry(new ol.geom.Point([center[0], center[1]]));
+
+        } else {
+
+            fea.setGeometry(new ol.geom.Point([newCoord[0], center[1]]));
+
+        }
+
+        fea.set('distance', dis);
+        this.feature.setGeometry(new ol.geom.Circle(center, dis));
+
+    }
+
     /**
      * 改变半径
      * @param  {number|undefined}  radius  半径
@@ -183,27 +192,23 @@ export default class spatialQueryLayer extends baseLayer {
      */
     setRadius(radius, relative = false) {
 
-        if (relative) {
-
-            radius = this.radius + radius;
-
-        }
-        if (radius < 0) {
-
-            console.info('半径不能小于0');
-            return;
-        }
-
         this.map.un('postcompose', this.drawRender, this);
-        if (this.showRadar) {
-
-            this.map.on('postcompose', this.drawRender, this);
-
-        }
 
         let geometry;
         if (radius) {
 
+            if (relative) {
+
+                radius = this.radius + radius;
+
+            }
+            if (radius < this.minDistance) {
+
+                radius = this.minDistance;
+                console.info('半径不能小于' + this.minDistance);
+                return;
+
+            }
             // const oldGeometry = this.feature.getGeometry();
             const type = this.feature.get('drawType');
             if (type == 'LineString') {
@@ -214,11 +219,18 @@ export default class spatialQueryLayer extends baseLayer {
 
             } else {
 
+                this.dispatchEvent({
+                    type: 'drawStart',
+                    selected: this.feature.get('queryResult'),
+                    feature: this.feature
+                });
                 this.coords = this.feature.getGeometry().getCenter();
                 geometry = new ol.geom.Circle(this.coords, radius);
                 this.feature.setGeometry(geometry);
+                this.setMarker(geometry);
 
             }
+
             this.radius = radius;
 
         } else {
@@ -229,6 +241,11 @@ export default class spatialQueryLayer extends baseLayer {
 
         }
 
+        if (this.showRadar) {
+
+            this.map.on('postcompose', this.drawRender, this);
+
+        }
         this._query(geometry);
 
     }
@@ -306,29 +323,33 @@ export default class spatialQueryLayer extends baseLayer {
     /**
      * 添加圆和可拖动标识
      * @param  {array}  geoCoord             中心点
-     * @param  {string}  radius              半径
+     * @param  {Number}  radius              半径
      * @param  {Number}  options.time          动画播放次数 默认为-1 无限次
      * @param  {Boolean} options.showRadar     是否显示雷达 默认为true
      * @param  {Number}  options.limitDistance 拖拽最大范围 单位米
+     * @param  {Number}  options.minDistance   最小距离
+     * @param  {Boolean} options.showMoveSign  是否显示移动标记
      * @return {object}                        查询结果: { }
      */
     load(geoCoord, radius, {
         time = -1,
         showRadar = true,
         limitDistance = 20000,
+        minDistance = 0,
         showMoveSign = true
     } = {}) {
 
         this.showRadar = showRadar;
         this.time = time;
         this.limitDistance = limitDistance;
+        this.minDistance = minDistance;
         this.radius = radius;
         this.geoCoord = geoCoord;
 
 
         this.coords = mapTool.transform(geoCoord);
 
-        this.feature.set('drawType', "Circle");
+        this.feature.set('drawType', 'Circle');
         const circle = new ol.geom.Circle(this.coords, radius);
         this.feature.setGeometry(circle);
 
@@ -353,7 +374,6 @@ export default class spatialQueryLayer extends baseLayer {
         this.marker.set('center', circle.getCenter());
 
     }
-
 
 
     drawRender(evt) {
@@ -430,26 +450,39 @@ export default class spatialQueryLayer extends baseLayer {
      * @return {[type]} [description]
      */
     detectZoom() {
+
         var ratio = 0,
             screen = window.screen,
             ua = navigator.userAgent.toLowerCase();
 
         if (window.devicePixelRatio !== undefined) {
+
             ratio = window.devicePixelRatio;
+
         } else if (~ua.indexOf('msie')) {
+
             if (screen.deviceXDPI && screen.logicalXDPI) {
+
                 ratio = screen.deviceXDPI / screen.logicalXDPI;
+
             }
+
         } else if (window.outerWidth !== undefined && window.innerWidth !== undefined) {
+
             ratio = window.outerWidth / window.innerWidth;
+
         }
 
         if (ratio) {
+
             ratio = Math.round(ratio * 100);
+
         }
 
         return ratio;
-    };
+
+    }
+
     /**
      * 查询信息
      * @param  {array}   coords [description]
@@ -462,9 +495,11 @@ export default class spatialQueryLayer extends baseLayer {
         let piex_center = this.map.getPixelFromCoordinate(coords);
         let piex_radius = this.map.getPixelFromCoordinate(geom_temp)[0] - piex_center[0];
         if (this.scale != 100) {
+
             let scale = this.scale;
             piex_center = [piex_center[0] * scale / 100, piex_center[1] * scale / 100];
             piex_radius = piex_radius * scale / 100;
+
         }
         let circleObj = {
             radius: radius,
@@ -509,7 +544,7 @@ export default class spatialQueryLayer extends baseLayer {
                             //增加距离，单位为米
                             if (geometry instanceof ol.geom.Circle) {
 
-                                var line = new ol.geom.LineString([coords, geometry.getCenter()]);
+                                let line = new ol.geom.LineString([coords, geometry.getCenter()]);
                                 feature.set('distance', Number(line.getLength().toFixed(0)));
 
                             }
@@ -536,7 +571,7 @@ export default class spatialQueryLayer extends baseLayer {
                         //增加距离，单位为米
                         if (geometry instanceof ol.geom.Circle) {
 
-                            var line = new ol.geom.LineString([coords, geometry.getCenter()]);
+                            let line = new ol.geom.LineString([coords, geometry.getCenter()]);
                             feature.set('distance', Number(line.getLength().toFixed(0)));
 
                         }
@@ -566,40 +601,8 @@ export default class spatialQueryLayer extends baseLayer {
     }
 
     /**
-     * 排序
-     * @private
-     * @param  {Array}   array [description]
-     * @param  {String}   key   [description]
-     * @return {Array}         [description]
-     */
-    sortBy(array, key) {
-
-        array.sort((a, b) => {
-
-            return a.get('distance') - b.get('distance');
-
-        });
-        return array;
-
-    }
-
-    /**
-     * 设置空间查询回调
-     * @param  {Function}   fun function
-     */
-    setQueryFun(fun) {
-
-        if (fun) {
-
-            this.queryFun = fun;
-
-        }
-
-    }
-
-    /**
      * 创建绘制查询
-     * @param  {String} value 查询类型 Square:正方形 Box：矩形 Polygon：多边形 Circle：圆形 ,LineString
+     * @param  {String} type 查询类型 Square:正方形 Box：矩形 Polygon：多边形 Circle：圆形 ,LineString
      * @param  {Function} fun   查询结果回调
      * @return {object}  draw    查询控件构造体
      */
@@ -614,7 +617,7 @@ export default class spatialQueryLayer extends baseLayer {
         this.clear();
         fun && this.setQueryFun(fun);
 
-        var geometryFunction, maxPoints;
+        let geometryFunction, maxPoints;
 
         if (type === 'Square') {
 
@@ -705,6 +708,38 @@ export default class spatialQueryLayer extends baseLayer {
     }
 
     /**
+     * 排序
+     * @private
+     * @param  {Array}   array [description]
+     * @param  {String}   key   [description]
+     * @return {Array}         [description]
+     */
+    sortBy(array, key) {
+
+        array.sort((a, b) => {
+
+            return a.get('distance') - b.get('distance');
+
+        });
+        return array;
+
+    }
+
+    /**
+     * 设置空间查询回调
+     * @param  {Function}   fun function
+     */
+    setQueryFun(fun) {
+
+        if (fun) {
+
+            this.queryFun = fun;
+
+        }
+
+    }
+
+    /**
      * 清空
      */
     clear() {
@@ -728,7 +763,6 @@ export default class spatialQueryLayer extends baseLayer {
         });
 
     }
-
 
     /**
      * 设置点击控件响应状态

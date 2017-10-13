@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-04 17:22:04
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-22 11:47:00
+ * @Last Modified time: 2017-09-28 15:03:01
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\hyLayerGroup.js
  * @File Name: hyLayerGroup.js
@@ -21,6 +21,7 @@ const ol = require('ol');
 export default class hyLayerGroup extends hyMapStyle {
     /**
      * 初始化
+     * @private
      * @param  {Object}   options 参数
      */
     constructor(options) {
@@ -38,7 +39,7 @@ export default class hyLayerGroup extends hyMapStyle {
 
     /**
      * 获取图层
-     * @return {Array} [layers] 图层组 
+     * @return {Array} [layers] 图层组
      */
     getLayer() {
 
@@ -92,11 +93,11 @@ export default class hyLayerGroup extends hyMapStyle {
      * @private
      */
     _createGroup({
-        id = this.id,
-        name = id,
-        opacity = 1,
-        visible = true
-    } = {}) {
+                     id = this.id,
+                     name = id,
+                     opacity = 1,
+                     visible = true
+                 } = {}) {
 
         this.id = id;
         this.layersArray.set('layerId', id);
@@ -178,7 +179,7 @@ export default class hyLayerGroup extends hyMapStyle {
 
                     }
                     //目标数据遍历，找到的更新，未找到的删除。
-                    source.forEachFeature(function(feature) {
+                    source.forEachFeature(function (feature) {
 
                         const id = feature.getId();
                         if (strMap.has(id)) {
@@ -281,6 +282,7 @@ export default class hyLayerGroup extends hyMapStyle {
         this.setVisible(true);
 
     }
+
     hide() {
 
         this.setVisible(false);

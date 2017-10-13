@@ -1,7 +1,7 @@
 {
     "opts": {
         "recurse": true,
-        "template": "doc/jsdoc",
+        "template": "node_modules/docdash",
         "destination": "doc/API/",
         "readme": "doc/index.md"
     },
@@ -17,12 +17,6 @@
     },
     "plugins": [
         "plugins/markdown"
-        // "../ol3/node_modules/jsdoc/plugins/markdown",
-        // "doc/jsdoc/plugins/inheritdoc",
-        // "doc/jsdoc/plugins/typedefs",
-        // "doc/jsdoc/plugins/events",
-        // "doc/jsdoc/plugins/observable",
-        // "doc/jsdoc/plugins/api"
     ],
     "markdown": {
         "parser": "gfm"

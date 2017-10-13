@@ -80,12 +80,12 @@ class heatmap extends Component {
             let qhserie = [];
             values.features.forEach(data => {
 
-                    qhserie.push({
-                        geoCoord: data.geometry.coordinates,
-                        id: data.properties.OBJECTID
-                    })
+                qhserie.push({
+                    geoCoord: data.geometry.coordinates,
+                    id: data.properties.OBJECTID
+                });
 
-                })
+            });
                 // console.log(qhserie)
                 // console.log(values.features);
                 // 
@@ -97,7 +97,7 @@ class heatmap extends Component {
                     heatOption: { //type为heatmap时该参数生效。
                         //     gradient: ['#00f', '#0ff', '#0f0', '#ff0', '#f00'], //array<string>|undefined 颜色数组 该值为默认
                         blur: 5, //number|undefined 模糊 单位：像素 默认15
-                        radius: 1, //number|undefined 半径 单位：像素 默认8
+                        radius: 1 //number|undefined 半径 单位：像素 默认8
                         //     shadow: 100 //number|undef 阴影大小 单位：像素 默认250
                     },
                     symbolSize: [5, 5], //[min,max]
@@ -122,8 +122,9 @@ class heatmap extends Component {
                     showPopup: false
 
                 }]
-            })
-        })
+            });
+        
+        });
 
         obj.on('click', function(data) {
 

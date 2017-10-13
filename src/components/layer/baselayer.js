@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-08 20:09:53
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-30 18:03:05
+ * @Last Modified time: 2017-09-28 15:00:45
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\baselayer.js
  * @File Name: baselayer.js
@@ -18,11 +18,13 @@ import {
     getFilterFeature,
     compileStyle
 } from '../../core/mapbox/FeatureFilter';
+
 const ol = require('ol');
 
 export default class baseLayer extends mix(base, hyMapStyle) {
     /**
      * 初始化
+     * @private
      * @param  {Object}   options 参数
      */
     constructor(options) {
@@ -175,12 +177,14 @@ export default class baseLayer extends mix(base, hyMapStyle) {
         return rStyle;
 
     }
+
     _scaleSize(symbolSize = [], min, max) {
 
         let a = symbolSize[1] - symbolSize[0] + 1;
         return max / a;
 
     }
+
     getAngel(start, end) {
 
         var dx = end[0] - start[0];
@@ -196,6 +200,7 @@ export default class baseLayer extends mix(base, hyMapStyle) {
         return feature;
 
     }
+
     dispose() {
 
         this.map && this.map.removeLayer(this.layer);
@@ -210,5 +215,6 @@ export default class baseLayer extends mix(base, hyMapStyle) {
         this.source = undefined;
         this.layer = undefined;
         this.map = undefined;
+    
     }
 }

@@ -16,7 +16,7 @@ class featureanimat extends Component {
     componentDidMount() {
 
         var layer = new ol.layer.Tile({
-            name: "Natural Earth",
+            name: 'Natural Earth',
             minResolution: 306,
             source: new ol.source.XYZ({
                 url: 'http://{a-d}.tiles.mapbox.com/v3/mapbox.natural-earth-hypso-bathy/{z}/{x}/{y}.png',
@@ -81,17 +81,23 @@ class featureanimat extends Component {
         this.vector.getSource().clear();
         var ex = map.getView().calculateExtent(map.getSize());
         for (var i = 0; i < 10; i++) {
+
             setTimeout(() => {
+
                 this.addFeatureAt(
                     [ex[0] + Math.random() * (ex[2] - ex[0]),
                         ex[1] + Math.random() * (ex[3] - ex[1])
-                    ])
+                    ]);
+            
             }, 1000 * i);
+        
         }
+    
     }
 
 
     addFeatureAt(p) {
+
         var f = new ol.Feature(new ol.geom.Point(p));
         this.vector.getSource().addFeature(f);
 
@@ -100,6 +106,7 @@ class featureanimat extends Component {
             duration: 800,
             side: false
         })]);
+    
     }
 
     render() {

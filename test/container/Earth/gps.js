@@ -18,6 +18,7 @@ require('sockjs_min');
 const Stomp = require('stomp');
 class gps extends Component {
     componentDidMount() {
+
         let obj = map.init(document.getElementById('map'));
         let options = {
             serverUrl: 'http://192.168.1.50:8080/geoserver', //服务器地址
@@ -88,14 +89,20 @@ class gps extends Component {
         // }])
 
         obj.on('click', function(data) {
+
             console.log('getdata:', data);
+        
         });
         obj.on('hover', function(data) {
+
             console.log('getdata:', data);
+        
         });
 
         obj.on('unClick', function(data) {
+
             console.log('getundata:', data);
+        
         });
         const line = [{
             id: 1,
@@ -116,73 +123,73 @@ class gps extends Component {
             id: 6,
             geoCoord: '115.99637,36.52161'
         }, {
-            cid: "330204197302156081",
-            CJSJ: "2017-04-09T20:57:00.000+08:00",
-            CNAME: "李莉",
+            cid: '330204197302156081',
+            CJSJ: '2017-04-09T20:57:00.000+08:00',
+            CNAME: '李莉',
             ID: 33584370,
-            IMIC: "851038694381",
-            JD: "116.378633",
-            JWD: "39.857683,116.378633",
-            LXDZ: "北京市丰台区南三环西路甲1号",
-            QT1: "东南",
-            QT2: "京A-23588",
-            QT3: "黑色",
-            QT4: "",
-            SBBH: "",
-            SBLX: "住宿登记",
-            SBMC: "北京市丰台区南三环西路甲1号",
-            TP1: "",
-            TP2: "",
-            TP3: "",
-            WD: "39.857683",
-            XSID: "",
-            type: "zj_sjfx",
-            geoCoord: ["116.378633", 39.857683]
+            IMIC: '851038694381',
+            JD: '116.378633',
+            JWD: '39.857683,116.378633',
+            LXDZ: '北京市丰台区南三环西路甲1号',
+            QT1: '东南',
+            QT2: '京A-23588',
+            QT3: '黑色',
+            QT4: '',
+            SBBH: '',
+            SBLX: '住宿登记',
+            SBMC: '北京市丰台区南三环西路甲1号',
+            TP1: '',
+            TP2: '',
+            TP3: '',
+            WD: '39.857683',
+            XSID: '',
+            type: 'zj_sjfx',
+            geoCoord: ['116.378633', 39.857683]
         }, {
-            cid: "330204197302156081",
-            CJSJ: "2017-04-09T19:47:00.000+08:00",
-            CNAME: "李莉",
+            cid: '330204197302156081',
+            CJSJ: '2017-04-09T19:47:00.000+08:00',
+            CNAME: '李莉',
             ID: 33584369,
-            IMIC: "851038694381",
-            JD: "116.378045",
-            JWD: "39.858739,116.378045",
-            LXDZ: "百名祥国际文化传播中心商务酒店B8213",
-            QT1: "东南",
-            QT2: "京A-23588",
-            QT3: "黑色",
-            QT4: "",
-            SBBH: "",
-            SBLX: "网吧上网",
-            SBMC: "百名祥国际文化传播中心商务酒店B8213",
-            TP1: "",
-            TP2: "",
-            TP3: "",
-            WD: "39.858739",
-            XSID: "",
-            type: "zj_sjfx",
-            geoCoord: ["116.378045", 39.858739]
+            IMIC: '851038694381',
+            JD: '116.378045',
+            JWD: '39.858739,116.378045',
+            LXDZ: '百名祥国际文化传播中心商务酒店B8213',
+            QT1: '东南',
+            QT2: '京A-23588',
+            QT3: '黑色',
+            QT4: '',
+            SBBH: '',
+            SBLX: '网吧上网',
+            SBMC: '百名祥国际文化传播中心商务酒店B8213',
+            TP1: '',
+            TP2: '',
+            TP3: '',
+            WD: '39.858739',
+            XSID: '',
+            type: 'zj_sjfx',
+            geoCoord: ['116.378045', 39.858739]
         }, {
-            cid: "330204197302156081",
-            CJSJ: "2017-04-09T19:37:00.000+08:00",
-            CNAME: "李莉",
+            cid: '330204197302156081',
+            CJSJ: '2017-04-09T19:37:00.000+08:00',
+            CNAME: '李莉',
             ID: 3553078,
-            IMIC: "851038694381",
-            JD: "116.372891",
-            JWD: "39.857652,116.372891",
-            LXDZ: "北京市丰台区开阳路西200米",
-            QT1: "黑",
-            QT2: "魅族",
-            QT3: "",
-            QT4: "",
-            SBBH: "018",
-            SBLX: "电子围栏",
-            SBMC: "万芳亭公园WIFI",
-            TP1: "",
-            TP2: "",
-            TP3: "",
-            WD: "39.857652",
-            XSID: "",
-            type: "zj_sjfx",
+            IMIC: '851038694381',
+            JD: '116.372891',
+            JWD: '39.857652,116.372891',
+            LXDZ: '北京市丰台区开阳路西200米',
+            QT1: '黑',
+            QT2: '魅族',
+            QT3: '',
+            QT4: '',
+            SBBH: '018',
+            SBLX: '电子围栏',
+            SBMC: '万芳亭公园WIFI',
+            TP1: '',
+            TP2: '',
+            TP3: '',
+            WD: '39.857652',
+            XSID: '',
+            type: 'zj_sjfx',
             geoCoord: [116.372891, 39.857652]
 
         }];
@@ -232,7 +239,7 @@ class gps extends Component {
             // trackModel: '2', //1,2,3
             startDom: element,
             endDom: element1
-        }
+        };
         const trackObj = obj.addLayer([serie]);
 
         // obj.removeLayer(899)
@@ -250,31 +257,43 @@ class gps extends Component {
         });
 
         setTimeout(() => {
-            console.log(1)
+
+            console.log(1);
             serie.data = [{
                 id: 1,
                 geoCoord: '119.17692,36.6919'
             }, {
                 id: 2,
                 geoCoord: ' 118.03983,36.81824'
-            }]
-            obj.updateLayer(serie)
-        }, 5000)
+            }];
+            obj.updateLayer(serie);
+        
+        }, 5000);
         document.getElementById('play').addEventListener('click', () => {
+
             trackObj[0].execute('start');
+        
         });
         document.getElementById('stop').addEventListener('click', () => {
+
             trackObj[0].execute('stop');
+        
         });
 
         document.getElementById('containue').addEventListener('click', obj => {
+
             if (obj.target.value == '暂停') {
+
                 obj.target.value = '继续';
                 trackObj[0].execute('pause');
+            
             } else {
+
                 obj.target.value = '暂停';
                 trackObj[0].execute('containue');
+            
             }
+        
         });
 
         const gpsObj = obj.addLayer([{
@@ -288,20 +307,27 @@ class gps extends Component {
         let socket = new SockJS('http://192.168.3.48:8080/sdjg/websocket');
         this.stompClient = Stomp.Stomp.over(socket);
         this.stompClient.connect({}, frame => {
+
             this.stompClient.subscribe('/topic/police', greeting => {
+
                 obj.updateGps(JSON.parse(greeting.body).data);
+            
             });
+        
         });
+    
     }
     render() {
+
         return (
             <div>
-                <input id="play" type="button" value="播放" />
-                <input id="stop" type="button" value="停止" />
-                <input id="containue" type="button" value="暂停" />
-                <div id="map" />{' '}
+                <input id='play' type='button' value='播放' />
+                <input id='stop' type='button' value='停止' />
+                <input id='containue' type='button' value='暂停' />
+                <div id='map' />{' '}
             </div>
         );
+    
     }
 }
 export default gps;

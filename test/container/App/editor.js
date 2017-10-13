@@ -22,7 +22,9 @@ require('brace/theme/monokai');
 
 class Editor extends Component {
     constructor(props) {
+
         super(props);
+    
     }
     componentDidMount() {
 
@@ -30,15 +32,21 @@ class Editor extends Component {
         this.editor.getSession().setMode('ace/mode/javascript');
         this.editor.setTheme('ace/theme/monokai');
         this.editor.getSession().on('change', () => {
+
             let interval;
             if (interval) {
+
                 clearTimeout(interval);
+            
             }
             interval = setTimeout(() => {
+
                 let value = this.editor.getValue();
                 let options = JSON.parse(value);
                 this.mapObj.setOption(options);
+            
             }, 1200);
+        
         });
         EventEmitter.subscribe('setOption', ({
             options,
@@ -48,19 +56,22 @@ class Editor extends Component {
             this.editor.setValue(JSON.stringify(options, null, '\t'));
             this.mapObj = mapObj;
 
-        })
+        });
+    
     }
     componentDidUpdate() {
 
         // this.editor.setValue(JSON.stringify(this.props.options, null, '\t'));
     }
     render() {
+
         return (
             <div
-                id="javascript-editor"
+                id='javascript-editor'
                 style={{ minHeight: '596px', height: '100%' }}
             />
         );
+    
     }
 }
 

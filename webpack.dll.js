@@ -14,7 +14,7 @@ const webpack = require('webpack');
 const vendors = [
     'react',
     'react-dom',
-    'react-router',
+    'react-router'
     // ...其它库
 ];
 
@@ -22,16 +22,16 @@ module.exports = {
     output: {
         path: 'build',
         filename: '[name].js',
-        library: '[name]',
+        library: '[name]'
     },
     entry: {
-        "lib": vendors,
+        'lib': vendors
     },
     plugins: [
         new webpack.DllPlugin({
             path: 'lib_manifest.json',
             name: '[name]',
-            context: __dirname,
-        }),
-    ],
+            context: __dirname
+        })
+    ]
 };

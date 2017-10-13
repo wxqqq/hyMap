@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-26 21:06:23
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-01 15:32:40
+ * @Last Modified time: 2017-09-28 15:01:22
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\gpsLayer.js
  * @File Name: gpsLayer.js
@@ -17,6 +17,7 @@ const ol = require('ol');
 export default class gpsLayer extends baseLayer {
     /**
      * 初始化
+     * @private
      * @param  {Object}   options 参数
      * @extends hylayer
      */

@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-20 17:03:05
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-05 14:41:54
+ * @Last Modified time: 2017-09-28 15:00:49
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\baseMap.js
  * @File Name: baseMap.js
@@ -15,6 +15,7 @@ const ol = require('ol');
 export default class baseMap extends base {
     /**
      * 初始化
+     * @private
      * @param  {Object}  options 参数{url:gis后台服务地址}
      * @extends  base
      */
@@ -130,6 +131,7 @@ export default class baseMap extends base {
                         let x = 'C' + this.zeroPad(tileCoord[1], 8, 16);
                         let y = 'R' + this.zeroPad(-tileCoord[2] - 1, 8, 16);
                         return url + '/' + z + '/' + y + '/' + x + '.png';
+                    
                     }
                 });
 
@@ -145,20 +147,31 @@ export default class baseMap extends base {
 
             } else if (theme.type == 'mapbox') {
 
-                let url = 'https://b.tiles.mapbox.com/v4/' + theme.mapId + '/{z}/{x}/{y}.png?access_token=' + theme.key
+                let url = 'https://b.tiles.mapbox.com/v4/' + theme.mapId + '/{z}/{x}/{y}.png?access_token=' + theme.key;
                 source = new ol.source.XYZ({
                     url: url
                 });
 
+            } else if (theme.type == 'satellite') {
+
+                let url = theme.url + '/{z}/{x}/{y}.jpg';
+                source = new ol.source.XYZ({
+                    url: url
+                });
+            
             }
+
             if (theme.debug) {
+
                 let l = new ol.layer.Tile({
                     source: new ol.source.TileDebug({
                         projection: 'EPSG:3857',
                         tileGrid: source.getTileGrid()
                     })
-                })
-                this.map.addLayer(l)
+                });
+
+                this.map.addLayer(l);
+
             }
 
             const layer = this.createTile(source);
@@ -352,6 +365,7 @@ export default class baseMap extends base {
 
             const layer = this.createTile(source);
             layers.push(layer);
+        
         }
         return layers;
 

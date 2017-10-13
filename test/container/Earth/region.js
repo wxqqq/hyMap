@@ -27,6 +27,7 @@ import Editor from '../App/editor';
 
 class region extends Component {
     constructor(props) {
+
         super(props);
 
         this.state = {
@@ -35,8 +36,10 @@ class region extends Component {
             mapObj: {},
             options: {}
         };
+    
     }
     componentDidMount() {
+
         this.mapObj = map.init(document.getElementById('map'));
 
         this.setState({
@@ -190,23 +193,30 @@ class region extends Component {
         // });
 
         this.mapObj.on('geoSelect', function(data) {
+
             console.log('getdata:', data);
+        
         });
 
         this.mapObj.on('geoUnSelect', function(data) {
+
             console.log('getundata:', data);
+        
         });
+    
     }
 
     render() {
+
         // <Col span={8}><Editor mapObj={this.state.mapObj} options={this.state.options}/></Col>
         return (
             <Row>
                 <Col span={23}>
-                    <div id="map" />
+                    <div id='map' />
                 </Col>
             </Row>
         );
+    
     }
 }
 export default region;

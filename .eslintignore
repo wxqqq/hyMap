@@ -1,3 +1,4 @@
-**/node_modules/*
-**/build/*
-**/public/lib/*
+/node_modules/
+/build/
+/public/lib/
+/doc/

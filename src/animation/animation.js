@@ -37,8 +37,10 @@ export default class animation {
         var called = false;
 
         function callback(complete) {
+
             --parts;
             if (called) {
+
                 setTimeout(fun, duration / 2);
                 return;
 

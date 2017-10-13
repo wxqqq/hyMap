@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-18 10:04:23
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-07 14:24:47
+ * @Last Modified time: 2017-09-28 15:01:35
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\regionLayer.js
  * @File Name: regionLayer.js
@@ -21,9 +21,11 @@ const ol = require('ol');
 export default class regionLayer extends baseLayer {
     /**
      * 初始化
+     * @private
      * @param  {Object}   options 参数
      */
     constructor(options) {
+
         super(options);
         this.source = null;
         this.geoDrillDown = options.serie.drillDown || false;
@@ -35,6 +37,7 @@ export default class regionLayer extends baseLayer {
         this.init();
         this.setGeoSource(options.serie.location);
         this.setGeoStyle(options.serie);
+    
     }
 
     /**
@@ -42,6 +45,7 @@ export default class regionLayer extends baseLayer {
      * @private
      */
     init() {
+
         //浮动区域
         this.layer = this.createGeoLayer();
         this.layer.parent = this;
@@ -49,24 +53,29 @@ export default class regionLayer extends baseLayer {
         this.map.addLayer(this.layer);
         this.source = this.layer.getSource();
         this.style = new hyStyle();
+    
     }
 
     /**
      * 创建图层
      */
     createGeoLayer() {
+
         let source = new ol.source.Vector();
 
         source.on('addfeature', evt => {
 
             evt.feature.source = evt.target;
             evt.feature.set('style', this._regionsObj[evt.feature.get('name')]);
+        
         });
         let layer = new ol.layer.Vector({
             name: '区域',
             source: source,
             style: (feature, resolution, type) => {
+
                 return this._geoStyleFn(feature, resolution, type);
+            
             },
             type: 'geo',
             visible: true
@@ -88,6 +97,7 @@ export default class regionLayer extends baseLayer {
         source.vector = layer;
 
         return layer;
+    
     }
 
     /**
@@ -99,9 +109,11 @@ export default class regionLayer extends baseLayer {
         this.setGeoStyle(geo);
         this.setGeoSource(geo.map);
         this.setGeoDrillDown(geo.drillDown);
+    
     }
 
     searchByIndexOf(keyWord, list) {
+
         list = [
             '河北',
             '山西',
@@ -136,21 +148,28 @@ export default class regionLayer extends baseLayer {
         ];
 
         if (!(list instanceof Array)) {
+
             return;
+        
         }
         var len = list.length;
         var arr = '';
         for (var i = 0; i < len; i++) {
+
             //如果字符串中不包含目标字符会返回-1
             if (keyWord.indexOf(list[i]) >= 0) {
+
                 arr = list[i];
+            
             }
             // if (list[i].indexOf(keyWord) >= 0) {
             //     arr = list[i];
             // }
+        
         }
 
         return arr;
+    
     }
 
     /**
@@ -158,19 +177,29 @@ export default class regionLayer extends baseLayer {
      * @param  {Strng}   mapName 名称
      */
     setGeoSource(mapName) {
+
         if (mapName) {
+
             //去除最后一个特殊符号，避免数组取值不正确
             mapName = mapTool.deleteEndSign(mapName, '|');
             if (mapName === '中国') {
+
                 this.geoLevel = 0;
+            
             } else {
+
                 let name = this.searchByIndexOf(mapName);
                 if (name) {
+
                     this.geoLevel = 1;
+                
                 } else {
+
                     this.geoLevel = 2;
+                
                 }
                 this.mapNameArray = mapName.split('|');
+            
             }
 
             const column = {
@@ -179,9 +208,13 @@ export default class regionLayer extends baseLayer {
             };
 
             this.geoQuery(column, false);
+        
         } else {
+
             this.layer.setVisible(false);
+        
         }
+    
     }
 
     setGeoStyle({
@@ -199,15 +232,18 @@ export default class regionLayer extends baseLayer {
         // });
         let regionObj = {};
         filter && filter.forEach(region => {
+
             const style = this._createGeoStyle(region.itemStyle, region.label);
             regionObj[region.name] = style;
-        })
+        
+        });
         this._regionsObj = regionObj;
         let vectorStyle = this.style._createGeoStyle(
             itemStyle || {},
             label || labelModel
         );
         this.layer.set('fstyle', vectorStyle);
+    
     }
 
     /**
@@ -215,8 +251,10 @@ export default class regionLayer extends baseLayer {
      * @param {Boolean} flag  true/false
      */
     setGeoDrillDown(flag = false) {
+
         this.layer.set('geoDrillDown', flag);
         this.geoDrillDown = flag;
+    
     }
 
     /**
@@ -224,7 +262,9 @@ export default class regionLayer extends baseLayer {
      * @return {Boolean} 
      */
     getGeoDrillDown() {
+
         return this.layer.get('geoDrillDown');
+    
     }
 
     /**
@@ -235,35 +275,43 @@ export default class regionLayer extends baseLayer {
         parentname,
         name
     } = {}) {
+
         this.geoLevel += 1; //当前数据的level+1;
         this.rollBackName = parentname;
         this.geoQuery({
-                parentname: this.rollBackName,
-                name: name,
-                level: this.geoLevel
-            },
+            parentname: this.rollBackName,
+            name: name,
+            level: this.geoLevel
+        },
             true
         );
+    
     }
 
     geoGoBack() {
+
         this.geoLevel -= 1;
         let name = this.rollBackName;
         const level = this.mapNameArray.length - 1;
         if (this.geoLevel == level) {
+
             name = this.mapNameArray[this.mapNameArray.length - 1];
+        
         } else if (this.geoLevel < level) {
+
             this.geoLevel += 1;
             return;
+        
         }
 
         this.geoQuery({
-                parentname: this.rollBackName,
-                name: name,
-                level: this.geoLevel
-            },
+            parentname: this.rollBackName,
+            name: name,
+            level: this.geoLevel
+        },
             true
         );
+    
     }
 
     /**
@@ -277,9 +325,12 @@ export default class regionLayer extends baseLayer {
         name,
         parentname
     } = {}, flag = true) {
+
         const tableKey = this.geoTables[level];
         if (!tableKey) {
+
             return;
+        
         }
         const table = 'area_china_' + tableKey;
         const column = 'parentname';
@@ -289,20 +340,29 @@ export default class regionLayer extends baseLayer {
             url: this.url,
             msg: hyMapQuery.createFeatureRequest([table], filter),
             callback: features => {
+
                 if (features.length > 0) {
+
                     this.geoQueryCallback(features, flag);
+                
                 } else {
+
                     this.geoLevel -= 1; //当前数据的level+1;
                     this.rollBackName = parentname;
+                
                 }
+            
             }
         });
+    
     }
 
     geoQueryCallback(features) {
+
         this.source.clear();
         this.source.addFeatures(features);
         //地图根据范围重新定位
         // flag && this.map.getView().fit(this.source.getExtent());
+    
     }
 }

@@ -8,6 +8,7 @@ require('../../../css/popup.css');
 export default class hytooltip extends hyMapStyle {
     /**
      * 初始化
+     * @private
      * @param  {Object}   options 参数
      */
     constructor(options) {

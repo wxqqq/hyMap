@@ -46,6 +46,7 @@ class rect extends Component {
             let arr2 = [];
             let arr3 = [];
             values.forEach(va => {
+
                 var data = {
                     id: new Date().getTime(),
                     geoCoord: [va.geometry.x, va.geometry.y],
@@ -65,12 +66,14 @@ class rect extends Component {
                 } else if (type == 3) {
 
                     arr.push(data);
+                
                 }
                 // } else {
 
                 //     arr3.push(data);
                 // }
-            })
+            
+            });
             console.log(arr);
 
             // options.series.push({
@@ -145,7 +148,7 @@ class rect extends Component {
                 heatOption: { //type为heatmap时该参数生效。
                     //     gradient: ['#00f', '#0ff', '#0f0', '#ff0', '#f00'], //array<string>|undefined 颜色数组 该值为默认
                     blur: 5, //number|undefined 模糊 单位：像素 默认15
-                    radius: 2, //number|undefined 半径 单位：像素 默认8
+                    radius: 2 //number|undefined 半径 单位：像素 默认8
                     //     shadow: 100 //number|undef 阴影大小 单位：像素 默认250
                 },
                 symbol: 'circle', //circle|react|icon
@@ -170,8 +173,9 @@ class rect extends Component {
 
             mapObj.setOption(options);
 
-        })
+        });
         fetch('../test/data/station.json').then(response => response.json()).then(function(values) {
+
             values.forEach(obj => {
 
                 obj.geoCoord = [obj.lon, obj.lat];

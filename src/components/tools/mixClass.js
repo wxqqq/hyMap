@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-07-13 09:53:04
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-05 14:45:38
+ * @Last Modified time: 2017-09-28 16:09:24
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\tools\mixClass.js
  * @File Name: mixClass.js
@@ -10,7 +10,7 @@
  */
 'use strict';
 
-let mix = (baseClass, ...mixins) => {
+const mix = (baseClass, ...mixins) => {
 
     let base = class _Combined extends baseClass {
         constructor(...args) {

@@ -29,17 +29,32 @@ export default class hyMap extends hytooltip {
          */
         this.baseLayer;
         this._geo = hymapOption;
+        /**
+         * map实例
+         * @type {[type]}
+         */
         this.map = null;
+        /**
+         * 是否显示
+         * @type {Boolean}
+         */
         this._show = true;
         this.tooltipOverLay = null;
         this._event = [];
+        /**
+         * 是否显示logo
+         * @private
+         * @type {Boolean}
+         */
         this._showLogo = true;
         this._addLayerGroupArray = {};
         this._markerLayer = {};
 
         this._panFunction = function(evt) {
+
             evt.preventDefault();
             evt.stopPropagation();
+        
         };
 
         this._init(dom);
@@ -48,6 +63,7 @@ export default class hyMap extends hytooltip {
         animation._intervaldate = new Date().getTime();
         this.spliceElapsed = 0;
         this.postListenerObj = {};
+    
     }
 
     /**
@@ -64,6 +80,38 @@ export default class hyMap extends hytooltip {
     /**
      * 设置地图参数
      * @param {Object} options 参数
+     * @example
+     *   
+     *  mapObj = map.init(document.getElementById('map'))
+        let options = {
+
+            serverUrl: 'http://192.168.1.50:8080/geoserver',
+            show: true, //地图的显示状态 true为显示 false 为不显示
+            roam: 'true', //地图是否开启缩放、平移功能
+            center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
+            // theme: {
+            // type: 'tile',
+            // url: 'http://mape.shanghai-map.net/ArcGIS/rest/services/SHMAP_DZJ/MapServer'
+            // url: 'http://192.168.4.35:6080/arcgis/rest/services/MZL/MapServer'
+            // url: 'http://localhost:8080/all'
+            // }, //地图风格
+            // center: [117.52359952545166, 49.52355306224895], //当前视角中心: [经度, 纬度]
+            zoom: 3, //当前地图缩放比例
+            scaleLimit: [2, 18], //滚轮缩放的边界
+            // string('dark'，'blue'，'white')|mapObjectr{mapId,key} 对应maobox中的mapid和access_token
+
+            theme: {
+                type: 'mapbox',
+                mapId: 'zhangyujie.a80cdc83',
+                key: 'sk.eyJ1Ijoiemhhbmd5dWppZSIsImEiOiJkTEp6WDZrIn0.nY5bsQlZegBbb2uGgJ5jEA'
+                    // type: 'arcgis',
+                    // type: 'satellite',
+                    // url: 'http://192.168.1.201/MapTileDownload/googlemaps/satellite'
+                    // url: 'http://192.168.4.35:8080/QingHai/'
+                    // url: 'http://192.168.4.35:6080/arcgis/rest/services/TianJin/MapServer'
+                    // url: 'http://192.168.4.35:6080/a/arcgisserver/directories/arcgiscache/TianJin/%E5%9B%BE%E5%B1%82/_alllayers'
+            }, //地图风格
+        };
      */
     setOption(options) {
 
@@ -160,23 +208,36 @@ export default class hyMap extends hytooltip {
      * 显示底图
      */
     showBaseMap() {
+
         this.baseLayer.show();
+    
     }
 
     /**
      * 隐藏底图
      */
     hideBaseMap() {
+
         this.baseLayer.hide();
+    
     }
 
     /**
      * 设置底图风格
-     * @param {String} theme 'dark','blue','white' 默认为blue
+     * @param {String|Object|Array} theme 'dark','blue','white' 默认为blue
+     * @example
+     *
+     * setTheme('dark');
+     * setTheme({type:'tile',url:'http://ip:port'})
+     * setTheme({type:'arcgis',url:'http://ip:port'})
+     * setTheme({type:'mapbox',mapId:'sdfsfdsfdsfdsf',key:'sssdfsdfdsfds'})
+     * setTheme(['dark',{type:'tile',url:'http://ip:port'}...])
      */
     setTheme(theme) {
+
         this.baseLayer.setUrl(this._serverUrl);
         this.baseLayer.setTheme(theme);
+    
     }
 
     /**
@@ -206,6 +267,7 @@ export default class hyMap extends hytooltip {
 
     /**
      * 创建view
+     * @private 
      */
     setView(geo) {
 
@@ -232,15 +294,88 @@ export default class hyMap extends hytooltip {
 
     /**
      * 启动测量
+     * @private
      * @param  {String} type 类型 distance,area 
      */
     measure(type) {
+
         this.hymeasure.active(type);
+    
     }
 
     /**
      * 增加图层
      * @param {Array} options 参数
+     * @example
+     *     const series1 = [{
+                id: 3,
+                cluster: {
+                    enable: false, //是否开启聚合
+                    distance: 50, // number 聚合点之间的距离 默认为20个单位（piex）
+                    animationDuration: 700 //聚合动画时间，默认为700毫秒
+                },
+                // maxZoom: 10, //数据显示最大级别
+                // minZoom: 6, //数据显示最小级别
+                data: values,
+                type: 'point',
+                visible: true,
+                // opacity: 0.2,
+                symbol: 'icon:test/data/jingli-1.png',
+                // symbol: 'circle',
+                symbolSize: [15, 20],
+                symbolStyle: {
+                    normal: {
+                        anchor: [0.5, 0.5], //图标偏移位置。
+                        // color: 'red'
+                        // symbolSize: [15, 15],
+                        fillColor: 'red', // 'rgb(140,0,140)',
+                        strokeWitdh: 1,
+                        strokeColor: 'rbg(140,0,140)'
+                    },
+                    emphasis: {
+                        strokeWitdh: 2,
+                        fillColor: 'red',
+
+                        symbolSize: [17, 22]
+                    }
+                },
+                labelColumn: 'name',
+                labelSize: [10, 20],
+                label: {
+                    normal: {
+                        show: false,
+                        textStyle: {
+                            color: '#fff',
+                            fontStyle: 'normal',
+                            fontWeight: 'bold',
+                            fontFamily: 'sans-serif',
+                            fontSize: '55px',
+                            offsetY: 10,
+                            offsetX: -15
+                        }
+                    },
+                    emphasis: {
+                        show: true,
+                        textStyle: {
+                            fontSize: '16px'
+                        }
+                    }
+                },
+                showPopup: false //显示气泡框
+            }];
+
+            let layer1 = mapObj.addLayer({
+                id: 5,
+                visible: true,
+                opacity: 1,
+                series: series1
+            });
+
+            layer1.on('click', function (data) {
+                console.log('layer1', data);
+            });
+            // console.log(layer1);
+            mapObj.un('click');
      */
     addLayer(arrays) {
 
@@ -253,6 +388,7 @@ export default class hyMap extends hytooltip {
                 layers.push(layer);
 
             });
+        
         } else {
 
             arrays.map = this.map;
@@ -266,28 +402,29 @@ export default class hyMap extends hytooltip {
     }
 
     _addLayer(serie) {
+
         let layer;
         serie.id = serie.id || 'layer_' + new Date().getTime();
         switch (serie.type) {
-            case 'track':
-                layer = this.initTrackData(serie);
-                break;
-            case 'gps':
-                layer = this.initgpslayer(serie);
-                break;
-            case 'region':
-                serie.url = serie.url || this._serverUrl;
-                serie = new Layer.regionLayer({
-                    map: this.map,
-                    serie
-                });
-                break;
-            default:
-                layer = new Layer.hyLayer({
-                    map: this.map,
-                    serie: serie
-                });
-                this.map.addLayer(layer.getLayer());
+        case 'track':
+            layer = this.initTrackData(serie);
+            break;
+        case 'gps':
+            layer = this.initgpslayer(serie);
+            break;
+        case 'region':
+            serie.url = serie.url || this._serverUrl;
+            serie = new Layer.regionLayer({
+                map: this.map,
+                serie
+            });
+            break;
+        default:
+            layer = new Layer.hyLayer({
+                map: this.map,
+                serie: serie
+            });
+            this.map.addLayer(layer.getLayer());
         }
 
         this._addLayerGroupArray[serie.id] = layer;
@@ -342,11 +479,15 @@ export default class hyMap extends hytooltip {
      * @return {Boolean}    
      */
     hasLayer(id) {
+
         const layer = this._addLayerGroupArray[id];
         if (layer) {
+
             return true;
+        
         }
         return false;
+    
     }
 
     /**
@@ -709,26 +850,40 @@ export default class hyMap extends hytooltip {
      * 
      */
     getFeatureById(id) {
+
         //todo 没有进行聚合判断
         const layersGroup = this.map.getLayers();
         let features = [];
         layersGroup.forEach(group => {
+
             if (group instanceof ol.layer.Group) {
+
                 const layers = group.getLayers();
                 layers.forEach(function(element) {
+
                     if (element.getSource() instanceof ol.source.Vector) {
+
                         const feature = element.getSource().getFeatureById(id);
                         feature && features.push(feature);
+                    
                     }
+                
                 });
+            
             } else {
+
                 if (group.getSource() instanceof ol.source.Vector) {
+
                     const feature = group.getSource().getFeatureById(id);
                     feature && features.push(feature);
+                
                 }
+            
             }
+        
         });
         return features;
+    
     }
 
     /**
@@ -738,17 +893,24 @@ export default class hyMap extends hytooltip {
      * @return {Array}    features  features数组
      */
     getFeaturesByProperty(key, value) {
+
         const layersGroup = this.map.getLayers();
         let array = [];
         layersGroup.forEach(group => {
+
             if (group instanceof ol.layer.Group) {
+
                 const layers = group.getLayers();
                 layers.forEach(element => {
+
                     if (element.getSource() instanceof ol.source.Vector) {
+
                         const features = element.getSource().getFeatures();
 
                         features && features.forEach(feature => {
+
                             if (feature.get(key) && feature.get(key) == value) {
+
                                 const pixel = mapTool.getPixelFromCoords(
                                     feature.getGeometry().getCoordinates()
                                 );
@@ -757,16 +919,25 @@ export default class hyMap extends hytooltip {
                                     // properties: feature.getProperties()
                                     properties: feature
                                 });
+                            
                             }
+                        
                         });
+                    
                     }
+                
                 });
+            
             } else {
+
                 if (group.getSource() instanceof ol.source.Vector) {
+
                     const features = group.getSource().getFeatures();
 
                     features && features.forEach(feature => {
+
                         if (feature.get(key) && feature.get(key) == value) {
+
                             const pixel = mapTool.getPixelFromCoords(
                                 feature.getGeometry().getCoordinates()
                             );
@@ -775,40 +946,55 @@ export default class hyMap extends hytooltip {
                                 // properties: feature.getProperties()
                                 properties: feature
                             });
+                        
                         }
+                    
                     });
+                
                 }
+            
             }
 
         });
         return array;
+    
     }
 
     /**
      * 切换地图显示隐藏状态
      */
     tollgeShow() {
+
         if (this._show === false) {
+
             this._dom.style.display = 'block';
+        
         } else {
+
             this._dom.style.display = 'none';
+        
         }
+    
     }
 
     /**
      * 隐藏dom对象
      */
     hide() {
+
         this._dom.style.display = 'none';
         this._show = false;
+    
     }
 
     /**
      * 显示dom对象
      */
     show() {
+
         this._dom.style.display = 'block';
         this._show = true;
+    
     }
 
     /**
@@ -816,7 +1002,9 @@ export default class hyMap extends hytooltip {
      * 
      */
     resize() {
+
         this.map.updateSize();
+    
     }
 
     /**
@@ -835,13 +1023,17 @@ export default class hyMap extends hytooltip {
             callback = undefined
         } = {}
     ) {
+
         let geometry = geoCoord;
         if (!(geometry instanceof ol.geom.Geometry)) {
+
             geometry = new ol.geom.Point(
                 mapTool.transform(geoCoord, this.map.getView().getProjection())
             );
+        
         }
         if (zoom) {
+
             let animate = new animation(
                 this.map,
                 geometry,
@@ -849,15 +1041,20 @@ export default class hyMap extends hytooltip {
                 animateDuration
             );
             zoom === 5 ? animate.centerAndZoom() : animate.flyTo(callback);
+        
         } else {
 
             this.view.fit(geometry.getExtent(), {
                 duration: animateDuration
             });
             if (callback && typeof callback == 'function') {
+
                 callback();
+            
             }
+        
         }
+    
     }
 
     zoomToSeries({
@@ -871,6 +1068,7 @@ export default class hyMap extends hytooltip {
 
             let layerExtent = this._addLayerGroupArray[id].getExtent();
             !ol.extent.isEmpty(layerExtent) && ol.extent.extend(extent, layerExtent);
+        
         }
 
 
@@ -924,19 +1122,18 @@ export default class hyMap extends hytooltip {
         let x = center[0];
         let y = center[1];
         switch (direction) {
-
-            case 'up':
-                y += meter;
-                break;
-            case 'down':
-                y -= meter;
-                break;
-            case 'left':
-                x -= meter;
-                break;
-            case 'right':
-                x += meter;
-                break;
+        case 'up':
+            y += meter;
+            break;
+        case 'down':
+            y -= meter;
+            break;
+        case 'left':
+            x -= meter;
+            break;
+        case 'right':
+            x += meter;
+            break;
         }
 
         const newCenter = [x, y];
@@ -974,9 +1171,11 @@ export default class hyMap extends hytooltip {
             ctx.lineTo(tmpX, end[1]);
             ctx.lineTo(end[0], end[1]);
             ctx.stroke();
+        
         });
         this.postListenerObj[id] = listererObj;
         return id;
+    
     }
 
 
@@ -985,8 +1184,10 @@ export default class hyMap extends hytooltip {
      * @param  {object}   obj {id:123//唯一标识，默认为时间戳       geoCoord:[]//经纬度坐标      end:[]//屏幕固定位置像素位置}
      */
     updateCable(obj) {
+
         this.removeCable(obj.id);
         this.drawCable(obj);
+    
     }
 
     /**
@@ -994,9 +1195,11 @@ export default class hyMap extends hytooltip {
      * @param  {String}   id 唯一标识
      */
     removeCable(id) {
+
         const listererObj = this.postListenerObj[id];
         this.map.un('postcompose', listererObj.listener);
         delete this.postListenerObj[id];
+    
     }
 
     /**
@@ -1075,7 +1278,7 @@ export default class hyMap extends hytooltip {
             callback = undefined,
             tooltipFun = undefined,
             isCustom = false,
-            tbname = "road_jining"
+            tbname = 'road_jining'
         } = {}
     ) {
 
@@ -1206,6 +1409,7 @@ export default class hyMap extends hytooltip {
         });
 
         this.queryCircle.createDraw(type);
+    
     }
 
     /**

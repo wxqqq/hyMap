@@ -5,6 +5,7 @@ const ol = require('ol');
 export default class hyMapQuery {
     /**
      * 初始化
+     * @private
      */
     constructor() {}
 

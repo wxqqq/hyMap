@@ -41,61 +41,68 @@ class line extends Component {
                     value: index,
                     geoCoord: feature.geometry.coordinates[0].join(';'),
                     ref: feature.properties.ref
-                }
+                };
                 if (obj.id == 225 || obj.id == 26 || obj.id == 110 || obj.id == 440 || obj.id == 24 || obj.id == 139 || obj.id == 20 || obj.id == 64 || obj.id == 66 || obj.id == 36 || obj.id == 183 || obj.id == 389 || obj.id == 169) {
+
                     red.push(obj);
-                    obj.state = 3
+                    obj.state = 3;
+                
                 } else if (yell.indexOf(obj.id) > -1) {
+
                     yellow.push(obj);
-                    obj.state = 2
+                    obj.state = 2;
+                
                 } else {
-                    obj.state = 1
+
+                    obj.state = 1;
                     green.push(obj);
+                
                 }
                 array.push(obj);
-            })
+            
+            });
 
 
             let serie = [{
-                "type": "line",
-                "symbol": "",
-                "symbolSize": [10, 20],
-                "symbolStyle": {
-                    "normal": {
-                        "strokeWidth": 3,
-                        "symbolSize": [10, 20],
-                        "strokeColor": "green"
+                'type': 'line',
+                'symbol': '',
+                'symbolSize': [10, 20],
+                'symbolStyle': {
+                    'normal': {
+                        'strokeWidth': 3,
+                        'symbolSize': [10, 20],
+                        'strokeColor': 'green'
                     },
-                    "emphasis": {}
+                    'emphasis': {}
                 },
-                data: green
+                'data': green
             }, {
-                "type": "line",
-                "symbol": "",
-                "symbolSize": [10, 20],
-                "symbolStyle": {
-                    "normal": {
-                        "strokeWidth": 3,
-                        "symbolSize": [10, 20],
-                        "strokeColor": "red"
+                'type': 'line',
+                'symbol': '',
+                'symbolSize': [10, 20],
+                'symbolStyle': {
+                    'normal': {
+                        'strokeWidth': 3,
+                        'symbolSize': [10, 20],
+                        'strokeColor': 'red'
                     },
-                    "emphasis": {}
+                    'emphasis': {}
                 },
-                data: red
+                'data': red
             }, {
-                "type": "line",
-                "symbol": "",
-                "symbolSize": [10, 20],
-                "symbolStyle": {
-                    "normal": {
-                        "strokeWidth": 3,
-                        "symbolSize": [10, 20],
-                        "strokeColor": "yellow"
+                'type': 'line',
+                'symbol': '',
+                'symbolSize': [10, 20],
+                'symbolStyle': {
+                    'normal': {
+                        'strokeWidth': 3,
+                        'symbolSize': [10, 20],
+                        'strokeColor': 'yellow'
                     },
-                    "emphasis": {}
+                    'emphasis': {}
                 },
-                data: yellow
-            }]
+                'data': yellow
+            }];
 
 
             // console.log(JSON.stringify(array));
@@ -103,7 +110,8 @@ class line extends Component {
             obj.addLayer({
                 id: 1,
                 series: serie
-            })
+            });
+        
         });
 
 
@@ -210,9 +218,11 @@ class line extends Component {
         // });
         let s = [];
         obj.on('click', function(data) {
+
             console.log('getdata:', data.data.id);
             s.push(data.data.id);
-            console.log(s)
+            console.log(s);
+        
         });
 
     }

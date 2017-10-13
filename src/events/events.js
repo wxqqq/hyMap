@@ -4,7 +4,7 @@
  * 事件
  * @module event
  * @type {Object}
- * @namespace  event
+ * @mixin   event
  */
 const event = {
 
@@ -32,7 +32,12 @@ const event = {
 
     /**
      * 注册
-     * @param  {String}   type     事件类型
+     * @param  {String}   type     事件类型: click,unClick, hover,unHover,
+     * drawClear,drawStart
+     * tooltipClick,
+     * contextmenu
+     * removeOverlay,
+     * trackPlayPoint,trackPlayIng,trackPlayStart,trackPlayEnd
      * @param  {Function}   listener 监听方法
      * @return {Function}            监听方法
      */

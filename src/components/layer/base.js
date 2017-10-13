@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-07-26 11:22:13
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-22 10:46:45
+ * @Last Modified time: 2017-09-28 15:00:23
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\base.js
  * @File Name: base.js
@@ -16,6 +16,7 @@ const ol = require('ol');
 export default class base {
     /**
      * 初始化
+     * @private
      * @param  {Object}   options 参数
      */
     constructor({
@@ -39,6 +40,7 @@ export default class base {
         if (this.map) {
 
             return this.map;
+        
         }
         return null;
 

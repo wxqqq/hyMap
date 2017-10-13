@@ -7,31 +7,38 @@ let idBase = new Date() - 0;
 /**
  * 全局变量
  * @type {Object}
- * @namespace  index
+ * @namespace  hyMap
  */
 const config = {
     /**
-     * 版本
-     * @memberof index 
+     * 版本号
+     * @memberof hyMap 
      * @type {String}
      */
-    version: '0.1.1',
+    version: '0.2.41',
     /**
-     * 依赖
-     * @memberof index
+     * 依赖第三方库 openlayers,turf
+     * @memberof hyMap
      * @type {Object}
      */
     dependencies: {
-        'openlayers': '4.1.0'
+        'openlayers': '4.1.0',
+        'turf':'4.4.0'
     },
+    /**
+     * 是否启用3D
+     * @type {Boolean}
+     * @memberof hyMap
+     * @default false
+     */
     ON_WEBGL: false,
 
     /**
      * 初始化DOM, 返回instance实例
-     * @memberof index
+     * @memberof hyMap
      * @alias init
      * @param  {dom}   Elemnt 窗体dom
-     * @return {Object}  hymap        实例
+     * @return {Object}  hymap实例
      * @method 
      */
     init(DOMNode) {
@@ -60,10 +67,10 @@ const config = {
     },
 
     /**
-     * 获取实例
-     * @memberof index
+     * 获取当前实例
+     * @memberof hyMap
      * @param  {dom}   Elemnt 窗体dom
-     * @return {hymap}  hymap        实例
+     * @return {object|null}  object实例
      * @method 
      */
     getInstanceByDom(DOMNode) {

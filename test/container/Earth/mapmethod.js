@@ -2,7 +2,7 @@
  * @Author: 1
  * @Date:   2017-01-10 10:15:25
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-18 18:32:35
+ * @Last Modified time: 2017-10-11 11:43:40
  * @Email: zhangyujie3344521@163.com
  * @File Path: F:\work\hyMap\test\container\Earth\mapmethod.js
  * @File Name: mapmethod.js
@@ -19,14 +19,14 @@ import {
     Button,
     Switch,
     Icon,
-    Radio,
+    Radio
 } from 'antd';
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
-
 import {
     EventEmitter
 } from '../event';
+
+const RadioButton = Radio.Button;
+const RadioGroup = Radio.Group;
 
 class mapmethod extends Component {
     constructor(props) {
@@ -45,11 +45,7 @@ class mapmethod extends Component {
     componentDidMount() {
 
         map.ON_WEBGL = false;
-        this.mapObj = map.init(document.getElementById('map'))
-        this.setState({
-            mapObj: this.mapObj
-        });
-
+        this.mapObj = map.init(document.getElementById('map'));
         let options = {
 
             serverUrl: 'http://192.168.1.50:8080/geoserver',
@@ -68,7 +64,7 @@ class mapmethod extends Component {
             // string('dark'，'blue'，'white')|mapObjectr{mapId,key} 对应maobox中的mapid和access_token
 
             theme: [
-                'dark',
+                'dark'
                 // {
 
                 // type: 'arcgis',
@@ -82,6 +78,7 @@ class mapmethod extends Component {
         };
 
         this.setState({
+            mapObj: this.mapObj,
             options: options
         });
 
@@ -127,108 +124,128 @@ class mapmethod extends Component {
         });
 
 
-        this.mapObj.on('geoSelect', function(data) {
+        this.mapObj.on('geoSelect', function (data) {
 
             console.log('getdata:', data);
 
         });
 
-        this.mapObj.on('geoUnSelect', function(data) {
+        this.mapObj.on('geoUnSelect', function (data) {
 
             console.log('getundata:', data);
 
         });
 
         setTimeout(() => {
+
             this.mapObj.panTo(20000, 'bottom');
-        }, 4000)
+
+        }, 4000);
+
     }
 
     onChange(checked, type) {
+
         switch (type) {
-            case 'map':
+        case 'map':
 
-                if (checked) {
+            if (checked) {
 
-                    this.mapObj.show();
+                this.mapObj.show();
 
-                } else {
+            } else {
 
-                    this.mapObj.hide();
+                this.mapObj.hide();
 
-                }
-                break;
-            case 'base':
+            }
+            break;
+        case 'base':
 
-                if (checked) {
+            if (checked) {
 
-                    this.mapObj.showBaseMap();
+                this.mapObj.showBaseMap();
 
-                } else {
+            } else {
 
-                    this.mapObj.hideBaseMap();
+                this.mapObj.hideBaseMap();
 
-                }
-                break;
+            }
+            break;
         }
         console.log(`switch to ${checked}`, type);
+
     }
 
     onChangeTheme = (e) => {
 
         this.mapObj.setTheme(e.target.value);
+
     }
 
     onChangeLayer = (checked) => {
-        console.log(this.state)
+
+        console.log(this.state);
 
         if (checked) {
+
             this.setState({
                 showLayer: true
             });
-            this.mapObj.showLayer(1)
+            this.mapObj.showLayer(1);
+
         } else {
+
             this.setState({
                 showLayer: false
             });
-            this.mapObj.hideLayer(1)
+            this.mapObj.hideLayer(1);
+
         }
 
 
     }
 
     render() {
-            return (
-                    <div style={{height:'100%'}}>                       
-                 <div className='map_button'>
-                 <div>
-                             主题：<RadioGroup onChange={this.onChangeTheme} defaultValue='dark'>
-                                <RadioButton value='dark'>黑色</RadioButton>
-                                <RadioButton value='white'>白色</RadioButton>
-                                <RadioButton value='blue'>蓝色</RadioButton>
-                              </RadioGroup>   
-                            </div>
-                            <br/>
-                            <div>
-                            显示：<label>地图：</label><Switch defaultChecked={true} onChange={(checked)=> this.onChange(checked,'map')} checkedChildren={'开'} unCheckedChildren={'关'} />
-                            <label>底图：</label><Switch defaultChecked={true}onChange={(checked)=> this.onChange(checked,'base')} checkedChildren={'开'} unCheckedChildren={'关'} />
-                 
-                            </div>
-                            <div>
-                            动画：
-                                <input id='fly' type='button' value='飞到济南'/>
-                                <input id='flychina' type='button' value='返回全国' />
-                                </div>
-                                <div>
-                                测量：
-                                 <input className='theme' id='distance' type='button' value='测距离'/>
-                                <input className='theme' id='area' type='button' value='测面积'/>
-                                 <input id='loadLayer' type='button' value='加载图层'/>
-                            </div>
-                             <br/>
-                             </div> < div id = 'map' > < /div> < /div>
+
+        return (
+            <div style={{height: '100%'}}>
+                <div className='map_button'>
+                    <div>
+                        主题：<RadioGroup onChange={this.onChangeTheme} defaultValue='dark'>
+                        <RadioButton value='dark'>黑色</RadioButton>
+                        <RadioButton value='white'>白色</RadioButton>
+                        <RadioButton value='blue'>蓝色</RadioButton>
+                    </RadioGroup>
+                    </div>
+                    <br/>
+                    <div>
+                        显示：<label>地图：</label><Switch defaultChecked={true}
+                                                     onChange={(checked) => this.onChange(checked, 'map')}
+                                                     checkedChildren={'开'} unCheckedChildren={'关'}/>
+                        <label>底图：</label><Switch defaultChecked={true}
+                                                  onChange={(checked) => this.onChange(checked, 'base')}
+                                                  checkedChildren={'开'} unCheckedChildren={'关'}/>
+
+                    </div>
+                    <div>
+                        动画：
+                        <input id='fly' type='button' value='飞到济南'/>
+                        <input id='flychina' type='button' value='返回全国'/>
+                    </div>
+                    <div>
+                        测量：
+                        <input className='theme' id='distance' type='button' value='测距离'/>
+                        <input className='theme' id='area' type='button' value='测面积'/>
+                        <input id='loadLayer' type='button' value='加载图层'/>
+                    </div>
+                    <br/>
+                </div>
+                < div id='map'>
+                </div>
+            </div>
         );
 
     }
 }
+
 export default mapmethod;

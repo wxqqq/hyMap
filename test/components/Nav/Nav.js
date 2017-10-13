@@ -26,6 +26,7 @@ import {
 
 class Nav extends Component {
     constructor(props, context) {
+
         super(props, context);
         this.state = {
             current: '',
@@ -35,24 +36,30 @@ class Nav extends Component {
         //   current: '1',
         //   openKeys: [],
         // }).bind(this);
+    
     }
     componentWillMount() {
+
         let current = this.props.location.pathname;
         var index = current.lastIndexOf('/');
         current = current.substring(index + 1, current.length);
         this.setState({
             current: current
         });
+    
     }
     handleClick(e) {
+
         console.log('click ', e);
         this.setState({
             current: e.key,
             openKeys: e.keyPath.slice(1)
         });
         console.log(this.state.openKeys + this.state.current);
+    
     }
     render() {
+
         return (
             <Menu  mode='inline'  theme='dark'
                 onClick={this.handleClick.bind(this)}
@@ -63,7 +70,7 @@ class Nav extends Component {
                     key='sub1'
                     title={
                         <span>
-                            <Icon type="qrcode" /><span>地图方法</span>
+                            <Icon type='qrcode' /><span>地图方法</span>
                         </span>
                     }
                 >
@@ -75,7 +82,7 @@ class Nav extends Component {
                     key='sub2'
                     title={
                         <span>
-                           <Icon type="database" /><span>图层</span>
+                           <Icon type='database' /><span>图层</span>
                         </span>
                     }
                 >
@@ -105,7 +112,7 @@ class Nav extends Component {
                     key='sub3'
                     title={
                         <span>
-                            <Icon type="scan" /><span>动画</span>
+                            <Icon type='scan' /><span>动画</span>
                         </span>
                     }
                 >
@@ -118,6 +125,7 @@ class Nav extends Component {
                 </SubMenu>
             </Menu>
         );
+    
     }
 }
 

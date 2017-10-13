@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-27 16:37:06
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-08-30 18:05:16
+ * @Last Modified time: 2017-09-28 15:06:33
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\view.js
  * @File Name: view.js
@@ -15,6 +15,7 @@ const ol = require('ol');
 export default class view {
     /**
      * 初始化
+     * @private
      * @param  {Object}   options 参数
      */
     constructor(geo, map) {
@@ -66,7 +67,7 @@ export default class view {
             enableRotation: false,
             minZoom: minZoom,
             maxZoom: maxZoom,
-            projection: projection,
+            projection: projection
 
             // extent: []
 

@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-07-19 15:36:21
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-19 16:17:27
+ * @Last Modified time: 2017-09-28 15:05:33
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\popup.js
  * @File Name: popup.js
@@ -14,6 +14,7 @@ const ol = require('ol');
 export default class hyPopup {
     /**
      * 初始化
+     * @private
      * @param  {Object} options 参数
      */
     constructor(options) {

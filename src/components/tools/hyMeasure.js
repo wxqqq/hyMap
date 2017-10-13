@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-05-15 10:48:02
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-07-20 10:51:55
+ * @Last Modified time: 2017-09-28 15:03:53
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\tools\hyMeasure.js
  * @File Name: hyMeasure.js
@@ -16,6 +16,7 @@ const ol = require('ol');
 export default class hyMeasure {
     /**
      * 初始化
+     * @private
      * @param  {Object}   options 参数
      */
     constructor(options) {

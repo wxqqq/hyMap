@@ -1,8 +1,7 @@
 'use strick';
-
 /**
- * @namespace StiStrap
- * @class labelModel
+ * 文本原型
+ * @module labelModel
  */
 export default {
     'normal': {
@@ -12,12 +11,40 @@ export default {
          * @public
          */
         color: '#fff',
+        /**
+         * 样式
+         * @type {String}
+         */
         fontStyle: 'normal',
+        /**
+         * 加粗
+         * @type {String}
+         */
         fontWeight: 'normal',
+        /**
+         * 字体
+         * @type {String}
+         */
         fontFamily: 'sans-serif',
+        /**
+         * 字号
+         * @type {String}
+         */
         fontSize: '12pt',
+        /**
+         * x轴偏移
+         * @type {Number}
+         */
         offsetX: 0,
+        /**
+         * y轴偏移
+         * @type {Number}
+         */
         offsetY: 0,
+        /**
+         * 文本
+         * @type {String}
+         */
         text: '',
         textAlign: '',
         strokeWidth: '',

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /*
  * @Author: FunctionRun
  * @Date:   2017-01-10 10:15:18

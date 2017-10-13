@@ -16,6 +16,7 @@ import map from '../../../src/index';
 
 class labelAnimate extends Component {
     componentDidMount() {
+
         let obj = map.init(document.getElementById('map'));
         let options = {
             show: true, //地图的显示状态 true为显示 false 为不显示
@@ -44,25 +45,32 @@ class labelAnimate extends Component {
                 'border-radius': '5',
                 'border-width': '2',
                 'border-style': 'solid',
-                width: '80',
-                height: '30'
+                'width': '80',
+                'height': '30'
             },
             formatter: function(param) {
+
                 //div内的内容
 
                 return param.dataIndex + ': ' + param.value;
+            
             },
             position: function() {
+
                 //相对于当前事件点的位置
 
                 return [0, 0];
                 // return [20, 10];
+            
             }
         });
         let series = [];
         fetch('../test/data/car_2012.json').then(response => response.json()).then(function(values) {
+
             values.forEach(obj => {
+
                 obj.geoCoord = [obj.lon, obj.lat];
+            
             });
 
             series.push({
@@ -173,18 +181,26 @@ class labelAnimate extends Component {
 
         });
         obj.on('geoSelect', function(data) {
+
             console.log('getdata:', data);
+        
         });
 
         obj.on('geoUnSelect', function(data) {
+
             console.log('getundata:', data);
+        
         });
         obj.on('click', function(data) {
+
             console.log('getdata:', data);
+        
         });
 
         obj.on('unClick', function(data) {
+
             console.log('getundata:', data);
+        
         });
 
         let value = 555;
@@ -193,6 +209,7 @@ class labelAnimate extends Component {
         //筛选
 
         document.getElementById('update').addEventListener('click', () => {
+
             value++;
 
             // y++;
@@ -331,6 +348,7 @@ class labelAnimate extends Component {
 
         });
         document.getElementById('add').addEventListener('click', () => {
+
             value++;
 
             series[0].data[0].value++;
@@ -402,19 +420,23 @@ class labelAnimate extends Component {
             };
             series.push(s1);
             obj.updateLayer(series);
+        
         });
+    
     }
 
     render() {
+
         return (
             <div style={{height:'100%'}}>
                 <div style={{position:'absolute',top:'40px',zIndex:99}}>
-                <input id="update" type="button" value="更新数据" />
-                <input id="add" type="button" value="增加" />
+                <input id='update' type='button' value='更新数据' />
+                <input id='add' type='button' value='增加' />
                 </div>
-                <div id="map" />
+                <div id='map' />
             </div>
         );
+    
     }
 }
 export default labelAnimate;

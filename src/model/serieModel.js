@@ -1,4 +1,5 @@
 /**
+ * 数据原型
  * @module serieModel
  */
 export default {

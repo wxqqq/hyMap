@@ -39,13 +39,15 @@ class App extends Component {
 
     }
     state = {
-        collapsed: false,
+        collapsed: false
     };
     onCollapse = (collapsed) => {
+
         console.log(collapsed);
         this.setState({
             collapsed
         });
+    
     }
     render() {
 
@@ -78,7 +80,7 @@ class App extends Component {
                         <Content>
                         <div style={{flex:1}}>
                         <Editor/>
-                        <div className="ant-button-fullmap">
+                        <div className='ant-button-fullmap'>
                             <Button type='left'>
                                 <Icon type='left' />
                             </Button>
@@ -93,6 +95,7 @@ class App extends Component {
                 </Content>
             </Layout>
         );
+    
     }
 }
 
