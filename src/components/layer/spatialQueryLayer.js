@@ -603,7 +603,7 @@ export default class spatialQueryLayer extends baseLayer {
     /**
      * 创建绘制查询
      * @param  {String} type 查询类型 Square:正方形 Box：矩形 Polygon：多边形 Circle：圆形 ,LineString
-     * @param  {Function} fun   查询结果回调
+     * @param  {Function|undefined|null} fun   查询结果回调
      * @return {object}  draw    查询控件构造体
      */
     createDraw(type, fun) {

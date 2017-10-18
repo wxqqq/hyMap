@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-04-26 17:13:23
  * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-28 15:01:59
+ * @Last Modified time: 2017-10-18 14:36:20
  */
 
 'use strict';
@@ -205,6 +205,7 @@ export default class routeLayer extends baseLayer {
      * @param  {Array}   end                [description]
      * @param  {Function}   options.callback   [description]
      * @param  {Function}   options.tooltipFun [description]
+     * @param  {Boolean}    options.isCustom  [description]
      */
     drawTrack(
         start,
@@ -213,7 +214,7 @@ export default class routeLayer extends baseLayer {
             callback = undefined,
             tooltipFun = undefined,
             isCustom = false,
-            tbname = 'road_jining'
+            tbName = 'road_jining'
         } = {}
     ) {
 
@@ -230,7 +231,7 @@ export default class routeLayer extends baseLayer {
         }
 
         const viewparams = [
-            'tbname:' + '\'' + tbname + '\'',
+            'tbname:' + '\'' + tbName + '\'',
             'x1:' + start[0],
             'y1:' + start[1],
             'x2:' + end[0],
@@ -263,7 +264,7 @@ export default class routeLayer extends baseLayer {
         }).then(response => {
 
             return response.json();
-        
+
         }).then(data => {
 
             let features = new ol.format.GeoJSON().readFeatures(data, {
@@ -322,11 +323,11 @@ export default class routeLayer extends baseLayer {
                     time: Math.random() * 100
                 });
                 console.info(e);
-            
+
             }
 
         });
-    
+
     }
 
     clearTrackInfo() {
@@ -337,10 +338,10 @@ export default class routeLayer extends baseLayer {
         this.trackOverlayArray.forEach(overlay => {
 
             this.map.removeOverlay(overlay);
-        
+
         });
         this.trackOverlayArray = [];
-    
+
     }
 
     drawCallback(features, start, end) {

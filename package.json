@@ -39,7 +39,7 @@
         "start": "webpack-dev-server --hot . --history-api-fallback --content-base",
         "api": "jsdoc -c doc/conf.json"
     },
-    "version": "0.2.42",
+    "version": "0.2.44",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/FunctionRun/FEscaffold.git"

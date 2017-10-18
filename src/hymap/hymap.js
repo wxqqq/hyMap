@@ -54,7 +54,7 @@ export default class hyMap extends hytooltip {
 
             evt.preventDefault();
             evt.stopPropagation();
-        
+
         };
 
         this._init(dom);
@@ -63,7 +63,7 @@ export default class hyMap extends hytooltip {
         animation._intervaldate = new Date().getTime();
         this.spliceElapsed = 0;
         this.postListenerObj = {};
-    
+
     }
 
     /**
@@ -84,7 +84,6 @@ export default class hyMap extends hytooltip {
      *   
      *  mapObj = map.init(document.getElementById('map'))
         let options = {
-
             serverUrl: 'http://192.168.1.50:8080/geoserver',
             show: true, //地图的显示状态 true为显示 false 为不显示
             roam: 'true', //地图是否开启缩放、平移功能
@@ -160,7 +159,7 @@ export default class hyMap extends hytooltip {
 
     /**
      * 获取map对应的dom容器
-     * @return {Elemnt} [description]
+     * @return {Element} [description]
      */
     getDom() {
 
@@ -210,7 +209,7 @@ export default class hyMap extends hytooltip {
     showBaseMap() {
 
         this.baseLayer.show();
-    
+
     }
 
     /**
@@ -219,7 +218,7 @@ export default class hyMap extends hytooltip {
     hideBaseMap() {
 
         this.baseLayer.hide();
-    
+
     }
 
     /**
@@ -237,14 +236,8 @@ export default class hyMap extends hytooltip {
 
         this.baseLayer.setUrl(this._serverUrl);
         this.baseLayer.setTheme(theme);
-    
-    }
 
-    /**
-     * 设置地图边界线
-     * @param {Object} geo {serverUrl,map,drillDown,theme}
-     */
-    setGeo(geo) {}
+    }
 
     /**
      * 设置请求服务器地址
@@ -300,12 +293,12 @@ export default class hyMap extends hytooltip {
     measure(type) {
 
         this.hymeasure.active(type);
-    
+
     }
 
     /**
      * 增加图层
-     * @param {Array} options 参数
+     * @param {Array} arrays 参数
      * @example
      *     const series1 = [{
                 id: 3,
@@ -388,7 +381,7 @@ export default class hyMap extends hytooltip {
                 layers.push(layer);
 
             });
-        
+
         } else {
 
             arrays.map = this.map;
@@ -406,25 +399,25 @@ export default class hyMap extends hytooltip {
         let layer;
         serie.id = serie.id || 'layer_' + new Date().getTime();
         switch (serie.type) {
-        case 'track':
-            layer = this.initTrackData(serie);
-            break;
-        case 'gps':
-            layer = this.initgpslayer(serie);
-            break;
-        case 'region':
-            serie.url = serie.url || this._serverUrl;
-            serie = new Layer.regionLayer({
-                map: this.map,
-                serie
-            });
-            break;
-        default:
-            layer = new Layer.hyLayer({
-                map: this.map,
-                serie: serie
-            });
-            this.map.addLayer(layer.getLayer());
+            case 'track':
+                layer = this.initTrackData(serie);
+                break;
+            case 'gps':
+                layer = this.initgpslayer(serie);
+                break;
+            case 'region':
+                serie.url = serie.url || this._serverUrl;
+                serie = new Layer.regionLayer({
+                    map: this.map,
+                    serie
+                });
+                break;
+            default:
+                layer = new Layer.hyLayer({
+                    map: this.map,
+                    serie: serie
+                });
+                this.map.addLayer(layer.getLayer());
         }
 
         this._addLayerGroupArray[serie.id] = layer;
@@ -434,7 +427,7 @@ export default class hyMap extends hytooltip {
 
     /**
      * 更新图层数据
-     * @param  {Object} series serie对象
+     * @param  {Object} arrays serie对象
      */
     updateLayer(arrays) {
 
@@ -484,10 +477,10 @@ export default class hyMap extends hytooltip {
         if (layer) {
 
             return true;
-        
+
         }
         return false;
-    
+
     }
 
     /**
@@ -691,7 +684,7 @@ export default class hyMap extends hytooltip {
             canvas.width = lineWidth;
             canvas.height = container.offsetHeight;
             ctx.strokeStyle = lineColor ? lineColor : 'white';
-            if (lineDirection && lineDirection == 'left') {
+            if (lineDirection && lineDirection === 'left') {
 
                 container.style.float = 'right';
                 ctx.translate(lineWidth, 0);
@@ -773,7 +766,7 @@ export default class hyMap extends hytooltip {
 
     /**
      * 移除数据
-     * @param   {Stirng} id [description]
+     * @param   {String} id 唯一标识
      * @private
      */
     _removeSerie(id) {
@@ -865,25 +858,25 @@ export default class hyMap extends hytooltip {
 
                         const feature = element.getSource().getFeatureById(id);
                         feature && features.push(feature);
-                    
+
                     }
-                
+
                 });
-            
+
             } else {
 
                 if (group.getSource() instanceof ol.source.Vector) {
 
                     const feature = group.getSource().getFeatureById(id);
                     feature && features.push(feature);
-                
+
                 }
-            
+
             }
-        
+
         });
         return features;
-    
+
     }
 
     /**
@@ -909,7 +902,7 @@ export default class hyMap extends hytooltip {
 
                         features && features.forEach(feature => {
 
-                            if (feature.get(key) && feature.get(key) == value) {
+                            if (feature.get(key) && feature.get(key) === value) {
 
                                 const pixel = mapTool.getPixelFromCoords(
                                     feature.getGeometry().getCoordinates()
@@ -919,15 +912,15 @@ export default class hyMap extends hytooltip {
                                     // properties: feature.getProperties()
                                     properties: feature
                                 });
-                            
+
                             }
-                        
+
                         });
-                    
+
                     }
-                
+
                 });
-            
+
             } else {
 
                 if (group.getSource() instanceof ol.source.Vector) {
@@ -946,18 +939,18 @@ export default class hyMap extends hytooltip {
                                 // properties: feature.getProperties()
                                 properties: feature
                             });
-                        
+
                         }
-                    
+
                     });
-                
+
                 }
-            
+
             }
 
         });
         return array;
-    
+
     }
 
     /**
@@ -968,13 +961,13 @@ export default class hyMap extends hytooltip {
         if (this._show === false) {
 
             this._dom.style.display = 'block';
-        
+
         } else {
 
             this._dom.style.display = 'none';
-        
+
         }
-    
+
     }
 
     /**
@@ -984,7 +977,7 @@ export default class hyMap extends hytooltip {
 
         this._dom.style.display = 'none';
         this._show = false;
-    
+
     }
 
     /**
@@ -994,7 +987,7 @@ export default class hyMap extends hytooltip {
 
         this._dom.style.display = 'block';
         this._show = true;
-    
+
     }
 
     /**
@@ -1004,7 +997,7 @@ export default class hyMap extends hytooltip {
     resize() {
 
         this.map.updateSize();
-    
+
     }
 
     /**
@@ -1030,7 +1023,7 @@ export default class hyMap extends hytooltip {
             geometry = new ol.geom.Point(
                 mapTool.transform(geoCoord, this.map.getView().getProjection())
             );
-        
+
         }
         if (zoom) {
 
@@ -1038,10 +1031,11 @@ export default class hyMap extends hytooltip {
                 this.map,
                 geometry,
                 zoom,
-                animateDuration
+                animateDuration,
+                animateEasing
             );
             zoom === 5 ? animate.centerAndZoom() : animate.flyTo(callback);
-        
+
         } else {
 
             this.view.fit(geometry.getExtent(), {
@@ -1050,11 +1044,11 @@ export default class hyMap extends hytooltip {
             if (callback && typeof callback == 'function') {
 
                 callback();
-            
+
             }
-        
+
         }
-    
+
     }
 
     zoomToSeries({
@@ -1068,7 +1062,7 @@ export default class hyMap extends hytooltip {
 
             let layerExtent = this._addLayerGroupArray[id].getExtent();
             !ol.extent.isEmpty(layerExtent) && ol.extent.extend(extent, layerExtent);
-        
+
         }
 
 
@@ -1122,18 +1116,18 @@ export default class hyMap extends hytooltip {
         let x = center[0];
         let y = center[1];
         switch (direction) {
-        case 'up':
-            y += meter;
-            break;
-        case 'down':
-            y -= meter;
-            break;
-        case 'left':
-            x -= meter;
-            break;
-        case 'right':
-            x += meter;
-            break;
+            case 'up':
+                y += meter;
+                break;
+            case 'down':
+                y -= meter;
+                break;
+            case 'left':
+                x -= meter;
+                break;
+            case 'right':
+                x += meter;
+                break;
         }
 
         const newCenter = [x, y];
@@ -1171,11 +1165,11 @@ export default class hyMap extends hytooltip {
             ctx.lineTo(tmpX, end[1]);
             ctx.lineTo(end[0], end[1]);
             ctx.stroke();
-        
+
         });
         this.postListenerObj[id] = listererObj;
         return id;
-    
+
     }
 
 
@@ -1187,7 +1181,7 @@ export default class hyMap extends hytooltip {
 
         this.removeCable(obj.id);
         this.drawCable(obj);
-    
+
     }
 
     /**
@@ -1199,7 +1193,7 @@ export default class hyMap extends hytooltip {
         const listererObj = this.postListenerObj[id];
         this.map.un('postcompose', listererObj.listener);
         delete this.postListenerObj[id];
-    
+
     }
 
     /**
@@ -1267,9 +1261,10 @@ export default class hyMap extends hytooltip {
      * 绘制轨迹（依赖路网数据,目前仅提供济南市的测试数据。）
      * @param  {Array} start             起始点
      * @param  {Array} end                结束点
-     * @param  {Function} options.callback   结果回调
-     * @param  {Function} options.tooltipFun 弹出气泡框回调
-     * @param  {Boolean} options.isCustom   是否通用气泡框
+     * @param  {Function} callback   结果回调
+     * @param  {Function} tooltipFun 弹出气泡框回调
+     * @param  {Boolean} isCustom   是否通用气泡框
+     * @param  {String} tbName
      */
     drawTrack(
         start,
@@ -1278,13 +1273,13 @@ export default class hyMap extends hytooltip {
             callback = undefined,
             tooltipFun = undefined,
             isCustom = false,
-            tbname = 'road_jining'
+            tbName = this._geo.routeName
         } = {}
     ) {
 
         let tooltip = (data) => {
 
-            let overlay = this.createOverlay();
+            let overlay = this.createOverlay(null, isCustom);
             overlay.setPosition(mapTool.transform(start));
             let el = overlay.getElement();
             this.trackOverlayArray.push(overlay);
@@ -1298,7 +1293,7 @@ export default class hyMap extends hytooltip {
             callback,
             tooltipFun: tooltip,
             isCustom,
-            tbname
+            tbName
         });
 
     }
@@ -1374,7 +1369,6 @@ export default class hyMap extends hytooltip {
 
     }
 
-
     /**
      * 绘制查询
      * @param  {String}   type     类型：box,circle,polygon
@@ -1409,13 +1403,13 @@ export default class hyMap extends hytooltip {
         });
 
         this.queryCircle.createDraw(type);
-    
+
     }
 
     /**
      * 设置半径
-     * @param {[type]} radius   [description]
-     * @param {[type]} relative [description]
+     * @param {Number} radius   距离
+     * @param {Boolean} relative 是否相对距离
      */
     setRadius(radius, relative) {
 
@@ -1423,11 +1417,10 @@ export default class hyMap extends hytooltip {
 
     }
 
-
-
     /**
      * 触发事件
-     * @param  {Event} evt   type: 'geoSelect', || 'geoUnSelect' || 'geoToggleSelect'    name: '天津市和平区'
+     * @param  {Event} evt.type   type: 'geoSelect', || 'geoUnSelect' || 'geoToggleSelect'    name: '天津市和平区'
+     * @param {String} evt.id
      */
     dispatchAction(evt) {
 
