@@ -1,4 +1,6 @@
 #version
+##v0.2.45
+增加zoomend回调
 ##v0.2.44
 增加RouteName参数，提供路径查询表名配置.
 ##v0.2.40

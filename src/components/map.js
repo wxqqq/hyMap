@@ -102,6 +102,31 @@ export default class map {
         //         // evt.map.getTargetElement().style.cursor = evt.map.hasFeatureAtPixel(evt.pixel) ? 'pointer' : '';
 
         // });
+
+        map.on('moveend', (evt) => {
+
+
+            const zoom = evt.map.getView().getZoom();
+
+            if (!evt.map.oldZoom_) {
+
+                evt.map.oldZoom_ = zoom;
+            }
+
+            if (zoom != evt.map.oldZoom_) {
+
+                evt.type = 'zoomend';
+                this.dispatchEvent({
+                    type: "zoomend",
+                    oldZoom: evt.map.oldZoom_,
+                    zoom
+                });
+                evt.map.oldZoom_ = zoom;
+
+            }
+
+        });
+
         map.on('singleclick', (evt) => {
 
             this.hideOverlay();
