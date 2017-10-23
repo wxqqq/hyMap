@@ -20,7 +20,7 @@ module.exports = {
     output: {
         libraryTarget: 'commonjs2',
         library: 'visual',
-        path: './dist',
+        path: path.resolve(__dirname, './dist'),
         filename: 'index.dev.js'
     },
     resolve: {
@@ -31,9 +31,9 @@ module.exports = {
     },
     devtool: false,
     module: {
-        loaders: [{
+        rules: [{
             test: /\.css$/,
-            loader: 'style!css'
+            use: ['style-loader','css-loader']
         }, {
             test: /\.js?$/,
             loader: 'babel-loader',
@@ -45,9 +45,5 @@ module.exports = {
     },
     plugins: [
 
-    ],
-    babel: {
-        presets: ['es2015', 'react', 'stage-3'],
-        plugins: ['transform-object-rest-spread', 'transform-class-properties']
-    }
+    ]
 };

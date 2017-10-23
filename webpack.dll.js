@@ -10,7 +10,7 @@
  */
 'use strict';
 const webpack = require('webpack');
-
+const path = require("path");
 const vendors = [
     'react',
     'react-dom',
@@ -20,7 +20,7 @@ const vendors = [
 
 module.exports = {
     output: {
-        path: 'build',
+        path: path.resolve(__dirname, './build'),
         filename: '[name].js',
         library: '[name]'
     },
