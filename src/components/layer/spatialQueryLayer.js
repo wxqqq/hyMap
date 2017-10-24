@@ -13,7 +13,7 @@ import baseLayer from './baselayer';
 import hyLayerGroup from '../hyLayerGroup';
 import mapTool from '../../util/mapToolUtil';
 
-const turf = require('turf');
+import  buffer from "@turf/buffer";
 const ol = require('ol');
 
 export default class spatialQueryLayer extends baseLayer {
@@ -695,7 +695,7 @@ export default class spatialQueryLayer extends baseLayer {
 
         });
 
-        let buffered = turf.buffer(str, radius, 'meters');
+        let buffered = buffer(str, radius, 'meters');
 
         let bufferFeature = format.readFeature(buffered, {
             dataProjection: 'EPSG:4326',
