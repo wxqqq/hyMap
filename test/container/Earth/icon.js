@@ -1,8 +1,8 @@
 /*
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
- * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-22 16:33:12
+ * @Last Modified by:   tangjuncheng1986
+ * @Last Modified time: 2017-10-23 19:20:07
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\icon.js
  * @File Name: icon.js
@@ -26,7 +26,8 @@ class icon extends Component {
             zoom: 6, //当前地图缩放比例
             scaleLimit: [3, 20], //滚轮缩放的边界
             theme: 'dark', //地图风格/地图风格
-            series: []
+            series: [],
+            extent:[66.94,29.52,148.23,43.33]
         };
         const series = [];
         mapObj.setOption(options);
@@ -134,7 +135,8 @@ class icon extends Component {
                         }
                     }
                 },
-                showPopup: false //显示气泡框
+                showPopup: false,//显示气泡框
+                zIndex:2
             }];
 
             let layer1 = mapObj.addLayer({
@@ -228,11 +230,8 @@ class icon extends Component {
             });
 
             let layer2 = mapObj.addLayer(
-                series
-            :
-            series
-            )
-            ;
+                series:series
+                );
             // layer2[0].on('click', function(data) {
             //     console.log('layer2:', data);
             // });

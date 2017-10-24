@@ -20,7 +20,8 @@ class line extends Component {
             selectedMode: '', //地图区域的选中模式 single mulit
             theme: 'dark', //地图风格
             label: '', //文本标签样式
-            series: []
+            series: [],
+            extent:[66.94,29.52,148.23,43.33]
         };
         obj.setOption(options);
 
