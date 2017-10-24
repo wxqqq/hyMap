@@ -19,6 +19,7 @@ export default {
     regions: [], //  name: '',特殊区域的样式
     label: '', //文本标签样式
     series: [],
+    extent:[],//控制地图显示范围
     tooltip: {
         show: true,
         trigger: 'item', // item、map  ['item', 'map']
