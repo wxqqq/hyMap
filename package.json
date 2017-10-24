@@ -1,7 +1,8 @@
 {
-  "dependencies": {},
+  "dependencies": {
+    "@turf/turf": "^4.4.0"
+  },
   "devDependencies": {
-    "@turf/turf": "^4.4.0",
     "antd": "^2.13.2",
     "babel-core": "^6.21.0",
     "babel-eslint": "^5.0.4",
@@ -41,7 +42,7 @@
     "start": "webpack-dev-server --hot . --history-api-fallback --content-base",
     "api": "jsdoc -c doc/conf.json"
   },
-  "version": "0.2.45",
+  "version": "0.2.47",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/FunctionRun/FEscaffold.git"
