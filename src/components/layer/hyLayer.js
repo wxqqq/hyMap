@@ -1,8 +1,8 @@
 /*
  * @Author: wxq
  * @Date:   2017-04-20 17:02:10
- * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-28 15:01:29
+ * @Last Modified by:   tangjuncheng1986
+ * @Last Modified time: 2017-10-23 16:47:47
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\layer\hyLayer.js
  * @File Name: hyLayer.js
@@ -193,7 +193,8 @@ export default class hylayer extends baseLayer {
 
                     },
                     minResolution: mapTool.getResolutionByZoom(serie.maxZoom, this.view),
-                    maxResolution: mapTool.getResolutionByZoom(serie.minZoom, this.view)
+                    maxResolution: mapTool.getResolutionByZoom(serie.minZoom, this.view),
+                    zIndex:serie.zIndex//添加地图层级排序
                 });
 
                 this.startAnimate(array, serie.animation); //执行动画
