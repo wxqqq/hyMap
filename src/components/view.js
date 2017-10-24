@@ -1,8 +1,8 @@
 /*
  * @Author: wxq
  * @Date:   2017-04-27 16:37:06
- * @Last Modified by:   wxq
- * @Last Modified time: 2017-09-28 15:06:33
+ * @Last Modified by:   hydata
+ * @Last Modified time: 2017-10-24 10:59:34
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\src\components\view.js
  * @File Name: view.js
@@ -38,7 +38,8 @@ export default class view {
         roam = true,
         center = [118.62778784888256, 36.58892145091036],
         zoom = 3,
-        projection = 'EPSG:3857'
+        projection = 'EPSG:3857',
+        extent=[66.94,29.52,148.23,43.33]//默认中国范围
     }) {
 
         let minZoom = scaleLimit[0];
@@ -67,12 +68,10 @@ export default class view {
             enableRotation: false,
             minZoom: minZoom,
             maxZoom: maxZoom,
-            projection: projection
-
-            // extent: []
+            projection: projection,
+            extent: ol.proj.transformExtent(extent, 'EPSG:4326', 'EPSG:3857')//增加地图范围参数
 
         });
-
         return view;
 
     }
