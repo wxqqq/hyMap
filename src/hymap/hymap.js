@@ -365,9 +365,8 @@ export default class hyMap extends hytooltip {
             });
 
             layer1.on('click', function (data) {
-                console.log('layer1', data);
+                console.info('layer1', data);
             });
-            // console.log(layer1);
             mapObj.un('click');
      */
     addLayer(arrays) {
@@ -399,25 +398,25 @@ export default class hyMap extends hytooltip {
         let layer;
         serie.id = serie.id || 'layer_' + new Date().getTime();
         switch (serie.type) {
-            case 'track':
-                layer = this.initTrackData(serie);
-                break;
-            case 'gps':
-                layer = this.initgpslayer(serie);
-                break;
-            case 'region':
-                serie.url = serie.url || this._serverUrl;
-                serie = new Layer.regionLayer({
-                    map: this.map,
-                    serie
-                });
-                break;
-            default:
-                layer = new Layer.hyLayer({
-                    map: this.map,
-                    serie: serie
-                });
-                this.map.addLayer(layer.getLayer());
+        case 'track':
+            layer = this.initTrackData(serie);
+            break;
+        case 'gps':
+            layer = this.initgpslayer(serie);
+            break;
+        case 'region':
+            serie.url = serie.url || this._serverUrl;
+            serie = new Layer.regionLayer({
+                map: this.map,
+                serie
+            });
+            break;
+        default:
+            layer = new Layer.hyLayer({
+                map: this.map,
+                serie: serie
+            });
+            this.map.addLayer(layer.getLayer());
         }
 
         this._addLayerGroupArray[serie.id] = layer;
@@ -1116,18 +1115,18 @@ export default class hyMap extends hytooltip {
         let x = center[0];
         let y = center[1];
         switch (direction) {
-            case 'up':
-                y += meter;
-                break;
-            case 'down':
-                y -= meter;
-                break;
-            case 'left':
-                x -= meter;
-                break;
-            case 'right':
-                x += meter;
-                break;
+        case 'up':
+            y += meter;
+            break;
+        case 'down':
+            y -= meter;
+            break;
+        case 'left':
+            x -= meter;
+            break;
+        case 'right':
+            x += meter;
+            break;
         }
 
         const newCenter = [x, y];
@@ -1337,7 +1336,6 @@ export default class hyMap extends hytooltip {
      * 清除轨迹查询结果
      */
     clearTrackInfo() {
-
 
         this.trackOverlayArray.forEach((overlay) => {
 

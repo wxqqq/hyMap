@@ -10,9 +10,7 @@
  */
 
 'use strict';
-import React, {
-    Component
-} from 'react';
+import React, {Component} from 'react';
 import map from '../../../src/index';
 
 class chart extends Component {
@@ -36,7 +34,7 @@ class chart extends Component {
             series: []
         };
         obj.setOption(options);
-        fetch('../test/data/car_2012.json').then(response => response.json()).then(function(values) {
+        fetch('../test/data/car_2012.json').then(response => response.json()).then(function (values) {
 
             values.forEach(obj => {
 
@@ -53,30 +51,28 @@ class chart extends Component {
                 obj.lineDirection = 'left';
                 obj.positioning = 'bottom-left';
                 // obj.geoCoord = obj.lon + ',' + obj.lat
-            
+
             });
 
             obj.addMarkers(values);
-
-
 
         });
 
         setTimeout(() => {
 
             obj.removeOverlay(1);
-        
+
         }, 2000);
 
-        obj.on('removeOverlay', function(data) {
+        obj.on('removeOverlay', function (data) {
 
             console.log(data);
-        
+
         });
-        obj.on('geoSelect', function(data) {
+        obj.on('geoSelect', function (data) {
 
             console.log('getdata:', data);
-        
+
         });
         // obj.off('geoSelect', function(data) {
 
@@ -84,29 +80,30 @@ class chart extends Component {
 
         // });
 
-        obj.on('geoUnSelect', function(data) {
+        obj.on('geoUnSelect', function (data) {
 
             console.log('getundata:', data);
-        
+
         });
 
         window.setTimeout(() => {
 
             obj.hideOverlay(4567);
-        
+
         }, 2000);
 
         window.setTimeout(() => {
 
             obj.showOverlay(4567);
-        
+
         }, 4000);
-    
+
     }
+
     render() {
 
-        return <div id='map'> </div>;
-    
+        return <div id='map'></div>;
+
     }
 }
 export default chart;

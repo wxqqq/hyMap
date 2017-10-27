@@ -14,16 +14,7 @@ import React, {
     Component
 } from 'react';
 import map from '../../../src/index';
-import {
-    Button,
-    Switch,
-    Icon,
-    Radio,
-    Row,
-    Col
-} from 'antd';
-
-import Editor from '../App/editor';
+import {Row, Col} from 'antd';
 
 class region extends Component {
     constructor(props) {
@@ -36,8 +27,9 @@ class region extends Component {
             mapObj: {},
             options: {}
         };
-    
+
     }
+
     componentDidMount() {
 
         this.mapObj = map.init(document.getElementById('map'));
@@ -192,31 +184,31 @@ class region extends Component {
 
         // });
 
-        this.mapObj.on('geoSelect', function(data) {
+        this.mapObj.on('geoSelect', function (data) {
 
             console.log('getdata:', data);
-        
+
         });
 
-        this.mapObj.on('geoUnSelect', function(data) {
+        this.mapObj.on('geoUnSelect', function (data) {
 
             console.log('getundata:', data);
-        
+
         });
-    
+
     }
 
     render() {
 
-        // <Col span={8}><Editor mapObj={this.state.mapObj} options={this.state.options}/></Col>
         return (
             <Row>
                 <Col span={23}>
-                    <div id='map' />
+                    <div id='map'/>
                 </Col>
             </Row>
         );
-    
+
     }
 }
+
 export default region;

@@ -175,7 +175,7 @@ export default class hytooltip extends hyMapStyle {
     /**
      * 创建popup
      * @private
-     * @param  {Elemnt} element dom对象
+     * @param  {Element} element dom对象
      * @param {Boolean} isCustomn 是否为默认样式
      * @return {Overlay}        
      */
