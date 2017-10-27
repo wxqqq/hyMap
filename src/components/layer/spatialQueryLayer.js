@@ -13,7 +13,8 @@ import baseLayer from './baselayer';
 import hyLayerGroup from '../hyLayerGroup';
 import mapTool from '../../util/mapToolUtil';
 
-const turf = require('turf');
+import buffer from "@turf/buffer";
+
 const ol = require('ol');
 
 export default class spatialQueryLayer extends baseLayer {
@@ -431,15 +432,20 @@ export default class spatialQueryLayer extends baseLayer {
         ctx.rotate(iDeg / this.rotate * Math.PI);
         for (let i = 0; i < 270; i++) {
 
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            var opcial = i / 100 / 3 - 0.3;
-            ctx.fillStyle = 'rgba(255,0,0,' + opcial + ')';
-            ctx.arc(0, 0, radius, i / 360 * Math.PI, (i + 2) / 360 * Math.PI, false);
-            ctx.closePath();
-            ctx.fill();
+            const opcial = i / 100 / 3 - 0.2;
+            if (opcial > 0) {
+
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.fillStyle = 'rgba(255,0,0,' + opcial + ')';
+                ctx.arc(0, 0, radius, i / 360 * Math.PI, (i + 2) / 360 * Math.PI, false);
+                ctx.closePath();
+                ctx.fill();
+
+            }
 
         }
+
         ctx.restore();
         this.map.render();
 
@@ -518,9 +524,9 @@ export default class spatialQueryLayer extends baseLayer {
      * @return {Object}                  [description]
      */
     areaQuery({
-        geometry,
-        groupLayers
-    } = {}) {
+                  geometry,
+                  groupLayers
+              } = {}) {
 
         let result = {};
         for (let key in groupLayers) {
@@ -695,7 +701,7 @@ export default class spatialQueryLayer extends baseLayer {
 
         });
 
-        let buffered = turf.buffer(str, radius, 'meters');
+        let buffered = buffer(str, radius, 'meters');
 
         let bufferFeature = format.readFeature(buffered, {
             dataProjection: 'EPSG:4326',
@@ -725,6 +731,20 @@ export default class spatialQueryLayer extends baseLayer {
 
     }
 
+    closeReadar() {
+
+        this.map.un("post")
+    }
+
+    /**
+     * 获取查询结果
+     * @returns {*}
+     */
+    getQueryResult() {
+
+        return this.feature.get("queryResult");
+    }
+
     /**
      * 设置空间查询回调
      * @param  {Function}   fun function
@@ -740,6 +760,27 @@ export default class spatialQueryLayer extends baseLayer {
     }
 
     /**
+     *移除雷达
+     */
+    clearRadar() {
+
+        this.map.un('postcompose', this.drawRender, this);
+    }
+
+    /**
+     * 清空周边查询框和动画
+     */
+    clearFeature() {
+
+        this.clearRadar();
+        this.feature.setGeometry();
+        this._lineFeature && this._lineFeature.setGeometry();
+        this.marker.setGeometry();
+        this.closeMarker.setPosition();
+        this.removeDraw();
+    }
+
+    /**
      * 清空
      */
     clear() {
@@ -749,13 +790,8 @@ export default class spatialQueryLayer extends baseLayer {
             selected: this.feature.get('queryResult'),
             feature: this.feature
         });
+        this.clearFeature();
 
-        this.map.un('postcompose', this.drawRender, this);
-        this.feature.setGeometry();
-        this._lineFeature && this._lineFeature.setGeometry();
-        this.marker.setGeometry();
-        this.closeMarker.setPosition();
-        this.removeDraw();
         this.dispatchEvent({
             type: 'afterClear',
             selected: this.feature.get('queryResult'),

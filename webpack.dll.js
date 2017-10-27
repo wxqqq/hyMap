@@ -10,17 +10,21 @@
  */
 'use strict';
 const webpack = require('webpack');
-
+const path = require("path");
 const vendors = [
     'react',
     'react-dom',
-    'react-router'
+    'react-router',
+    "style-loader",
+    "brace",
+    "antd"
+
     // ...其它库
 ];
 
 module.exports = {
     output: {
-        path: 'build',
+        path: path.resolve(__dirname, './build'),
         filename: '[name].js',
         library: '[name]'
     },
@@ -29,7 +33,7 @@ module.exports = {
     },
     plugins: [
         new webpack.DllPlugin({
-            path: 'lib_manifest.json',
+            path: './build/lib_manifest.json',
             name: '[name]',
             context: __dirname
         })

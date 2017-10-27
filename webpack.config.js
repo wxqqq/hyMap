@@ -15,7 +15,7 @@
 const path = require('path');
 const webpack = require('webpack');
 
-const libJson = require('./lib_manifest.json');
+const libJson = require('./build/lib_manifest.json');
 
 // const hotMiddlewareScript = 'webpack-hot-middleware/client?reload=true';
 const hostConfig = {
@@ -29,8 +29,7 @@ let webpackConfig = {
         './index.js'
     ],
     resolve: {
-        root: '',
-        extensions: ['', '.js', '.json', '.css', '.styl', '.sass', '.scss'],
+        extensions: ['.js', '.json', '.css', '.styl', '.sass', '.scss'],
         alias: {
             geojsonvt: path.join(__dirname, '/public/lib/geojson-vt-dev'),
             ol: path.join(__dirname, '/public/lib/ol-debug'),
@@ -53,12 +52,11 @@ let webpackConfig = {
         historyApiFallback: true,
         disableHostCheck: true
     },
-
     devtool: 'cheap-module-eval-source-map',
     module: {
-        loaders: [{
+        rules: [{
             test: /\.css$/,
-            loader: 'style!css'
+            loader: ['style-loader', 'css-loader']
         }, {
             test: /\.js?$/,
             loader: 'babel-loader',
@@ -82,10 +80,6 @@ let webpackConfig = {
             path.join(process.cwd(), './public')
         ]
     },
-    babel: {
-        presets: ['es2015', 'react', 'stage-3'],
-        plugins: ['transform-object-rest-spread', 'transform-class-properties']
-    },
     plugins: [
         new webpack.DllReferencePlugin({
             context: __dirname,
@@ -98,11 +92,7 @@ let webpackConfig = {
 if (process.env.NODE_ENV === 'DEVELOPMENT') {
 
     webpackConfig = Object.assign(webpackConfig, {
-        entry: [
-            'webpack/hot/dev-server',
-            './index.js'
-            // hotMiddlewareScript
-        ],
+
         output: {
             path: path.join(__dirname, 'build'),
             filename: 'hymap_bundle.js',
