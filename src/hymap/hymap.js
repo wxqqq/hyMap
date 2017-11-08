@@ -269,6 +269,7 @@ export default class hyMap extends hytooltip {
 
     }
 
+
     /**
      * 设置中心点
      * @param {Array} coord 坐标数组

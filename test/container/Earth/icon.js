@@ -2,7 +2,7 @@
  * @Author: wxq
  * @Date:   2017-01-16 17:02:11
  * @Last Modified by:   tangjuncheng1986
- * @Last Modified time: 2017-10-23 19:20:07
+ * @Last Modified time: 2017-10-31 16:57:58
  * @Email: 304861063@qq.com
  * @File Path: F:\work\hyMap\test\container\Earth\icon.js
  * @File Name: icon.js
@@ -19,7 +19,7 @@ class icon extends Component {
 
         let mapObj = map.init(document.getElementById('map'));
         let options = {
-            serverUrl: 'http://192.168.1.50:8080/geoserver',
+            serverUrl: 'http://192.168.1.202:8080/geoserver',
             show: true, //地图的显示状态 true为显示 false 为不显示
             roam: 'true', //地图是否开启缩放、平移功能
             center: [118.62778784888256, 36.58892145091036], //当前视角中心: [经度, 纬度]
