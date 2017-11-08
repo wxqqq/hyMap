@@ -110,6 +110,7 @@ export default class baseMap extends base {
 
         let layers = [];
         let source = undefined;
+        let opacity = 1;
 
         // source = new ol.source.OSM({
         //     logo: false
@@ -117,6 +118,7 @@ export default class baseMap extends base {
         // layers.push(this.createTile(source, '', 0.5));
         if (typeof theme == 'object') {
 
+            opacity = theme.opacity;
             if (theme.type == 'tile') {
 
                 let url = theme.url;
@@ -131,7 +133,7 @@ export default class baseMap extends base {
                         let x = 'C' + this.zeroPad(tileCoord[1], 8, 16);
                         let y = 'R' + this.zeroPad(-tileCoord[2] - 1, 8, 16);
                         return url + '/' + z + '/' + y + '/' + x + '.png';
-                    
+
                     }
                 });
 
@@ -158,7 +160,35 @@ export default class baseMap extends base {
                 source = new ol.source.XYZ({
                     url: url
                 });
-            
+
+            } else if (theme.type == "pgis") {
+
+                var startResolution = ol.extent.getWidth(ol.proj.get('EPSG:3857').getExtent()) / 256;
+                var resolutions = new Array(20);
+                for (var i = 0, ii = resolutions.length; i < ii; ++i) {
+                    resolutions[i] = startResolution / Math.pow(2, i);
+                }
+                // var projectionExtent = projection.getExtent();
+                var projectionExtent = ol.proj.transformExtent([-180, -85, 122.23632, 67.22], "EPSG:4326", "EPSG:3857")
+                // var projectionExtent = ol.proj.transformExtent([117.20507, 30.84179, 122.23632, 34.55273], "EPSG:4326", "EPSG:3857")
+
+                var tilegrid = new ol.tilegrid.TileGrid({
+                    origin: ol.extent.getTopLeft(projectionExtent),
+                    resolutions: resolutions,
+                    extent: projectionExtent,//projectionExtent,
+                    tileSize: [256, 256]
+                });
+                //http://10.32.203.96/PGIS_S_TileMapServer/Maps/SLTDT/EzMap?Service=getImage&
+                //  Type=RGB&ZoomOffset=0&Col=850&Row=164&Zoom=10&V=1.0.0
+                let url = "http://localhost:8080/mm"
+                source = new ol.source.TileImage({
+                    // url: url,
+                    tileGrid: tilegrid,
+                    tileUrlFunction: (xyz) => {
+
+                        return url + "/" + xyz[0] + "/" + xyz[1] + "/" + (-xyz[2] - 1) + ".png";
+                    }
+                });
             }
 
             if (theme.debug) {
@@ -174,15 +204,15 @@ export default class baseMap extends base {
 
             }
 
-            const layer = this.createTile(source);
+            const layer = this.createTile(source, opacity);
             layers.push(layer);
 
         } else if (theme == 'white') {
 
             source = new ol.source.OSM({
-                logo: false
+                logo: false,
             });
-            const layer = this.createTile(source);
+            const layer = this.createTile(source, 0.1);
             layers.push(layer);
 
         } else if (theme == 'dark') {
@@ -229,10 +259,10 @@ export default class baseMap extends base {
                     n < 0 && (c += 'M'),
                         c += p.toString(),
                         c += '/',
-                        a < 0 && (c += 'M'),
+                    a < 0 && (c += 'M'),
                         c += Math.abs(a).toString(),
                         c += '_',
-                        n < 0 && (c += 'M'),
+                    n < 0 && (c += 'M'),
                         c += Math.abs(n).toString(),
                         l = l.replace('{digit}', (a + n & 2).toString()),
                         l = l.replace('{tile}', c);
@@ -269,7 +299,6 @@ export default class baseMap extends base {
             layers.push(layer);
             const labelLayer = this.createTile(laberSource, '标注');
             layers.push(labelLayer);
-
 
 
         } else if (theme == 'tianditu_sat') {
@@ -317,7 +346,7 @@ export default class baseMap extends base {
             source = new ol.source.TileImage({
                 projection: 'EPSG:3857',
                 tileGrid: tilegrid,
-                tileUrlFunction: function(tileCoord, pixelRatio, proj) {
+                tileUrlFunction: function (tileCoord, pixelRatio, proj) {
 
                     let z = tileCoord[0];
                     let x = tileCoord[1];
@@ -365,7 +394,7 @@ export default class baseMap extends base {
 
             const layer = this.createTile(source);
             layers.push(layer);
-        
+
         }
         return layers;
 
@@ -376,7 +405,7 @@ export default class baseMap extends base {
      * @param  {(string|Object)}   type 设置数据源
      * @default blue
      * @example
-     *  
+     *
      *  setTheme({
      *     mapId: your mapboxID
      *     key: your mapboxkey
@@ -405,7 +434,7 @@ export default class baseMap extends base {
     /**
      * 设置图层
      * @private
-     * @param {Array} layers 
+     * @param {Array} layers
      */
     setLayer(layers) {
 

@@ -102,7 +102,11 @@ export default class trackLayer extends baseLayer {
         this.source.vector = this.layer;
         this.map.addLayer(this.layer);
 
+        this.geoMarker = new ol.Feature({
+            styleType: 'geoMarker'
+        });
     }
+
     styleFun(feature, resolution, type) {
 
         if (!type) {
@@ -111,10 +115,10 @@ export default class trackLayer extends baseLayer {
 
         }
 
-        if (feature.get('styleType') == 'route') {
+        if (feature.get('styleType') === 'route') {
 
-            var geometry = feature.getGeometry();
-            var styles = [
+            let geometry = feature.getGeometry();
+            let styles = [
                 new ol.style.Style({
                     stroke: new ol.style.Stroke({
                         color: this.lineStyle[type].strokeColor,
@@ -148,7 +152,7 @@ export default class trackLayer extends baseLayer {
             }
             return styles;
 
-        } else if (feature.get('styleType') == 'node') {
+        } else if (feature.get('styleType') === 'node') {
 
             return new ol.style.Style({
                 image: new ol.style.Circle({
@@ -176,62 +180,62 @@ export default class trackLayer extends baseLayer {
         this.execute('stop');
         this.map.removeOverlay(this.startMarker);
         this.map.removeOverlay(this.endMarker);
-        var source = this.layer.getSource();
+        let source = this.layer.getSource();
         source.clear();
 
     }
 
     /**
      * [initTrackData description]
-     * @param  {String}  options.data       [description]
-     * @param  {Number}  options.width      [description]
-     * @param  {Boolean} options.lineArrow      [description]
-     * @param  {Number}  options.speed      [description]
-     * @param  {Boolean} options.wrap       [description]
-     * @param  {Boolean} options.rotation   [description]
-     * @param  {String}  options.trackModel [description]
-     * @param  {[type]}  options.startDom   [description]
-     * @param  {Object}  options.endDom                     } [description]
+     * @param  {String}  data       [description]
+     * @param  {Number}  width      [description]
+     * @param  {Boolean} lineArrow      [description]
+     * @param  {Number}  speed      [description]
+     * @param  {Boolean} wrap       [description]
+     * @param  {Boolean} rotation   [description]
+     * @param  {String}  trackModel [description]
+     * @param  {[type]}  startDom   [description]
+     * @param  {Object}  endDom                     } [description]
      * @return {[type]}                     [description]
      */
     update({
-        data = '',
-        lineWidth = 3,
-        lineArrow = false,
-        lineColor = [237, 212, 0, 0.8],
-        lineStyle = {
-            normal: {
-                strokeWidth: 1,
-                strokeColor: 'red'
-            },
-            emphasis: {
-                strokeWidth: 3,
-                strokeColor: 'red'
-            }
-        },
-        nodeStyle = {
-            normal: {
-                strokeWidth: 1,
-                strokeColor: '#000',
-                fillColor: '#fff',
-                symbolSize: 3
-            },
-            emphasis: {
-                strokeWidth: 1,
-                strokeColor: 'red',
-                fillColor: 'green',
-                symbolSize: 5
-            }
-        },
-        speed = 1,
-        wrap = false,
-        rotation = false,
-        showNode = false,
-        trackModel = '1',
-        startDom,
-        endDom,
-        moveDom
-    } = {}) {
+               data = '',
+               lineWidth = 3,
+               lineArrow = false,
+               lineColor = [237, 212, 0, 0.8],
+               lineStyle = {
+                   normal: {
+                       strokeWidth: 1,
+                       strokeColor: 'red'
+                   },
+                   emphasis: {
+                       strokeWidth: 3,
+                       strokeColor: 'red'
+                   }
+               },
+               nodeStyle = {
+                   normal: {
+                       strokeWidth: 1,
+                       strokeColor: '#000',
+                       fillColor: '#fff',
+                       symbolSize: 3
+                   },
+                   emphasis: {
+                       strokeWidth: 1,
+                       strokeColor: 'red',
+                       fillColor: 'green',
+                       symbolSize: 5
+                   }
+               },
+               speed = 1,
+               wrap = false,
+               rotation = false,
+               showNode = false,
+               trackModel = '1',
+               startDom,
+               endDom,
+               moveDom
+           } = {}) {
 
 
         this.clear();
@@ -252,9 +256,9 @@ export default class trackLayer extends baseLayer {
         this.wrap = wrap;
         this.trackModel = trackModel;
 
-        var source = this.layer.getSource();
+        let source = this.layer.getSource();
 
-        data.forEach((data, index) => {
+        data.forEach((data) => {
 
             data.styleType = 'node';
 
@@ -264,16 +268,13 @@ export default class trackLayer extends baseLayer {
         this.route = hyFeature.createLine(data);
         this.routeCoords = this.route.getCoordinates();
         this.routeLength = this.routeCoords.length;
-        var start = this.routeCoords[0];
+        const start = this.routeCoords[0];
 
         this.routeFeature = new ol.Feature({
             styleType: 'route',
             geometry: this.route
         });
 
-        this.geoMarker = new ol.Feature({
-            styleType: 'geoMarker'
-        });
 
         if (showNode) {
 
@@ -284,9 +285,8 @@ export default class trackLayer extends baseLayer {
         source.addFeatures(featuresObject.features);
         this.startMarker = this.createMarker(this.routeCoords[0], startDom);
         this.endMarker = this.createMarker(this.routeCoords[this.routeLength - 1], endDom);
-
-        var end = this.routeCoords[1];
-
+        //判断方向
+        const end = this.routeCoords[1] || start;
         this.angel = this.getAngel(start, end);
         this.trackStyles.geoMarker.getImage().setRotation(this.angel);
 
@@ -294,12 +294,13 @@ export default class trackLayer extends baseLayer {
 
     getAngel(start, end) {
 
-        var dx = end[0] - start[0];
-        var dy = end[1] - start[1];
-        var rotation = Math.atan2(dy, dx);
+        const dx = end[0] - start[0];
+        const dy = end[1] - start[1];
+        const rotation = Math.atan2(dy, dx);
         return -rotation;
 
     }
+
     getDom() {
 
         let element = document.createElement('div');
@@ -326,13 +327,13 @@ export default class trackLayer extends baseLayer {
 
     moveFeature(event) {
 
-        var frameState = event.frameState;
+        let frameState = event.frameState;
         if (this.animating) {
 
-            var elapsedTime = frameState.time - this.geoMarker.tmpDate;
+            let elapsedTime = frameState.time - this.geoMarker.tmpDate;
             //增加延迟处理，当前事件达到speed*1000后执行下1个轨迹点移动
 
-            if (this.geoMarker.now == 0 && elapsedTime < 10) {
+            if (this.geoMarker.now === 0 && elapsedTime < 10) {
 
                 this.dispatchEvent({
                     evt: event,
@@ -359,20 +360,20 @@ export default class trackLayer extends baseLayer {
 
             }
 
-            var start = this.routeCoords[this.geoMarker.now];
+            let start = this.routeCoords[this.geoMarker.now];
 
-            var end = this.routeCoords[this.geoMarker.now + 1];
+            let end = this.routeCoords[this.geoMarker.now + 1];
 
             //获取前后两点之间的线，进行线性绘制点。保证播放的平滑。
-            var frofun = ol.easing.linear(elapsedTime / 1000 * this.geoMarker.speed);
+            let frofun = ol.easing.linear(elapsedTime / 1000 * this.geoMarker.speed);
 
-            var lineString = new ol.geom.LineString([start, end]);
-            var poi = lineString.getCoordinateAt(frofun);
+            let lineString = new ol.geom.LineString([start, end]);
+            let poi = lineString.getCoordinateAt(frofun);
 
-            var rotation = this.getAngel(start, end);
+            let rotation = this.getAngel(start, end);
             this.trackStyles.geoMarker.getImage().setRotation(rotation);
             //设置当前gps点位置
-            var currentPoint = new ol.geom.Point(poi);
+            let currentPoint = new ol.geom.Point(poi);
             this.geoMarker.setGeometry(currentPoint);
 
             this.dispatchEvent({
@@ -416,18 +417,18 @@ export default class trackLayer extends baseLayer {
 
     execute(flag = 'start') {
 
-        if (this.layer.getSource().getFeatures() == 0) {
+        if (this.layer.getSource().getFeatures() === 0) {
 
             return;
 
         }
-        if (flag == 'stop') {
+        if (flag === 'stop') {
 
             this.animating = false;
             this.geoMarker.now = 0;
             this.trackStyles.geoMarker.getImage().setRotation(this.angel);
             this.geoMarker.setGeometry();
-            this.showNode && this.geoMarker.setGeometry(new new ol.geom.Point(this.routeCoords[0]));
+            this.showNode && this.geoMarker.setGeometry(new ol.geom.Point(this.routeCoords[0]));
             this.map.un('postcompose', this.moveFeature, this);
 
             this.dispatchEvent({
@@ -435,15 +436,15 @@ export default class trackLayer extends baseLayer {
                 type: 'trackPlayEnd',
                 // data: properties,
                 feature: this.route
-                    // select: e.target
+                // select: e.target
             });
 
-        } else if (flag == 'pause') {
+        } else if (flag === 'pause') {
 
             this.map.un('postcompose', this.moveFeature, this);
 
 
-        } else if (flag == 'containue') {
+        } else if (flag === 'containue') {
 
             // this.animating = true;
             this.geoMarker.tmpDate = new Date().getTime();
@@ -462,11 +463,7 @@ export default class trackLayer extends baseLayer {
 
             });
 
-            if (this.animating) {
-
-                return;
-
-            } else {
+            if (!this.animating) {
 
                 this.animating = true;
                 this.geoMarker.now = 0;
@@ -480,6 +477,7 @@ export default class trackLayer extends baseLayer {
         }
 
     }
+
     dispose() {
 
         this.map.removeOverlay(this.startMarker);
